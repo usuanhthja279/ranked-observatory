@@ -173,31 +173,64 @@ public class HistoricalActArchiveService {
 
   public List<Map<String,Object>> countries(String act,String region,String country){
     String source=region.equals("all")?"global":region;
-    return db.queryForList("""
+    var rows=db.queryForList("""
       select coalesce(p.country,'unknown') country,count(*) players,count(*) filter(where p.tier='Radiant') radiant,
-       count(*) filter(where p.tier='Immortal') immortal,count(*) filter(where p.tier='Immortal 3') immortal3,
+       count(*) filter(where p.tier='Immortal') immortal,count(*) filter(where p.tier='Immortal') combined_immortal,
+       count(*) filter(where p.tier in ('Immortal 1','Immortal 2','Immortal 3')) split_immortal,
+       count(*) filter(where p.tier in ('Immortal','Immortal 1','Immortal 2','Immortal 3')) immortal_all,
+       count(*) filter(where p.tier='Immortal 3') immortal3,
        count(*) filter(where p.tier='Immortal 2') immortal2,count(*) filter(where p.tier='Immortal 1') immortal1,
        count(*) filter(where p.tier='Immortal 3' or (p.tier='Immortal' and p.rr>=case when c.act_order>=32 then case when p.player_region in ('latam','kr') then 150 else 200 end else case when p.player_region='br' then 230 when p.player_region in ('latam','kr') then 150 else 200 end end)) estimated_immortal3,
        count(*) filter(where p.tier='Immortal 2' or (p.tier='Immortal' and p.rr>=case when c.act_order>=32 then case when p.player_region in ('latam','kr') then 90 else 100 end else case p.player_region when 'ap' then 80 when 'eu' then 100 when 'br' then 100 else 90 end end and p.rr<case when c.act_order>=32 then case when p.player_region in ('latam','kr') then 150 else 200 end else case when p.player_region='br' then 230 when p.player_region in ('latam','kr') then 150 else 200 end end)) estimated_immortal2,
        count(*) filter(where p.tier='Immortal 1' or (p.tier='Immortal' and p.rr<case when c.act_order>=32 then case when p.player_region in ('latam','kr') then 90 else 100 end else case p.player_region when 'ap' then 80 when 'eu' then 100 when 'br' then 100 else 90 end end)) estimated_immortal1,
-       percentile_cont(0.5) within group(order by rr) median_rr,max(source_updated_at) source_updated_at
+       percentile_cont(0.5) within group(order by rr) median_rr,max(source_updated_at) source_updated_at,
+       max(case when c.act_order>=32 then 'V26_ACT_II_PLUS' else 'EPISODE_3_BACKCAST' end) threshold_profile,
+       case when count(*) filter(where p.tier='Immortal')>0 and count(*) filter(where p.tier in ('Immortal 1','Immortal 2','Immortal 3'))>0 then 'MIXED'
+         when count(*) filter(where p.tier='Immortal')>0 then 'COMBINED_ONLY'
+         when count(*) filter(where p.tier in ('Immortal 1','Immortal 2','Immortal 3'))>0 then 'SPLIT'
+         else 'NO_IMMORTAL_ROWS' end tier_detail
       from historical_act_players p join historical_act_catalog c on c.act=p.act where p.act=? and p.source_region=? and (?='all' or p.player_region=?) and (?='all' or coalesce(p.country,'unknown')=?)
       group by coalesce(p.country,'unknown') order by players desc,country
       """,act,source,region,region,country,country);
+    for(var row:rows){row.put("source_basis",source.equals("global")?"global_source_ladder":"regional_source_ladder");row.put("threshold_policy",source.equals("global")?"RR thresholds vary by player region; use regional archived tier coverage for exact cutoffs.":"RR thresholds use the selected regional source ladder.");row.put("tier_semantics","immortal is the legacy combined-only source label; immortal_all includes combined and source-reported Immortal 1/2/3; estimated subtiers split combined labels by RR.");}
+    return rows;
   }
 
   public List<Map<String,Object>> regions(String act,String country){return db.queryForList("""
-    with counts as(select p.player_region region,count(*) players,count(*) filter(where p.tier='Radiant') radiant,
-     count(*) filter(where p.tier='Immortal') immortal,count(*) filter(where p.tier='Immortal 3') immortal3,
-     count(*) filter(where p.tier='Immortal 2') immortal2,count(*) filter(where p.tier='Immortal 1') immortal1,
-     count(*) filter(where p.tier='Immortal 3' or (p.tier='Immortal' and p.rr>=case when c.act_order>=32 then case when p.player_region in ('latam','kr') then 150 else 200 end else case when p.player_region='br' then 230 when p.player_region in ('latam','kr') then 150 else 200 end end)) estimated_immortal3,
-     count(*) filter(where p.tier='Immortal 2' or (p.tier='Immortal' and p.rr>=case when c.act_order>=32 then case when p.player_region in ('latam','kr') then 90 else 100 end else case p.player_region when 'ap' then 80 when 'eu' then 100 when 'br' then 100 else 90 end end and p.rr<case when c.act_order>=32 then case when p.player_region in ('latam','kr') then 150 else 200 end else case when p.player_region='br' then 230 when p.player_region in ('latam','kr') then 150 else 200 end end)) estimated_immortal2,
-     count(*) filter(where p.tier='Immortal 1' or (p.tier='Immortal' and p.rr<case when c.act_order>=32 then case when p.player_region in ('latam','kr') then 90 else 100 end else case p.player_region when 'ap' then 80 when 'eu' then 100 when 'br' then 100 else 90 end end)) estimated_immortal1,
-     count(*) filter(where p.country is null) unknown_country from historical_act_players p join historical_act_catalog c on c.act=p.act where p.act=? and p.source_region='global'
-     and (?='all' or coalesce(p.country,'unknown')=?) group by p.player_region,c.act_order), leaders as(
-     select distinct on(source_region) source_region region,player_key top_player,source_rank top_rank,rr top_rr
-     from historical_act_players where act=? and source_region<>'global' and (?='all' or coalesce(country,'unknown')=?) order by source_region,source_rank)
-    select c.*,l.top_player,l.top_rank,l.top_rr from counts c left join leaders l using(region) order by c.region
+    with counts as(
+      select p.player_region region,count(*) players,count(*) filter(where p.tier='Radiant') radiant,
+       count(*) filter(where p.tier='Immortal') immortal,count(*) filter(where p.tier='Immortal') combined_immortal,
+       count(*) filter(where p.tier in ('Immortal 1','Immortal 2','Immortal 3')) split_immortal,
+       count(*) filter(where p.tier in ('Immortal','Immortal 1','Immortal 2','Immortal 3')) immortal_all,
+       count(*) filter(where p.tier='Immortal 3') immortal3,count(*) filter(where p.tier='Immortal 2') immortal2,
+       count(*) filter(where p.tier='Immortal 1') immortal1,
+       max(case when c.act_order>=32 then 'V26_ACT_II_PLUS' else 'EPISODE_3_BACKCAST' end) threshold_profile,
+       max(case when c.act_order>=32 then case when p.player_region in ('latam','kr') then 90 else 100 end else case p.player_region when 'ap' then 80 when 'eu' then 100 when 'br' then 100 else 90 end end) immortal2_threshold_rr,
+       max(case when c.act_order>=32 then case when p.player_region in ('latam','kr') then 150 else 200 end else case when p.player_region='br' then 230 when p.player_region in ('latam','kr') then 150 else 200 end end) immortal3_threshold_rr,
+       count(*) filter(where p.tier='Immortal 3' or (p.tier='Immortal' and p.rr>=case when c.act_order>=32 then case when p.player_region in ('latam','kr') then 150 else 200 end else case when p.player_region='br' then 230 when p.player_region in ('latam','kr') then 150 else 200 end end)) estimated_immortal3,
+       count(*) filter(where p.tier='Immortal 2' or (p.tier='Immortal' and p.rr>=case when c.act_order>=32 then case when p.player_region in ('latam','kr') then 90 else 100 end else case p.player_region when 'ap' then 80 when 'eu' then 100 when 'br' then 100 else 90 end end and p.rr<case when c.act_order>=32 then case when p.player_region in ('latam','kr') then 150 else 200 end else case when p.player_region='br' then 230 when p.player_region in ('latam','kr') then 150 else 200 end end)) estimated_immortal2,
+       count(*) filter(where p.tier='Immortal 1' or (p.tier='Immortal' and p.rr<case when c.act_order>=32 then case when p.player_region in ('latam','kr') then 90 else 100 end else case p.player_region when 'ap' then 80 when 'eu' then 100 when 'br' then 100 else 90 end end)) estimated_immortal1,
+       count(*) filter(where p.country is null) unknown_country,
+       case when count(*) filter(where p.tier='Immortal')>0 and count(*) filter(where p.tier in ('Immortal 1','Immortal 2','Immortal 3'))>0 then 'MIXED'
+         when count(*) filter(where p.tier='Immortal')>0 then 'COMBINED_ONLY'
+         when count(*) filter(where p.tier in ('Immortal 1','Immortal 2','Immortal 3'))>0 then 'SPLIT'
+         else 'NO_IMMORTAL_ROWS' end tier_detail
+      from historical_act_players p join historical_act_catalog c on c.act=p.act
+      join historical_act_sources s on s.act=p.act and s.source_region=p.source_region and s.status='COMPLETE'
+      where p.act=? and p.source_region=p.player_region and (?='all' or coalesce(p.country,'unknown')=?)
+      group by p.player_region,c.act_order
+    ), leaders as(
+      select region,top_player,top_rank,top_rr from (
+        select p.player_region region,p.player_key top_player,p.source_rank top_rank,p.rr top_rr,
+          row_number() over(partition by p.player_region order by p.source_rank) row_num
+        from historical_act_players p join historical_act_sources s on s.act=p.act and s.source_region=p.source_region and s.status='COMPLETE'
+        where p.act=? and p.source_region=p.player_region and (?='all' or coalesce(p.country,'unknown')=?)
+      ) ranked where row_num=1
+    )
+    select c.*,l.top_player,l.top_rank,l.top_rr,'completed_regional_source_ladders' source_basis,
+      'regional RR thresholds are shown in the threshold columns.' threshold_policy,
+      'immortal is the legacy combined-only label; immortal_all includes combined and reported subtiers; estimated subtiers allocate combined labels by RR.' tier_semantics
+    from counts c left join leaders l using(region) order by c.region
     """,act,country,country,act,country,country);}
 
   public Map<String,Object> players(String act,String region,String country,String search,int page,int size){

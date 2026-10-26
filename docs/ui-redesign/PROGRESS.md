@@ -74,13 +74,32 @@ The Phase 0 audit ran with GPT-6.1 Sol. The user later resumed Phase 1; no tool-
 
 No production service was started/restarted, and no collection, migration or live database operation was performed.
 
-Phase 1B (canonical archived regional summaries and truthful Immortal tier totals/provenance) remains. Phase 1 as a whole is not complete.
+## Phase 1B — Complete: canonical archive summaries and tier semantics
+
+### Changes
+
+- Regional summaries and their leading player now come from the matching completed regional ladder (`source_region = player_region`). Global-source rows no longer substitute for missing regional totals.
+- Archived country and region responses retain the legacy `immortal` field as the combined-only source label and add `immortal_all`, `combined_immortal`, `split_immortal`, and `tier_detail`.
+- Responses now identify their `source_basis`, the RR `threshold_profile`, and the meaning/policy of estimated subtier fields. Regional summaries include their exact I2/I3 RR cutoffs.
+- Archive tables label total, combined-only, and source-reported Immortal subtiers explicitly. The archived country page hides live-only movement/tier guidance and the unrelated country-estimation toggle.
+- No migration or workflow/security change was needed.
+
+### Verification
+
+- `.\gradlew.bat test --tests com.valorant.leaderboard.HistoricalActArchiveSummaryTest --tests com.valorant.leaderboard.HistoricalTrendsQueryServiceTest --console=plain` — **PASS**. The in-memory H2 fixture distinguishes global rows from completed AP/EU regional sources; checks canonical AP player count, legacy/total/split tier values, leader, source basis, threshold profile and cutoffs; range tests cover 36 accepted/37 rejected.
+- `.\gradlew.bat test --rerun --console=plain` — **PASS**: **42 discovered, 37 passed, 5 skipped, 0 failures/errors, 16 suites**. Optional external database tests were skipped because their database environment variables were cleared. This is not native PostgreSQL verification.
+- `node --check src/main/resources/static/leaderboard.js` and `node --check src/main/resources/static/act-trends.js` — **PASS**.
+- `git diff --check` — **PASS**.
+- Synthetic Edge archive view with mocked regional/global fixtures — **PASS** for explicit columns, values, provenance and no page errors. Screenshots: `evidence/phase1b-archive-summary-desktop.png`, `evidence/phase1b-archive-countries-desktop.png`, and corresponding `*-mobile.png` files.
+- At 390 × 844, archive summary/country tables remain inside their scroll containers. The whole legacy region page still overflows horizontally to about 433 px because Act Trend controls exceed the viewport; this is the existing D8 mobile-shell issue assigned to Phase 2, not introduced or concealed here.
+- Browser screenshots used synthetic API responses. No live database was read or mutated.
+
+No production service was started/restarted, and no collection, migration or live database operation was performed. Phase 1 is complete; proceed to Phase 2 only as a separate phase boundary.
 
 ## Remaining phases
 
 - [x] 0 — Audit, reference review, baseline and plan.
-- [x] 1A — Request/range correctness.
-- [ ] 1B — Canonical archive summaries and tier semantics.
+- [x] 1 — Trend correctness and canonical archive summaries (1A/1B).
 - [ ] 2A/2B — Shared shell, routing, accessibility and search.
 - [ ] 3A/3B — World/regions and region detail.
 - [ ] 4A/4B — Countries and global leaderboard.
