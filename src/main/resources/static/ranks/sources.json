@@ -1,0 +1,22 @@
+[
+  {
+    "name": "IMMORTAL 1",
+    "file": "immortal-1.png",
+    "source": "https://media.valorant-api.com/competitivetiers/03621f52-342b-cf4e-4f86-9350a49c6d04/24/largeicon.png"
+  },
+  {
+    "name": "IMMORTAL 2",
+    "file": "immortal-2.png",
+    "source": "https://media.valorant-api.com/competitivetiers/03621f52-342b-cf4e-4f86-9350a49c6d04/25/largeicon.png"
+  },
+  {
+    "name": "IMMORTAL 3",
+    "file": "immortal-3.png",
+    "source": "https://media.valorant-api.com/competitivetiers/03621f52-342b-cf4e-4f86-9350a49c6d04/26/largeicon.png"
+  },
+  {
+    "name": "RADIANT",
+    "file": "radiant.png",
+    "source": "https://media.valorant-api.com/competitivetiers/03621f52-342b-cf4e-4f86-9350a49c6d04/27/largeicon.png"
+  }
+]

@@ -1,0 +1,80 @@
+{
+  "data": {
+    "platformInfo": {
+      "platformUserIdentifier": "venka#111"
+    },
+    "metadata": {
+      "defaultPlatform": "pc",
+      "activeShard": "ap"
+    },
+    "expiryDate": "2026-10-20T17:45:55.5684683+00:00",
+    "segments": [
+      {
+        "type": "season",
+        "attributes": {
+          "seasonId": "d816f426-48ea-f052-117f-9697a155b319",
+          "playlist": "competitive"
+        },
+        "metadata": {
+          "name": "V26: ACT VI Competitive",
+          "shortName": "V26: A6 Competitive",
+          "playlistName": "Competitive",
+          "startTime": "2026-10-14T00:00:00+00:00",
+          "endTime": "2027-01-06T00:00:00+00:00",
+          "schema": "statsv2"
+        },
+        "expiryDate": "2026-10-20T17:45:55.6279115+00:00",
+        "stats": {
+          "rank": {
+            "rank": 126,
+            "displayName": "Rating",
+            "category": "mmr",
+            "metadata": {
+              "iconUrl": "https://trackercdn.com/cdn/tracker.gg/valorant/icons/tiersv2/27.png",
+              "tierName": "Radiant"
+            },
+            "value": 518,
+            "displayValue": "518",
+            "displayType": "String"
+          },
+          "peakRank": {
+            "displayName": "Peak Rating",
+            "category": "mmr",
+            "metadata": {
+              "iconUrl": "https://trackercdn.com/cdn/tracker.gg/valorant/icons/tiersv2/27.png",
+              "tierName": "Radiant",
+              "actId": "03dfd004-45d4-ebfd-ab0a-948ce780dac4",
+              "actName": "EPISODE 7: ACT II"
+            },
+            "value": 827,
+            "displayValue": "827",
+            "displayType": "String"
+          }
+        }
+      },
+      {
+        "type": "peak-rating",
+        "attributes": {
+          "playlist": "competitive"
+        },
+        "metadata": {},
+        "expiryDate": "0001-01-01T00:00:00+00:00",
+        "stats": {
+          "peakRating": {
+            "displayName": "Peak Rating",
+            "category": "mmr",
+            "metadata": {
+              "iconUrl": "https://trackercdn.com/cdn/tracker.gg/valorant/icons/tiersv2/27.png",
+              "tierName": "Radiant",
+              "actId": "03dfd004-45d4-ebfd-ab0a-948ce780dac4",
+              "actName": "EPISODE 7: ACT II"
+            },
+            "value": 827,
+            "displayValue": "827",
+            "displayType": "String"
+          }
+        }
+      }
+    ]
+  }
+}

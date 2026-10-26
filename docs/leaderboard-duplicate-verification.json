@@ -1,0 +1,50 @@
+{
+  "checkedAt": "2026-10-20T12:43:20.6543282Z",
+  "url": "http://localhost:8090/leaderboard.html",
+  "countryComparisons": 74,
+  "latestUniquePlayers": 5287.0,
+  "collectionRunning": false,
+  "countries": [
+    {
+      "country": "in",
+      "pages": 4,
+      "uniquePlayers": 312,
+      "rawRows": 313,
+      "duplicatesMerged": 1,
+      "uncertainRanks": 0,
+      "historySnapshots": 2,
+      "samplePlayer": "venka#111",
+      "sampleHistoryRows": 2,
+      "sampleRR": 519,
+      "sampleRank": 104,
+      "sampleRRChange": 0,
+      "sampleRankGain": 0,
+      "movement": "RETURNING",
+      "uniqueIdentityCheck": "passed",
+      "historyDeltaCheck": "passed"
+    },
+    {
+      "country": "ph",
+      "pages": 6,
+      "uniquePlayers": 510,
+      "rawRows": 510,
+      "duplicatesMerged": 0,
+      "uncertainRanks": 0,
+      "historySnapshots": 2,
+      "samplePlayer": "kkoruna 1029#ccc",
+      "sampleHistoryRows": 2,
+      "sampleRR": 699,
+      "sampleRank": 9,
+      "sampleRRChange": 0,
+      "sampleRankGain": 0,
+      "movement": "RETURNING",
+      "uniqueIdentityCheck": "passed",
+      "historyDeltaCheck": "passed"
+    }
+  ],
+  "testsPassed": 15,
+  "dashboardHttpStatus": 200,
+  "dashboardDiagnosticsServed": true,
+  "verificationMethod": "Live comparison/player/history APIs and HTTP assets; browser visual inspection remains unavailable"
+}
+

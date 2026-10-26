@@ -1,0 +1,37 @@
+{
+  "checkedAt": "2026-10-20T12:36:15.6816252Z",
+  "url": "http://localhost:8090/leaderboard.html",
+  "processId": 14528,
+  "act": "d816f426-48ea-f052-117f-9697a155b319",
+  "enabled": true,
+  "runningCollection": false,
+  "attemptedCountries": 74,
+  "completedCountries": 72,
+  "nonemptyCountries": 38,
+  "persistedPlayers": 4465,
+  "failedCountries": [
+    {
+      "country": "in",
+      "error": "Invalid or duplicate player"
+    },
+    {
+      "country": "ph",
+      "error": "Repeated player across pages; retry next cycle"
+    }
+  ],
+  "samplePlayer": {
+    "country": "jp",
+    "player": "Meiy#B3L",
+    "rr": 699,
+    "regionalRank": 9,
+    "movement": "BASELINE",
+    "historyRows": 1,
+    "countryPlayers": 1333,
+    "persistedAfterRestart": true
+  },
+  "dashboardHttpStatus": 200,
+  "javascriptHttpStatus": 200,
+  "updatedDashboardAssets": true,
+  "browserVisualCheck": "Blocked by browser URL policy; API and HTTP checks completed"
+}
+

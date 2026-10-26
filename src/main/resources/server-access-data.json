@@ -1,0 +1,2171 @@
+{
+  "version": 1,
+  "enabled": true,
+  "source": {
+    "title": "myping.is country-aggregated browser measurements",
+    "url": "https://myping.is/ping-statistics",
+    "datasetUrl": "https://myping.is/pulse-data.json",
+    "type": "measured-https-cloud-proxy",
+    "fromDate": "2026-08-03",
+    "toDate": "2026-10-14",
+    "retrievedAt": "2026-10-20T20:40:46.884459+00:00",
+    "sha256": "850565aac6463e56432f06614c737cdf5452fa139dcc2fe37261d5e2d803cc69",
+    "countryCount": 33,
+    "siteCompletedTests": 6384,
+    "siteValorantTests": 350,
+    "description": "Measured browser HTTPS RTT to nearby AWS locations; not Riot game-server RTT, not UDP ping, not a national internet survey. Country cells pool games. Tests/readings are not unique players."
+  },
+  "settings": {
+    "qualityWeights": [
+      0.7,
+      0.2,
+      0.1
+    ],
+    "pingScaleMs": 60,
+    "maxWeightAdjustment": 0.1,
+    "proxyShrink": 0.25,
+    "minCountryRuns": 40,
+    "minCellSamples": 50,
+    "fullCellSamples": 100,
+    "maxUncheckedShare": 0.75,
+    "maxAgeDays": 30
+  },
+  "regions": {
+    "ap": {
+      "officialServerCount": 6,
+      "targets": {
+        "ap-south-1": "Mumbai",
+        "ap-southeast-1": "Singapore",
+        "ap-east-1": "Hong Kong",
+        "ap-northeast-1": "Tokyo",
+        "ap-southeast-2": "Sydney"
+      },
+      "unmeasured": [
+        "Manila"
+      ],
+      "homeCoverageGaps": [
+        "ph"
+      ]
+    },
+    "eu": {
+      "officialServerCount": 8,
+      "targets": {
+        "eu-central-1": "Frankfurt",
+        "eu-west-3": "Paris",
+        "eu-north-1": "Stockholm",
+        "eu-west-2": "London"
+      },
+      "unmeasured": [
+        "Istanbul",
+        "Warsaw",
+        "Madrid",
+        "Bahrain"
+      ],
+      "homeCoverageGaps": [
+        "tr",
+        "pl",
+        "es",
+        "bh"
+      ]
+    },
+    "na": {
+      "officialServerCount": 6,
+      "targets": {
+        "us-west-2": "Oregon",
+        "us-west-1": "N. California",
+        "us-east-1": "N. Virginia"
+      },
+      "unmeasured": [
+        "Texas",
+        "Illinois",
+        "Georgia"
+      ]
+    },
+    "br": {
+      "officialServerCount": 1,
+      "targets": {
+        "sa-east-1": "S\u00e3o Paulo"
+      },
+      "unmeasured": []
+    },
+    "kr": {
+      "officialServerCount": 1,
+      "targets": {
+        "ap-northeast-2": "Seoul"
+      },
+      "unmeasured": []
+    },
+    "latam": {
+      "officialServerCount": 3,
+      "targets": {},
+      "unmeasured": [
+        "Santiago",
+        "Mexico City",
+        "Miami"
+      ]
+    }
+  },
+  "countries": {
+    "ru": {
+      "runs": 2535,
+      "farFromHome": false,
+      "uncheckedShare": 0,
+      "endpoints": {
+        "eu-north-1": {
+          "samples": 1027,
+          "medianMs": 60,
+          "reachRate": 1
+        },
+        "eu-central-1": {
+          "samples": 1029,
+          "medianMs": 75,
+          "reachRate": 1
+        },
+        "eu-west-3": {
+          "samples": 1025,
+          "medianMs": 85,
+          "reachRate": 1
+        },
+        "eu-west-2": {
+          "samples": 1023,
+          "medianMs": 85,
+          "reachRate": 1
+        },
+        "us-east-1": {
+          "samples": 1022,
+          "medianMs": 155,
+          "reachRate": 1
+        },
+        "ap-east-1": {
+          "samples": 1007,
+          "medianMs": 185,
+          "reachRate": 1
+        },
+        "ap-south-1": {
+          "samples": 1021,
+          "medianMs": 200,
+          "reachRate": 1
+        },
+        "ap-northeast-1": {
+          "samples": 1014,
+          "medianMs": 215,
+          "reachRate": 1
+        },
+        "us-west-2": {
+          "samples": 1016,
+          "medianMs": 215,
+          "reachRate": 1
+        },
+        "us-west-1": {
+          "samples": 1018,
+          "medianMs": 215,
+          "reachRate": 1
+        },
+        "ap-southeast-1": {
+          "samples": 1017,
+          "medianMs": 220,
+          "reachRate": 1
+        },
+        "ap-northeast-2": {
+          "samples": 1005,
+          "medianMs": 250,
+          "reachRate": 1
+        },
+        "sa-east-1": {
+          "samples": 1020,
+          "medianMs": 265,
+          "reachRate": 1
+        },
+        "ap-southeast-2": {
+          "samples": 1005,
+          "medianMs": 340,
+          "reachRate": 1
+        }
+      }
+    },
+    "iq": {
+      "runs": 1382,
+      "farFromHome": false,
+      "uncheckedShare": 0,
+      "endpoints": {
+        "eu-central-1": {
+          "samples": 523,
+          "medianMs": 85,
+          "reachRate": 0.9
+        },
+        "eu-west-3": {
+          "samples": 520,
+          "medianMs": 100,
+          "reachRate": 0.9
+        },
+        "eu-west-2": {
+          "samples": 517,
+          "medianMs": 100,
+          "reachRate": 0.9
+        },
+        "eu-north-1": {
+          "samples": 526,
+          "medianMs": 105,
+          "reachRate": 0.9
+        },
+        "us-east-1": {
+          "samples": 479,
+          "medianMs": 175,
+          "reachRate": 0.8
+        },
+        "ap-south-1": {
+          "samples": 560,
+          "medianMs": 180,
+          "reachRate": 1
+        },
+        "ap-southeast-1": {
+          "samples": 500,
+          "medianMs": 240,
+          "reachRate": 0.9
+        },
+        "us-west-2": {
+          "samples": 473,
+          "medianMs": 240,
+          "reachRate": 0.8
+        },
+        "us-west-1": {
+          "samples": 463,
+          "medianMs": 240,
+          "reachRate": 0.8
+        },
+        "ap-east-1": {
+          "samples": 488,
+          "medianMs": 270,
+          "reachRate": 0.8
+        },
+        "sa-east-1": {
+          "samples": 460,
+          "medianMs": 285,
+          "reachRate": 0.8
+        },
+        "ap-northeast-1": {
+          "samples": 470,
+          "medianMs": 320,
+          "reachRate": 0.8
+        },
+        "ap-northeast-2": {
+          "samples": 482,
+          "medianMs": 325,
+          "reachRate": 0.8
+        },
+        "ap-southeast-2": {
+          "samples": 529,
+          "medianMs": 375,
+          "reachRate": 0.9
+        }
+      }
+    },
+    "id": {
+      "runs": 961,
+      "farFromHome": false,
+      "uncheckedShare": 0.6,
+      "endpoints": {
+        "ap-southeast-1": {
+          "samples": 356,
+          "medianMs": 35,
+          "reachRate": 1
+        },
+        "ap-east-1": {
+          "samples": 360,
+          "medianMs": 65,
+          "reachRate": 1
+        },
+        "ap-south-1": {
+          "samples": 363,
+          "medianMs": 95,
+          "reachRate": 1
+        },
+        "ap-northeast-2": {
+          "samples": 364,
+          "medianMs": 105,
+          "reachRate": 1
+        },
+        "ap-northeast-1": {
+          "samples": 362,
+          "medianMs": 110,
+          "reachRate": 1
+        },
+        "eu-west-3": {
+          "samples": 370,
+          "medianMs": 187.5,
+          "reachRate": 1
+        },
+        "eu-central-1": {
+          "samples": 367,
+          "medianMs": 190,
+          "reachRate": 1
+        },
+        "eu-west-2": {
+          "samples": 370,
+          "medianMs": 190,
+          "reachRate": 1
+        },
+        "us-west-2": {
+          "samples": 371,
+          "medianMs": 200,
+          "reachRate": 1
+        },
+        "us-west-1": {
+          "samples": 375,
+          "medianMs": 205,
+          "reachRate": 1
+        },
+        "eu-north-1": {
+          "samples": 366,
+          "medianMs": 210,
+          "reachRate": 1
+        },
+        "us-east-1": {
+          "samples": 397,
+          "medianMs": 255,
+          "reachRate": 1
+        },
+        "ap-southeast-2": {
+          "samples": 366,
+          "medianMs": 265,
+          "reachRate": 1
+        },
+        "sa-east-1": {
+          "samples": 398,
+          "medianMs": 360,
+          "reachRate": 1
+        }
+      }
+    },
+    "de": {
+      "runs": 862,
+      "farFromHome": false,
+      "uncheckedShare": 0.7,
+      "endpoints": {
+        "eu-central-1": {
+          "samples": 230,
+          "medianMs": 20,
+          "reachRate": 1
+        },
+        "eu-west-3": {
+          "samples": 230,
+          "medianMs": 30,
+          "reachRate": 1
+        },
+        "eu-west-2": {
+          "samples": 229,
+          "medianMs": 30,
+          "reachRate": 1
+        },
+        "eu-north-1": {
+          "samples": 233,
+          "medianMs": 40,
+          "reachRate": 1
+        },
+        "us-east-1": {
+          "samples": 242,
+          "medianMs": 110,
+          "reachRate": 1
+        },
+        "ap-south-1": {
+          "samples": 240,
+          "medianMs": 145,
+          "reachRate": 1
+        },
+        "us-west-1": {
+          "samples": 254,
+          "medianMs": 175,
+          "reachRate": 0.9
+        },
+        "us-west-2": {
+          "samples": 249,
+          "medianMs": 180,
+          "reachRate": 0.9
+        },
+        "ap-southeast-1": {
+          "samples": 265,
+          "medianMs": 185,
+          "reachRate": 0.9
+        },
+        "ap-east-1": {
+          "samples": 252,
+          "medianMs": 205,
+          "reachRate": 0.9
+        },
+        "sa-east-1": {
+          "samples": 285,
+          "medianMs": 220,
+          "reachRate": 1
+        },
+        "ap-northeast-1": {
+          "samples": 257,
+          "medianMs": 260,
+          "reachRate": 0.9
+        },
+        "ap-northeast-2": {
+          "samples": 247,
+          "medianMs": 275,
+          "reachRate": 0.9
+        },
+        "ap-southeast-2": {
+          "samples": 341,
+          "medianMs": 330,
+          "reachRate": 0.8
+        }
+      }
+    },
+    "us": {
+      "runs": 852,
+      "farFromHome": false,
+      "uncheckedShare": 0.6,
+      "endpoints": {
+        "us-east-1": {
+          "samples": 331,
+          "medianMs": 70,
+          "reachRate": 1
+        },
+        "us-west-1": {
+          "samples": 326,
+          "medianMs": 80,
+          "reachRate": 1
+        },
+        "us-west-2": {
+          "samples": 326,
+          "medianMs": 85,
+          "reachRate": 1
+        },
+        "eu-west-2": {
+          "samples": 327,
+          "medianMs": 140,
+          "reachRate": 1
+        },
+        "eu-west-3": {
+          "samples": 328,
+          "medianMs": 150,
+          "reachRate": 1
+        },
+        "eu-central-1": {
+          "samples": 326,
+          "medianMs": 155,
+          "reachRate": 1
+        },
+        "eu-north-1": {
+          "samples": 330,
+          "medianMs": 165,
+          "reachRate": 1
+        },
+        "ap-northeast-1": {
+          "samples": 330,
+          "medianMs": 175,
+          "reachRate": 1
+        },
+        "sa-east-1": {
+          "samples": 331,
+          "medianMs": 180,
+          "reachRate": 1
+        },
+        "ap-northeast-2": {
+          "samples": 329,
+          "medianMs": 210,
+          "reachRate": 1
+        },
+        "ap-southeast-2": {
+          "samples": 344,
+          "medianMs": 225,
+          "reachRate": 1
+        },
+        "ap-east-1": {
+          "samples": 328,
+          "medianMs": 230,
+          "reachRate": 1
+        },
+        "ap-southeast-1": {
+          "samples": 360,
+          "medianMs": 250,
+          "reachRate": 1
+        },
+        "ap-south-1": {
+          "samples": 332,
+          "medianMs": 265,
+          "reachRate": 1
+        }
+      }
+    },
+    "in": {
+      "runs": 849,
+      "farFromHome": false,
+      "uncheckedShare": 0.5,
+      "endpoints": {
+        "ap-south-1": {
+          "samples": 342,
+          "medianMs": 35,
+          "reachRate": 1
+        },
+        "ap-southeast-1": {
+          "samples": 337,
+          "medianMs": 80,
+          "reachRate": 1
+        },
+        "ap-east-1": {
+          "samples": 338,
+          "medianMs": 115,
+          "reachRate": 1
+        },
+        "ap-northeast-2": {
+          "samples": 341,
+          "medianMs": 150,
+          "reachRate": 1
+        },
+        "ap-northeast-1": {
+          "samples": 340,
+          "medianMs": 150,
+          "reachRate": 1
+        },
+        "eu-west-3": {
+          "samples": 342,
+          "medianMs": 160,
+          "reachRate": 1
+        },
+        "eu-central-1": {
+          "samples": 341,
+          "medianMs": 165,
+          "reachRate": 1
+        },
+        "eu-west-2": {
+          "samples": 340,
+          "medianMs": 165,
+          "reachRate": 1
+        },
+        "eu-north-1": {
+          "samples": 343,
+          "medianMs": 185,
+          "reachRate": 1
+        },
+        "us-west-1": {
+          "samples": 337,
+          "medianMs": 250,
+          "reachRate": 1
+        },
+        "ap-southeast-2": {
+          "samples": 338,
+          "medianMs": 260,
+          "reachRate": 1
+        },
+        "us-east-1": {
+          "samples": 337,
+          "medianMs": 260,
+          "reachRate": 1
+        },
+        "us-west-2": {
+          "samples": 338,
+          "medianMs": 270,
+          "reachRate": 1
+        },
+        "sa-east-1": {
+          "samples": 335,
+          "medianMs": 340,
+          "reachRate": 0.9
+        }
+      }
+    },
+    "tr": {
+      "runs": 693,
+      "farFromHome": false,
+      "uncheckedShare": 0,
+      "endpoints": {
+        "eu-central-1": {
+          "samples": 255,
+          "medianMs": 110,
+          "reachRate": 0.9
+        },
+        "eu-west-3": {
+          "samples": 254,
+          "medianMs": 115,
+          "reachRate": 0.9
+        },
+        "eu-west-2": {
+          "samples": 248,
+          "medianMs": 115,
+          "reachRate": 0.9
+        },
+        "eu-north-1": {
+          "samples": 260,
+          "medianMs": 120,
+          "reachRate": 1
+        },
+        "us-east-1": {
+          "samples": 234,
+          "medianMs": 190,
+          "reachRate": 0.9
+        },
+        "ap-south-1": {
+          "samples": 236,
+          "medianMs": 230,
+          "reachRate": 0.9
+        },
+        "us-west-2": {
+          "samples": 233,
+          "medianMs": 245,
+          "reachRate": 0.9
+        },
+        "us-west-1": {
+          "samples": 228,
+          "medianMs": 245,
+          "reachRate": 0.8
+        },
+        "ap-southeast-1": {
+          "samples": 229,
+          "medianMs": 255,
+          "reachRate": 0.8
+        },
+        "ap-east-1": {
+          "samples": 229,
+          "medianMs": 270,
+          "reachRate": 0.8
+        },
+        "sa-east-1": {
+          "samples": 236,
+          "medianMs": 305,
+          "reachRate": 0.9
+        },
+        "ap-northeast-1": {
+          "samples": 231,
+          "medianMs": 320,
+          "reachRate": 0.9
+        },
+        "ap-northeast-2": {
+          "samples": 231,
+          "medianMs": 330,
+          "reachRate": 0.9
+        },
+        "ap-southeast-2": {
+          "samples": 221,
+          "medianMs": 380,
+          "reachRate": 0.8
+        }
+      }
+    },
+    "ua": {
+      "runs": 565,
+      "farFromHome": false,
+      "uncheckedShare": 0,
+      "endpoints": {
+        "eu-north-1": {
+          "samples": 231,
+          "medianMs": 30,
+          "reachRate": 1
+        },
+        "eu-central-1": {
+          "samples": 231,
+          "medianMs": 40,
+          "reachRate": 1
+        },
+        "eu-west-3": {
+          "samples": 231,
+          "medianMs": 55,
+          "reachRate": 1
+        },
+        "eu-west-2": {
+          "samples": 231,
+          "medianMs": 55,
+          "reachRate": 1
+        },
+        "us-east-1": {
+          "samples": 229,
+          "medianMs": 130,
+          "reachRate": 1
+        },
+        "ap-south-1": {
+          "samples": 230,
+          "medianMs": 165,
+          "reachRate": 1
+        },
+        "us-west-2": {
+          "samples": 229,
+          "medianMs": 185,
+          "reachRate": 1
+        },
+        "us-west-1": {
+          "samples": 227,
+          "medianMs": 190,
+          "reachRate": 1
+        },
+        "ap-southeast-1": {
+          "samples": 226,
+          "medianMs": 195,
+          "reachRate": 1
+        },
+        "ap-east-1": {
+          "samples": 228,
+          "medianMs": 220,
+          "reachRate": 1
+        },
+        "sa-east-1": {
+          "samples": 231,
+          "medianMs": 230,
+          "reachRate": 1
+        },
+        "ap-northeast-2": {
+          "samples": 229,
+          "medianMs": 260,
+          "reachRate": 1
+        },
+        "ap-northeast-1": {
+          "samples": 227,
+          "medianMs": 265,
+          "reachRate": 1
+        },
+        "ap-southeast-2": {
+          "samples": 223,
+          "medianMs": 325,
+          "reachRate": 1
+        }
+      }
+    },
+    "sa": {
+      "runs": 527,
+      "farFromHome": false,
+      "uncheckedShare": 0,
+      "endpoints": {
+        "ap-south-1": {
+          "samples": 215,
+          "medianMs": 90,
+          "reachRate": 1
+        },
+        "eu-central-1": {
+          "samples": 207,
+          "medianMs": 110,
+          "reachRate": 1
+        },
+        "eu-west-3": {
+          "samples": 206,
+          "medianMs": 110,
+          "reachRate": 1
+        },
+        "eu-west-2": {
+          "samples": 204,
+          "medianMs": 115,
+          "reachRate": 0.9
+        },
+        "eu-north-1": {
+          "samples": 206,
+          "medianMs": 130,
+          "reachRate": 1
+        },
+        "ap-southeast-1": {
+          "samples": 203,
+          "medianMs": 170,
+          "reachRate": 0.9
+        },
+        "us-east-1": {
+          "samples": 198,
+          "medianMs": 185,
+          "reachRate": 0.9
+        },
+        "us-west-2": {
+          "samples": 196,
+          "medianMs": 250,
+          "reachRate": 0.9
+        },
+        "us-west-1": {
+          "samples": 191,
+          "medianMs": 250,
+          "reachRate": 0.9
+        },
+        "ap-east-1": {
+          "samples": 204,
+          "medianMs": 255,
+          "reachRate": 0.9
+        },
+        "ap-northeast-2": {
+          "samples": 201,
+          "medianMs": 280,
+          "reachRate": 0.9
+        },
+        "ap-northeast-1": {
+          "samples": 198,
+          "medianMs": 290,
+          "reachRate": 0.9
+        },
+        "sa-east-1": {
+          "samples": 195,
+          "medianMs": 295,
+          "reachRate": 0.9
+        },
+        "ap-southeast-2": {
+          "samples": 204,
+          "medianMs": 365,
+          "reachRate": 1
+        }
+      }
+    },
+    "ir": {
+      "runs": 446,
+      "farFromHome": false,
+      "uncheckedShare": 0,
+      "endpoints": {
+        "eu-central-1": {
+          "samples": 181,
+          "medianMs": 135,
+          "reachRate": 1
+        },
+        "eu-north-1": {
+          "samples": 179,
+          "medianMs": 140,
+          "reachRate": 1
+        },
+        "eu-west-3": {
+          "samples": 180,
+          "medianMs": 140,
+          "reachRate": 1
+        },
+        "eu-west-2": {
+          "samples": 177,
+          "medianMs": 150,
+          "reachRate": 1
+        },
+        "us-east-1": {
+          "samples": 175,
+          "medianMs": 225,
+          "reachRate": 0.9
+        },
+        "ap-south-1": {
+          "samples": 175,
+          "medianMs": 250,
+          "reachRate": 0.9
+        },
+        "us-west-1": {
+          "samples": 171,
+          "medianMs": 285,
+          "reachRate": 0.9
+        },
+        "ap-southeast-1": {
+          "samples": 170,
+          "medianMs": 292.5,
+          "reachRate": 0.9
+        },
+        "us-west-2": {
+          "samples": 172,
+          "medianMs": 295,
+          "reachRate": 0.9
+        },
+        "ap-east-1": {
+          "samples": 172,
+          "medianMs": 305,
+          "reachRate": 0.9
+        },
+        "sa-east-1": {
+          "samples": 174,
+          "medianMs": 330,
+          "reachRate": 0.9
+        },
+        "ap-northeast-1": {
+          "samples": 174,
+          "medianMs": 350,
+          "reachRate": 0.9
+        },
+        "ap-northeast-2": {
+          "samples": 176,
+          "medianMs": 360,
+          "reachRate": 1
+        },
+        "ap-southeast-2": {
+          "samples": 176,
+          "medianMs": 417.5,
+          "reachRate": 0.9
+        }
+      }
+    },
+    "ca": {
+      "runs": 394,
+      "farFromHome": false,
+      "uncheckedShare": 0.6,
+      "endpoints": {
+        "us-east-1": {
+          "samples": 157,
+          "medianMs": 70,
+          "reachRate": 1
+        },
+        "us-west-2": {
+          "samples": 157,
+          "medianMs": 115,
+          "reachRate": 1
+        },
+        "us-west-1": {
+          "samples": 157,
+          "medianMs": 125,
+          "reachRate": 1
+        },
+        "eu-west-2": {
+          "samples": 157,
+          "medianMs": 135,
+          "reachRate": 1
+        },
+        "eu-west-3": {
+          "samples": 157,
+          "medianMs": 140,
+          "reachRate": 1
+        },
+        "eu-central-1": {
+          "samples": 156,
+          "medianMs": 145,
+          "reachRate": 1
+        },
+        "eu-north-1": {
+          "samples": 157,
+          "medianMs": 160,
+          "reachRate": 1
+        },
+        "sa-east-1": {
+          "samples": 157,
+          "medianMs": 190,
+          "reachRate": 1
+        },
+        "ap-northeast-1": {
+          "samples": 157,
+          "medianMs": 215,
+          "reachRate": 1
+        },
+        "ap-northeast-2": {
+          "samples": 157,
+          "medianMs": 240,
+          "reachRate": 1
+        },
+        "ap-east-1": {
+          "samples": 158,
+          "medianMs": 260,
+          "reachRate": 1
+        },
+        "ap-southeast-2": {
+          "samples": 159,
+          "medianMs": 260,
+          "reachRate": 1
+        },
+        "ap-south-1": {
+          "samples": 156,
+          "medianMs": 265,
+          "reachRate": 1
+        },
+        "ap-southeast-1": {
+          "samples": 159,
+          "medianMs": 285,
+          "reachRate": 1
+        }
+      }
+    },
+    "gb": {
+      "runs": 364,
+      "farFromHome": false,
+      "uncheckedShare": 0.6,
+      "endpoints": {
+        "eu-west-2": {
+          "samples": 130,
+          "medianMs": 37.5,
+          "reachRate": 1
+        },
+        "eu-west-3": {
+          "samples": 130,
+          "medianMs": 45,
+          "reachRate": 1
+        },
+        "eu-central-1": {
+          "samples": 130,
+          "medianMs": 50,
+          "reachRate": 1
+        },
+        "eu-north-1": {
+          "samples": 130,
+          "medianMs": 65,
+          "reachRate": 1
+        },
+        "us-east-1": {
+          "samples": 132,
+          "medianMs": 110,
+          "reachRate": 1
+        },
+        "us-west-2": {
+          "samples": 132,
+          "medianMs": 165,
+          "reachRate": 1
+        },
+        "us-west-1": {
+          "samples": 134,
+          "medianMs": 165,
+          "reachRate": 1
+        },
+        "ap-south-1": {
+          "samples": 133,
+          "medianMs": 175,
+          "reachRate": 1
+        },
+        "ap-southeast-1": {
+          "samples": 137,
+          "medianMs": 200,
+          "reachRate": 1
+        },
+        "sa-east-1": {
+          "samples": 135,
+          "medianMs": 225,
+          "reachRate": 1
+        },
+        "ap-east-1": {
+          "samples": 136,
+          "medianMs": 225,
+          "reachRate": 1
+        },
+        "ap-northeast-1": {
+          "samples": 136,
+          "medianMs": 260,
+          "reachRate": 1
+        },
+        "ap-northeast-2": {
+          "samples": 134,
+          "medianMs": 280,
+          "reachRate": 1
+        },
+        "ap-southeast-2": {
+          "samples": 151,
+          "medianMs": 305,
+          "reachRate": 0.9
+        }
+      }
+    },
+    "kz": {
+      "runs": 352,
+      "farFromHome": false,
+      "uncheckedShare": 0,
+      "endpoints": {
+        "eu-central-1": {
+          "samples": 142,
+          "medianMs": 105,
+          "reachRate": 1
+        },
+        "eu-north-1": {
+          "samples": 145,
+          "medianMs": 110,
+          "reachRate": 1
+        },
+        "eu-west-3": {
+          "samples": 140,
+          "medianMs": 110,
+          "reachRate": 0.9
+        },
+        "eu-west-2": {
+          "samples": 138,
+          "medianMs": 120,
+          "reachRate": 0.9
+        },
+        "ap-east-1": {
+          "samples": 143,
+          "medianMs": 185,
+          "reachRate": 1
+        },
+        "us-east-1": {
+          "samples": 139,
+          "medianMs": 195,
+          "reachRate": 0.9
+        },
+        "ap-south-1": {
+          "samples": 145,
+          "medianMs": 225,
+          "reachRate": 1
+        },
+        "us-west-2": {
+          "samples": 138,
+          "medianMs": 250,
+          "reachRate": 0.9
+        },
+        "us-west-1": {
+          "samples": 142,
+          "medianMs": 260,
+          "reachRate": 1
+        },
+        "ap-northeast-2": {
+          "samples": 141,
+          "medianMs": 270,
+          "reachRate": 0.9
+        },
+        "ap-northeast-1": {
+          "samples": 139,
+          "medianMs": 270,
+          "reachRate": 0.9
+        },
+        "ap-southeast-1": {
+          "samples": 137,
+          "medianMs": 270,
+          "reachRate": 0.9
+        },
+        "sa-east-1": {
+          "samples": 139,
+          "medianMs": 305,
+          "reachRate": 0.9
+        },
+        "ap-southeast-2": {
+          "samples": 142,
+          "medianMs": 375,
+          "reachRate": 1
+        }
+      }
+    },
+    "it": {
+      "runs": 322,
+      "farFromHome": false,
+      "uncheckedShare": 0.6,
+      "endpoints": {
+        "eu-central-1": {
+          "samples": 111,
+          "medianMs": 70,
+          "reachRate": 1
+        },
+        "eu-west-3": {
+          "samples": 113,
+          "medianMs": 75,
+          "reachRate": 1
+        },
+        "eu-west-2": {
+          "samples": 113,
+          "medianMs": 85,
+          "reachRate": 1
+        },
+        "eu-north-1": {
+          "samples": 115,
+          "medianMs": 90,
+          "reachRate": 1
+        },
+        "us-east-1": {
+          "samples": 116,
+          "medianMs": 160,
+          "reachRate": 1
+        },
+        "ap-south-1": {
+          "samples": 116,
+          "medianMs": 175,
+          "reachRate": 1
+        },
+        "ap-southeast-1": {
+          "samples": 119,
+          "medianMs": 215,
+          "reachRate": 1
+        },
+        "us-west-2": {
+          "samples": 118,
+          "medianMs": 220,
+          "reachRate": 1
+        },
+        "us-west-1": {
+          "samples": 119,
+          "medianMs": 225,
+          "reachRate": 1
+        },
+        "sa-east-1": {
+          "samples": 119,
+          "medianMs": 265,
+          "reachRate": 1
+        },
+        "ap-northeast-1": {
+          "samples": 118,
+          "medianMs": 285,
+          "reachRate": 1
+        },
+        "ap-east-1": {
+          "samples": 118,
+          "medianMs": 300,
+          "reachRate": 1
+        },
+        "ap-northeast-2": {
+          "samples": 117,
+          "medianMs": 320,
+          "reachRate": 1
+        },
+        "ap-southeast-2": {
+          "samples": 140,
+          "medianMs": 365,
+          "reachRate": 0.9
+        }
+      }
+    },
+    "pk": {
+      "runs": 287,
+      "farFromHome": false,
+      "uncheckedShare": 0,
+      "endpoints": {
+        "ap-southeast-1": {
+          "samples": 121,
+          "medianMs": 120,
+          "reachRate": 1
+        },
+        "ap-south-1": {
+          "samples": 120,
+          "medianMs": 125,
+          "reachRate": 1
+        },
+        "ap-east-1": {
+          "samples": 121,
+          "medianMs": 160,
+          "reachRate": 1
+        },
+        "eu-central-1": {
+          "samples": 119,
+          "medianMs": 160,
+          "reachRate": 1
+        },
+        "eu-west-3": {
+          "samples": 118,
+          "medianMs": 160,
+          "reachRate": 1
+        },
+        "eu-west-2": {
+          "samples": 121,
+          "medianMs": 170,
+          "reachRate": 1
+        },
+        "eu-north-1": {
+          "samples": 119,
+          "medianMs": 175,
+          "reachRate": 1
+        },
+        "ap-northeast-1": {
+          "samples": 121,
+          "medianMs": 185,
+          "reachRate": 1
+        },
+        "ap-northeast-2": {
+          "samples": 120,
+          "medianMs": 190,
+          "reachRate": 1
+        },
+        "us-east-1": {
+          "samples": 121,
+          "medianMs": 235,
+          "reachRate": 1
+        },
+        "ap-southeast-2": {
+          "samples": 121,
+          "medianMs": 285,
+          "reachRate": 1
+        },
+        "us-west-1": {
+          "samples": 120,
+          "medianMs": 292.5,
+          "reachRate": 1
+        },
+        "us-west-2": {
+          "samples": 120,
+          "medianMs": 300,
+          "reachRate": 1
+        },
+        "sa-east-1": {
+          "samples": 118,
+          "medianMs": 340,
+          "reachRate": 1
+        }
+      }
+    },
+    "nl": {
+      "runs": 221,
+      "farFromHome": true,
+      "uncheckedShare": 0.7,
+      "endpoints": {
+        "eu-north-1": {
+          "samples": 52,
+          "medianMs": 47.5,
+          "reachRate": 1
+        },
+        "us-east-1": {
+          "samples": 56,
+          "medianMs": 125,
+          "reachRate": 1
+        },
+        "ap-south-1": {
+          "samples": 57,
+          "medianMs": 180,
+          "reachRate": 1
+        },
+        "us-west-2": {
+          "samples": 58,
+          "medianMs": 192.5,
+          "reachRate": 1
+        },
+        "us-west-1": {
+          "samples": 60,
+          "medianMs": 192.5,
+          "reachRate": 1
+        },
+        "ap-southeast-1": {
+          "samples": 61,
+          "medianMs": 220,
+          "reachRate": 0.9
+        },
+        "ap-east-1": {
+          "samples": 58,
+          "medianMs": 240,
+          "reachRate": 0.9
+        },
+        "sa-east-1": {
+          "samples": 68,
+          "medianMs": 240,
+          "reachRate": 1
+        },
+        "ap-northeast-1": {
+          "samples": 60,
+          "medianMs": 280,
+          "reachRate": 0.9
+        },
+        "ap-northeast-2": {
+          "samples": 57,
+          "medianMs": 285,
+          "reachRate": 0.9
+        },
+        "ap-southeast-2": {
+          "samples": 92,
+          "medianMs": 355,
+          "reachRate": 0.8
+        }
+      }
+    },
+    "vn": {
+      "runs": 215,
+      "farFromHome": false,
+      "uncheckedShare": 0,
+      "endpoints": {
+        "ap-east-1": {
+          "samples": 83,
+          "medianMs": 45,
+          "reachRate": 1
+        },
+        "ap-southeast-1": {
+          "samples": 83,
+          "medianMs": 50,
+          "reachRate": 1
+        },
+        "ap-northeast-1": {
+          "samples": 81,
+          "medianMs": 85,
+          "reachRate": 1
+        },
+        "ap-northeast-2": {
+          "samples": 82,
+          "medianMs": 105,
+          "reachRate": 1
+        },
+        "ap-south-1": {
+          "samples": 83,
+          "medianMs": 110,
+          "reachRate": 1
+        },
+        "us-west-1": {
+          "samples": 84,
+          "medianMs": 195,
+          "reachRate": 1
+        },
+        "eu-central-1": {
+          "samples": 83,
+          "medianMs": 210,
+          "reachRate": 1
+        },
+        "eu-west-3": {
+          "samples": 84,
+          "medianMs": 210,
+          "reachRate": 1
+        },
+        "us-west-2": {
+          "samples": 84,
+          "medianMs": 210,
+          "reachRate": 1
+        },
+        "ap-southeast-2": {
+          "samples": 83,
+          "medianMs": 220,
+          "reachRate": 1
+        },
+        "eu-west-2": {
+          "samples": 84,
+          "medianMs": 225,
+          "reachRate": 1
+        },
+        "eu-north-1": {
+          "samples": 81,
+          "medianMs": 240,
+          "reachRate": 1
+        },
+        "us-east-1": {
+          "samples": 84,
+          "medianMs": 260,
+          "reachRate": 1
+        },
+        "sa-east-1": {
+          "samples": 82,
+          "medianMs": 360,
+          "reachRate": 1
+        }
+      }
+    },
+    "sg": {
+      "runs": 209,
+      "farFromHome": true,
+      "uncheckedShare": 0.9,
+      "endpoints": {
+        "eu-west-2": {
+          "samples": 50,
+          "medianMs": 290,
+          "reachRate": 1
+        },
+        "us-west-2": {
+          "samples": 56,
+          "medianMs": 810,
+          "reachRate": 1
+        },
+        "us-west-1": {
+          "samples": 56,
+          "medianMs": 837.5,
+          "reachRate": 1
+        },
+        "us-east-1": {
+          "samples": 58,
+          "medianMs": 1015,
+          "reachRate": 1
+        },
+        "sa-east-1": {
+          "samples": 125,
+          "medianMs": 1360,
+          "reachRate": 1
+        }
+      }
+    },
+    "pl": {
+      "runs": 197,
+      "farFromHome": false,
+      "uncheckedShare": 0,
+      "endpoints": {
+        "eu-north-1": {
+          "samples": 79,
+          "medianMs": 40,
+          "reachRate": 1
+        },
+        "eu-central-1": {
+          "samples": 79,
+          "medianMs": 45,
+          "reachRate": 1
+        },
+        "eu-west-3": {
+          "samples": 78,
+          "medianMs": 60,
+          "reachRate": 1
+        },
+        "eu-west-2": {
+          "samples": 78,
+          "medianMs": 60,
+          "reachRate": 1
+        },
+        "us-east-1": {
+          "samples": 76,
+          "medianMs": 127.5,
+          "reachRate": 1
+        },
+        "ap-south-1": {
+          "samples": 76,
+          "medianMs": 172.5,
+          "reachRate": 1
+        },
+        "us-west-1": {
+          "samples": 74,
+          "medianMs": 180,
+          "reachRate": 0.9
+        },
+        "us-west-2": {
+          "samples": 76,
+          "medianMs": 182.5,
+          "reachRate": 1
+        },
+        "ap-southeast-1": {
+          "samples": 74,
+          "medianMs": 195,
+          "reachRate": 0.9
+        },
+        "ap-east-1": {
+          "samples": 75,
+          "medianMs": 215,
+          "reachRate": 0.9
+        },
+        "sa-east-1": {
+          "samples": 79,
+          "medianMs": 225,
+          "reachRate": 1
+        },
+        "ap-northeast-2": {
+          "samples": 75,
+          "medianMs": 255,
+          "reachRate": 0.9
+        },
+        "ap-northeast-1": {
+          "samples": 74,
+          "medianMs": 265,
+          "reachRate": 0.9
+        },
+        "ap-southeast-2": {
+          "samples": 74,
+          "medianMs": 320,
+          "reachRate": 0.9
+        }
+      }
+    },
+    "uz": {
+      "runs": 192,
+      "farFromHome": false,
+      "uncheckedShare": 0,
+      "endpoints": {
+        "eu-north-1": {
+          "samples": 76,
+          "medianMs": 75,
+          "reachRate": 1
+        },
+        "eu-central-1": {
+          "samples": 76,
+          "medianMs": 90,
+          "reachRate": 1
+        },
+        "eu-west-3": {
+          "samples": 75,
+          "medianMs": 100,
+          "reachRate": 1
+        },
+        "eu-west-2": {
+          "samples": 76,
+          "medianMs": 100,
+          "reachRate": 1
+        },
+        "ap-east-1": {
+          "samples": 76,
+          "medianMs": 115,
+          "reachRate": 1
+        },
+        "ap-southeast-1": {
+          "samples": 75,
+          "medianMs": 135,
+          "reachRate": 1
+        },
+        "ap-northeast-2": {
+          "samples": 76,
+          "medianMs": 155,
+          "reachRate": 1
+        },
+        "ap-northeast-1": {
+          "samples": 75,
+          "medianMs": 160,
+          "reachRate": 1
+        },
+        "us-east-1": {
+          "samples": 76,
+          "medianMs": 175,
+          "reachRate": 1
+        },
+        "ap-south-1": {
+          "samples": 76,
+          "medianMs": 192.5,
+          "reachRate": 1
+        },
+        "us-west-2": {
+          "samples": 76,
+          "medianMs": 230,
+          "reachRate": 1
+        },
+        "us-west-1": {
+          "samples": 76,
+          "medianMs": 235,
+          "reachRate": 1
+        },
+        "sa-east-1": {
+          "samples": 75,
+          "medianMs": 285,
+          "reachRate": 1
+        },
+        "ap-southeast-2": {
+          "samples": 78,
+          "medianMs": 315,
+          "reachRate": 1
+        }
+      }
+    },
+    "ph": {
+      "runs": 157,
+      "farFromHome": false,
+      "uncheckedShare": 0,
+      "endpoints": {
+        "ap-east-1": {
+          "samples": 65,
+          "medianMs": 45,
+          "reachRate": 1
+        },
+        "ap-southeast-1": {
+          "samples": 65,
+          "medianMs": 55,
+          "reachRate": 1
+        },
+        "ap-northeast-1": {
+          "samples": 64,
+          "medianMs": 85,
+          "reachRate": 1
+        },
+        "ap-northeast-2": {
+          "samples": 64,
+          "medianMs": 97.5,
+          "reachRate": 1
+        },
+        "ap-south-1": {
+          "samples": 64,
+          "medianMs": 115,
+          "reachRate": 1
+        },
+        "us-west-1": {
+          "samples": 64,
+          "medianMs": 187.5,
+          "reachRate": 1
+        },
+        "us-west-2": {
+          "samples": 65,
+          "medianMs": 190,
+          "reachRate": 1
+        },
+        "eu-central-1": {
+          "samples": 64,
+          "medianMs": 220,
+          "reachRate": 1
+        },
+        "eu-west-2": {
+          "samples": 64,
+          "medianMs": 225,
+          "reachRate": 1
+        },
+        "eu-west-3": {
+          "samples": 64,
+          "medianMs": 225,
+          "reachRate": 1
+        },
+        "eu-north-1": {
+          "samples": 64,
+          "medianMs": 237.5,
+          "reachRate": 1
+        },
+        "ap-southeast-2": {
+          "samples": 64,
+          "medianMs": 245,
+          "reachRate": 1
+        },
+        "us-east-1": {
+          "samples": 65,
+          "medianMs": 255,
+          "reachRate": 1
+        },
+        "sa-east-1": {
+          "samples": 66,
+          "medianMs": 347.5,
+          "reachRate": 1
+        }
+      }
+    },
+    "my": {
+      "runs": 156,
+      "farFromHome": false,
+      "uncheckedShare": 0.6,
+      "endpoints": {
+        "ap-southeast-1": {
+          "samples": 56,
+          "medianMs": 25,
+          "reachRate": 1
+        },
+        "ap-east-1": {
+          "samples": 57,
+          "medianMs": 60,
+          "reachRate": 1
+        },
+        "ap-south-1": {
+          "samples": 58,
+          "medianMs": 87.5,
+          "reachRate": 1
+        },
+        "ap-northeast-2": {
+          "samples": 58,
+          "medianMs": 95,
+          "reachRate": 1
+        },
+        "ap-northeast-1": {
+          "samples": 58,
+          "medianMs": 95,
+          "reachRate": 1
+        },
+        "eu-west-2": {
+          "samples": 60,
+          "medianMs": 185,
+          "reachRate": 1
+        },
+        "eu-west-3": {
+          "samples": 60,
+          "medianMs": 190,
+          "reachRate": 1
+        },
+        "eu-central-1": {
+          "samples": 60,
+          "medianMs": 195,
+          "reachRate": 1
+        },
+        "us-west-1": {
+          "samples": 60,
+          "medianMs": 200,
+          "reachRate": 1
+        },
+        "ap-southeast-2": {
+          "samples": 59,
+          "medianMs": 205,
+          "reachRate": 1
+        },
+        "us-west-2": {
+          "samples": 60,
+          "medianMs": 205,
+          "reachRate": 1
+        },
+        "eu-north-1": {
+          "samples": 59,
+          "medianMs": 210,
+          "reachRate": 1
+        },
+        "us-east-1": {
+          "samples": 60,
+          "medianMs": 255,
+          "reachRate": 1
+        },
+        "sa-east-1": {
+          "samples": 67,
+          "medianMs": 365,
+          "reachRate": 1
+        }
+      }
+    },
+    "dz": {
+      "runs": 153,
+      "farFromHome": true,
+      "uncheckedShare": 0.7,
+      "endpoints": {
+        "us-east-1": {
+          "samples": 51,
+          "medianMs": 140,
+          "reachRate": 1
+        },
+        "ap-south-1": {
+          "samples": 51,
+          "medianMs": 170,
+          "reachRate": 1
+        },
+        "us-west-1": {
+          "samples": 55,
+          "medianMs": 200,
+          "reachRate": 1
+        },
+        "us-west-2": {
+          "samples": 55,
+          "medianMs": 210,
+          "reachRate": 1
+        },
+        "ap-southeast-1": {
+          "samples": 57,
+          "medianMs": 210,
+          "reachRate": 1
+        },
+        "ap-east-1": {
+          "samples": 57,
+          "medianMs": 250,
+          "reachRate": 1
+        },
+        "sa-east-1": {
+          "samples": 52,
+          "medianMs": 257.5,
+          "reachRate": 1
+        },
+        "ap-northeast-1": {
+          "samples": 57,
+          "medianMs": 280,
+          "reachRate": 1
+        },
+        "ap-northeast-2": {
+          "samples": 53,
+          "medianMs": 290,
+          "reachRate": 0.9
+        },
+        "ap-southeast-2": {
+          "samples": 77,
+          "medianMs": 355,
+          "reachRate": 1
+        }
+      }
+    },
+    "se": {
+      "runs": 150,
+      "farFromHome": true,
+      "uncheckedShare": 0.8,
+      "endpoints": {}
+    },
+    "au": {
+      "runs": 149,
+      "farFromHome": false,
+      "uncheckedShare": 0.6,
+      "endpoints": {
+        "ap-southeast-2": {
+          "samples": 58,
+          "medianMs": 35,
+          "reachRate": 1
+        },
+        "ap-northeast-1": {
+          "samples": 60,
+          "medianMs": 165,
+          "reachRate": 1
+        },
+        "ap-east-1": {
+          "samples": 61,
+          "medianMs": 180,
+          "reachRate": 1
+        },
+        "us-west-1": {
+          "samples": 58,
+          "medianMs": 180,
+          "reachRate": 1
+        },
+        "ap-northeast-2": {
+          "samples": 61,
+          "medianMs": 185,
+          "reachRate": 1
+        },
+        "ap-southeast-1": {
+          "samples": 58,
+          "medianMs": 195,
+          "reachRate": 1
+        },
+        "us-west-2": {
+          "samples": 61,
+          "medianMs": 200,
+          "reachRate": 1
+        },
+        "us-east-1": {
+          "samples": 59,
+          "medianMs": 245,
+          "reachRate": 1
+        },
+        "ap-south-1": {
+          "samples": 60,
+          "medianMs": 250,
+          "reachRate": 1
+        },
+        "eu-west-2": {
+          "samples": 60,
+          "medianMs": 310,
+          "reachRate": 1
+        },
+        "eu-west-3": {
+          "samples": 60,
+          "medianMs": 312.5,
+          "reachRate": 1
+        },
+        "eu-central-1": {
+          "samples": 60,
+          "medianMs": 320,
+          "reachRate": 1
+        },
+        "sa-east-1": {
+          "samples": 61,
+          "medianMs": 340,
+          "reachRate": 1
+        },
+        "eu-north-1": {
+          "samples": 58,
+          "medianMs": 345,
+          "reachRate": 1
+        }
+      }
+    },
+    "nz": {
+      "runs": 147,
+      "farFromHome": false,
+      "uncheckedShare": 0.6,
+      "endpoints": {
+        "ap-southeast-2": {
+          "samples": 56,
+          "medianMs": 55,
+          "reachRate": 1
+        },
+        "ap-northeast-1": {
+          "samples": 57,
+          "medianMs": 165,
+          "reachRate": 1
+        },
+        "us-west-1": {
+          "samples": 58,
+          "medianMs": 170,
+          "reachRate": 1
+        },
+        "us-west-2": {
+          "samples": 58,
+          "medianMs": 175,
+          "reachRate": 1
+        },
+        "ap-east-1": {
+          "samples": 57,
+          "medianMs": 180,
+          "reachRate": 1
+        },
+        "ap-southeast-1": {
+          "samples": 56,
+          "medianMs": 210,
+          "reachRate": 1
+        },
+        "ap-northeast-2": {
+          "samples": 58,
+          "medianMs": 220,
+          "reachRate": 1
+        },
+        "us-east-1": {
+          "samples": 57,
+          "medianMs": 230,
+          "reachRate": 1
+        },
+        "ap-south-1": {
+          "samples": 57,
+          "medianMs": 295,
+          "reachRate": 1
+        },
+        "eu-west-2": {
+          "samples": 58,
+          "medianMs": 302.5,
+          "reachRate": 1
+        },
+        "eu-central-1": {
+          "samples": 57,
+          "medianMs": 305,
+          "reachRate": 1
+        },
+        "eu-west-3": {
+          "samples": 63,
+          "medianMs": 310,
+          "reachRate": 1
+        },
+        "sa-east-1": {
+          "samples": 57,
+          "medianMs": 330,
+          "reachRate": 1
+        },
+        "eu-north-1": {
+          "samples": 57,
+          "medianMs": 330,
+          "reachRate": 1
+        }
+      }
+    },
+    "ma": {
+      "runs": 145,
+      "farFromHome": false,
+      "uncheckedShare": 0,
+      "endpoints": {
+        "eu-west-3": {
+          "samples": 56,
+          "medianMs": 45,
+          "reachRate": 1
+        },
+        "eu-west-2": {
+          "samples": 55,
+          "medianMs": 50,
+          "reachRate": 1
+        },
+        "eu-central-1": {
+          "samples": 58,
+          "medianMs": 57.5,
+          "reachRate": 1
+        },
+        "eu-north-1": {
+          "samples": 58,
+          "medianMs": 75,
+          "reachRate": 1
+        },
+        "us-east-1": {
+          "samples": 56,
+          "medianMs": 125,
+          "reachRate": 1
+        },
+        "ap-south-1": {
+          "samples": 57,
+          "medianMs": 140,
+          "reachRate": 1
+        },
+        "us-west-1": {
+          "samples": 57,
+          "medianMs": 180,
+          "reachRate": 1
+        },
+        "ap-southeast-1": {
+          "samples": 57,
+          "medianMs": 185,
+          "reachRate": 1
+        },
+        "us-west-2": {
+          "samples": 57,
+          "medianMs": 190,
+          "reachRate": 1
+        },
+        "ap-east-1": {
+          "samples": 56,
+          "medianMs": 215,
+          "reachRate": 1
+        },
+        "sa-east-1": {
+          "samples": 57,
+          "medianMs": 230,
+          "reachRate": 1
+        },
+        "ap-northeast-2": {
+          "samples": 56,
+          "medianMs": 245,
+          "reachRate": 1
+        },
+        "ap-northeast-1": {
+          "samples": 57,
+          "medianMs": 255,
+          "reachRate": 1
+        },
+        "ap-southeast-2": {
+          "samples": 56,
+          "medianMs": 315,
+          "reachRate": 1
+        }
+      }
+    },
+    "br": {
+      "runs": 134,
+      "farFromHome": false,
+      "uncheckedShare": 0.6,
+      "endpoints": {
+        "sa-east-1": {
+          "samples": 52,
+          "medianMs": 42.5,
+          "reachRate": 1
+        },
+        "us-east-1": {
+          "samples": 52,
+          "medianMs": 130,
+          "reachRate": 1
+        },
+        "us-west-1": {
+          "samples": 52,
+          "medianMs": 185,
+          "reachRate": 1
+        },
+        "eu-west-3": {
+          "samples": 52,
+          "medianMs": 190,
+          "reachRate": 1
+        },
+        "eu-west-2": {
+          "samples": 52,
+          "medianMs": 192.5,
+          "reachRate": 1
+        },
+        "eu-central-1": {
+          "samples": 51,
+          "medianMs": 195,
+          "reachRate": 1
+        },
+        "us-west-2": {
+          "samples": 51,
+          "medianMs": 195,
+          "reachRate": 1
+        },
+        "eu-north-1": {
+          "samples": 52,
+          "medianMs": 215,
+          "reachRate": 1
+        },
+        "ap-northeast-1": {
+          "samples": 52,
+          "medianMs": 280,
+          "reachRate": 1
+        },
+        "ap-south-1": {
+          "samples": 52,
+          "medianMs": 300,
+          "reachRate": 1
+        },
+        "ap-northeast-2": {
+          "samples": 52,
+          "medianMs": 310,
+          "reachRate": 1
+        },
+        "ap-southeast-2": {
+          "samples": 52,
+          "medianMs": 325,
+          "reachRate": 1
+        },
+        "ap-east-1": {
+          "samples": 52,
+          "medianMs": 337.5,
+          "reachRate": 1
+        },
+        "ap-southeast-1": {
+          "samples": 52,
+          "medianMs": 347.5,
+          "reachRate": 1
+        }
+      }
+    },
+    "eg": {
+      "runs": 125,
+      "farFromHome": true,
+      "uncheckedShare": 1,
+      "endpoints": {
+        "ap-southeast-2": {
+          "samples": 81,
+          "medianMs": 370,
+          "reachRate": 0.9
+        }
+      }
+    },
+    "ae": {
+      "runs": 124,
+      "farFromHome": true,
+      "uncheckedShare": 0.6,
+      "endpoints": {}
+    },
+    "cn": {
+      "runs": 111,
+      "farFromHome": true,
+      "uncheckedShare": 0.7,
+      "endpoints": {
+        "sa-east-1": {
+          "samples": 54,
+          "medianMs": 352.5,
+          "reachRate": 1
+        }
+      }
+    },
+    "fi": {
+      "runs": 108,
+      "farFromHome": true,
+      "uncheckedShare": 0.6,
+      "endpoints": {}
+    },
+    "fr": {
+      "runs": 107,
+      "farFromHome": true,
+      "uncheckedShare": 0.7,
+      "endpoints": {}
+    }
+  },
+  "references": [
+    {
+      "title": "Riot server locations and shard boundaries",
+      "url": "https://support.riotgames.com/en-us/valorant/support-tools/server-select"
+    },
+    {
+      "title": "Publisher method and source quality flags",
+      "url": "https://myping.is/ping-statistics"
+    },
+    {
+      "title": "Riot diagnostic addresses; not a country ping matrix",
+      "url": "https://support.riotgames.com/en-us/valorant/connectivity/how-to-use-tracert-to-obtain-network-logs"
+    }
+  ]
+}

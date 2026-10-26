@@ -1,0 +1,17 @@
+{
+  "baselineAndTierConservation": "passed all five scenarios across six shards",
+  "snapshot": 27,
+  "unitTestsPassed": 4,
+  "historyCoverageHours": 4.85,
+  "productionEstimates": "unchanged",
+  "pageChecks": "passed six shards x five metrics",
+  "browserChecks": {
+    "overflow": "contained in table",
+    "javascriptError": "none",
+    "indiaImmortal2": "185 original, 182 current, 175 act wins, 168 combined",
+    "desktopWidth": 1480,
+    "mobileWidth": 390,
+    "indiaRadiant": "14 original, 7 current, 6 act wins, 6 combined"
+  }
+}
+

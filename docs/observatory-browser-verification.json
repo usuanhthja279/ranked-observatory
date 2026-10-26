@@ -1,0 +1,55 @@
+{
+  "verifiedAt": "2026-10-20T17:26:32.452492+00:00",
+  "browser": "Codex in-app browser",
+  "responsiveWidths": [
+    360,
+    390,
+    768,
+    1480
+  ],
+  "checks": [
+    "Mouse hover triggers 0.55s 3D flip with focus false and hover true",
+    "Keyboard focus triggers the same flip",
+    "All five counts and footer fit within the flipped card after increasing card height",
+    "Small mobile cards show front and stats without requiring hover",
+    "Document width stays within viewport at 360, 768 and 1480",
+    "Regional selected player RR graph renders on desktop and mobile",
+    "Country preview selected player RR graph renders on mobile",
+    "15-minute and six-hour selections update selected-player source observation counts",
+    "Mobile signup dialog fits within 360px viewport; no form submitted",
+    "Four actual Valorant rank badge assets load with accessible names",
+    "Six landmark photos load locally with source/author/license credits",
+    "No browser console errors in final review"
+  ],
+  "fixes": [
+    "Card reverse-side clipped counts",
+    "Mobile mover table compressed player names",
+    "Mobile selected-player navigation scrolls to the graph"
+  ],
+  "screenshots": [
+    "docs/screenshots/observatory-desktop-cards.jpg",
+    "docs/screenshots/observatory-desktop-rr.jpg",
+    "docs/screenshots/observatory-mobile-cards.jpg",
+    "docs/screenshots/observatory-mobile-rr.jpg"
+  ],
+  "limitations": [
+    "Responsive viewport tests use desktop browser input; no physical handset tested."
+  ],
+  "latestRefinement": {
+    "verifiedAt": "2026-10-20T17:57:15.054422+00:00",
+    "countryPreview": "France showed ten players ordered by global rank, not movement. First player global 9/regional 3; selected player source graph and current/best details verified.",
+    "profile": "Live server and browser verified venka#111: current Radiant 518 RR / position 126; distinct Tracker peak Radiant 827 RR / EPISODE 7 ACT II. France player profile also returned current 761 and peak 1243. Supplied session used only in process environment; not stored in source/config/docs.",
+    "estimation": "Live conservation of Players and all four tier totals verified for all six regions. Independent masked-label calibration recorded separately.",
+    "responsive": "Full player and profile card verified on desktop; 360px mobile card fits, no document horizontal overflow.",
+    "tests": {
+      "enabledPassed": 33,
+      "skipped": 1,
+      "failures": 0
+    },
+    "screenshots": [
+      "docs/screenshots/observatory-country-top-ten.jpg",
+      "docs/screenshots/observatory-player-profile.jpg",
+      "docs/screenshots/observatory-mobile-profile.jpg"
+    ]
+  }
+}

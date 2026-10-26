@@ -1,0 +1,28 @@
+# Runtime credentials and machine-local database settings
+config/leaderboard.local.json
+config/*.local
+.env
+!.env.example
+
+# Build output, runtime logs and resumable extraction checkpoints
+.gradle/
+build/
+**/build/
+*.log
+*.pid
+*.flag
+
+# Local tools and Python artifacts
+cloudflared.exe
+**/__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# IDE and OS files
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+data/

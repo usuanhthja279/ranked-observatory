@@ -1,0 +1,62 @@
+[
+  {
+    "region": "eu",
+    "asset": "eu.jpg",
+    "title": "File:Paris - The Eiffel Tower in spring - 2307.jpg",
+    "source": "https://commons.wikimedia.org/wiki/File:Paris_-_The_Eiffel_Tower_in_spring_-_2307.jpg",
+    "artist": "Jorge Royan",
+    "license": "CC BY-SA 3.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+    "changes": "Displayed with CSS crop and translucent tint; source image unmodified."
+  },
+  {
+    "region": "ap",
+    "asset": "ap.jpg",
+    "title": "File:Taj Mahal, Agra, India edit2.jpg",
+    "source": "https://commons.wikimedia.org/wiki/File:Taj_Mahal,_Agra,_India_edit2.jpg",
+    "artist": "Yann; edited by King of Hearts",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "changes": "Displayed with CSS crop and translucent tint; source image unmodified."
+  },
+  {
+    "region": "na",
+    "asset": "na.jpg",
+    "title": "File:Statue of Liberty frontal 2.jpg",
+    "source": "https://commons.wikimedia.org/wiki/File:Statue_of_Liberty_frontal_2.jpg",
+    "artist": "Daniel Schwen",
+    "license": "Public domain",
+    "licenseUrl": "",
+    "changes": "Displayed with CSS crop and translucent tint; source image unmodified."
+  },
+  {
+    "region": "br",
+    "asset": "br.jpg",
+    "title": "File:Unique Moment with the Moon and Christ the Redeemer 3.jpg",
+    "source": "https://commons.wikimedia.org/wiki/File:Unique_Moment_with_the_Moon_and_Christ_the_Redeemer_3.jpg",
+    "artist": "Donatas Dabravolskas",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "changes": "Displayed with CSS crop and translucent tint; source image unmodified."
+  },
+  {
+    "region": "kr",
+    "asset": "kr.jpg",
+    "title": "File:Gyeonghoeru (Royal Banquet Hall) at Gyeongbokgung Palace, Seoul.jpg",
+    "source": "https://commons.wikimedia.org/wiki/File:Gyeonghoeru_(Royal_Banquet_Hall)_at_Gyeongbokgung_Palace,_Seoul.jpg",
+    "artist": "Frank Schulenburg",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "changes": "Displayed with CSS crop and translucent tint; source image unmodified."
+  },
+  {
+    "region": "latam",
+    "asset": "latam.jpg",
+    "title": "File:Machu Picchu, Perú, 2015-07-30, DD 47.JPG",
+    "source": "https://commons.wikimedia.org/wiki/File:Machu_Picchu,_Per%C3%BA,_2015-07-30,_DD_47.JPG",
+    "artist": "Diego Delso",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "changes": "Displayed with CSS crop and translucent tint; source image unmodified."
+  }
+]

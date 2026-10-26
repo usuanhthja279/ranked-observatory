@@ -1,0 +1,7 @@
+{
+  "url": "jdbc:postgresql://localhost:5433/valorant_leaderboard?currentSchema=leaderboard",
+  "username": "leaderboard",
+  "passwordFile": "config/leaderboard-db-password.local",
+  "adminUser": "admin",
+  "adminPasswordFile": "config/leaderboard-admin-password.local"
+}

@@ -1,0 +1,25 @@
+{
+  "browser": {
+    "desktopViewport": 1480,
+    "comparisonIndiaRadiant": "3 observed, 7 previous, 4 policy",
+    "mobileViewport": 390,
+    "viewportOverride": "reset",
+    "activeDashboardIndia": "311 observed players; 704 estimated; Radiant 3/4; Immortal 3 22/29; Immortal 2 67/157; Immortal 1 219/514",
+    "overflow": "contained within table",
+    "javascriptErrors": "none",
+    "comparisonIndiaImmortal2": "67 observed, 181 previous, 157 policy"
+  },
+  "policyVersion": 3,
+  "comparisonPageChecks": "all six shards x five metrics",
+  "collection": "checkpoint preserved and resumed",
+  "snapshot": 29,
+  "javaTests": {
+    "passed": 35,
+    "skipped": 1,
+    "failed": 0
+  },
+  "policyUnitChecks": "passed",
+  "liveConservation": "all six shards and world totals; all five metrics; zero unallocated",
+  "dashboardRegression": "passed"
+}
+

@@ -1,0 +1,531 @@
+{
+  "act": "d816f426-48ea-f052-117f-9697a155b319",
+  "region": "ap",
+  "scope": "Tracker Asia and Oceania country catalogue, filtered to AP",
+  "checkedAt": "2026-10-20T12:13:11.560819+00:00",
+  "countries": [
+    {
+      "country": "af",
+      "name": "Afghanistan",
+      "pages": 1,
+      "players": 1,
+      "status": "complete"
+    },
+    {
+      "country": "am",
+      "name": "Armenia",
+      "pages": 0,
+      "players": 0,
+      "status": "complete"
+    },
+    {
+      "country": "az",
+      "name": "Azerbaijan",
+      "pages": 0,
+      "players": 0,
+      "status": "complete"
+    },
+    {
+      "country": "bh",
+      "name": "Bahrain",
+      "pages": 1,
+      "players": 1,
+      "status": "complete"
+    },
+    {
+      "country": "bd",
+      "name": "Bangladesh",
+      "pages": 1,
+      "players": 19,
+      "status": "complete"
+    },
+    {
+      "country": "bt",
+      "name": "Bhutan",
+      "pages": 1,
+      "players": 2,
+      "status": "complete"
+    },
+    {
+      "country": "bn",
+      "name": "Brunei",
+      "pages": 1,
+      "players": 7,
+      "status": "complete"
+    },
+    {
+      "country": "kh",
+      "name": "Cambodia",
+      "pages": 1,
+      "players": 10,
+      "status": "complete"
+    },
+    {
+      "country": "cn",
+      "name": "China",
+      "pages": 3,
+      "players": 260,
+      "status": "complete"
+    },
+    {
+      "country": "cx",
+      "name": "Christmas Island",
+      "pages": 1,
+      "players": 1,
+      "status": "complete"
+    },
+    {
+      "country": "cy",
+      "name": "Cyprus",
+      "pages": 0,
+      "players": 0,
+      "status": "complete"
+    },
+    {
+      "country": "ge",
+      "name": "Georgia",
+      "pages": 1,
+      "players": 1,
+      "status": "complete"
+    },
+    {
+      "country": "hk",
+      "name": "Hong Kong SAR",
+      "pages": 1,
+      "players": 98,
+      "status": "complete"
+    },
+    {
+      "country": "id",
+      "name": "Indonesia",
+      "pages": 2,
+      "players": 155,
+      "status": "complete"
+    },
+    {
+      "country": "ir",
+      "name": "Iran",
+      "pages": 0,
+      "players": 0,
+      "status": "complete"
+    },
+    {
+      "country": "iq",
+      "name": "Iraq",
+      "pages": 0,
+      "players": 0,
+      "status": "complete"
+    },
+    {
+      "country": "il",
+      "name": "Israel",
+      "pages": 0,
+      "players": 0,
+      "status": "complete"
+    },
+    {
+      "country": "jo",
+      "name": "Jordan",
+      "pages": 0,
+      "players": 0,
+      "status": "complete"
+    },
+    {
+      "country": "kz",
+      "name": "Kazakhstan",
+      "pages": 1,
+      "players": 3,
+      "status": "complete"
+    },
+    {
+      "country": "kr",
+      "name": "Korea",
+      "pages": 6,
+      "players": 591,
+      "status": "complete"
+    },
+    {
+      "country": "kw",
+      "name": "Kuwait",
+      "pages": 1,
+      "players": 1,
+      "status": "complete"
+    },
+    {
+      "country": "kg",
+      "name": "Kyrgyzstan",
+      "pages": 0,
+      "players": 0,
+      "status": "complete"
+    },
+    {
+      "country": "la",
+      "name": "Laos",
+      "pages": 0,
+      "players": 0,
+      "status": "complete"
+    },
+    {
+      "country": "lb",
+      "name": "Lebanon",
+      "pages": 0,
+      "players": 0,
+      "status": "complete"
+    },
+    {
+      "country": "mo",
+      "name": "Macao SAR",
+      "pages": 1,
+      "players": 4,
+      "status": "complete"
+    },
+    {
+      "country": "my",
+      "name": "Malaysia",
+      "pages": 2,
+      "players": 150,
+      "status": "complete"
+    },
+    {
+      "country": "mv",
+      "name": "Maldives",
+      "pages": 1,
+      "players": 1,
+      "status": "complete"
+    },
+    {
+      "country": "mn",
+      "name": "Mongolia",
+      "pages": 1,
+      "players": 38,
+      "status": "complete"
+    },
+    {
+      "country": "mm",
+      "name": "Myanmar",
+      "pages": 1,
+      "players": 7,
+      "status": "complete"
+    },
+    {
+      "country": "np",
+      "name": "Nepal",
+      "pages": 1,
+      "players": 9,
+      "status": "complete"
+    },
+    {
+      "country": "kp",
+      "name": "North Korea",
+      "pages": 1,
+      "players": 5,
+      "status": "complete"
+    },
+    {
+      "country": "om",
+      "name": "Oman",
+      "pages": 0,
+      "players": 0,
+      "status": "complete"
+    },
+    {
+      "country": "pk",
+      "name": "Pakistan",
+      "pages": 0,
+      "players": 0,
+      "status": "complete"
+    },
+    {
+      "country": "ps",
+      "name": "Palestinian Authority",
+      "pages": 1,
+      "players": 1,
+      "status": "complete"
+    },
+    {
+      "country": "ph",
+      "name": "Philippines",
+      "pages": 6,
+      "players": 506,
+      "status": "complete"
+    },
+    {
+      "country": "qa",
+      "name": "Qatar",
+      "pages": 1,
+      "players": 3,
+      "status": "complete"
+    },
+    {
+      "country": "sa",
+      "name": "Saudi Arabia",
+      "pages": 1,
+      "players": 5,
+      "status": "complete"
+    },
+    {
+      "country": "sg",
+      "name": "Singapore",
+      "pages": 3,
+      "players": 257,
+      "status": "complete"
+    },
+    {
+      "country": "lk",
+      "name": "Sri Lanka",
+      "pages": 1,
+      "players": 2,
+      "status": "complete"
+    },
+    {
+      "country": "sy",
+      "name": "Syria",
+      "pages": 0,
+      "players": 0,
+      "status": "complete"
+    },
+    {
+      "country": "tw",
+      "name": "Taiwan",
+      "pages": 3,
+      "players": 255,
+      "status": "complete"
+    },
+    {
+      "country": "tj",
+      "name": "Tajikistan",
+      "pages": 0,
+      "players": 0,
+      "status": "complete"
+    },
+    {
+      "country": "th",
+      "name": "Thailand",
+      "pages": 4,
+      "players": 325,
+      "status": "complete"
+    },
+    {
+      "country": "tl",
+      "name": "Timor-Leste",
+      "pages": 0,
+      "players": 0,
+      "status": "complete"
+    },
+    {
+      "country": "tm",
+      "name": "Turkmenistan",
+      "pages": 0,
+      "players": 0,
+      "status": "complete"
+    },
+    {
+      "country": "ae",
+      "name": "United Arab Emirates",
+      "pages": 1,
+      "players": 1,
+      "status": "complete"
+    },
+    {
+      "country": "uz",
+      "name": "Uzbekistan",
+      "pages": 0,
+      "players": 0,
+      "status": "complete"
+    },
+    {
+      "country": "ye",
+      "name": "Yemen",
+      "pages": 0,
+      "players": 0,
+      "status": "complete"
+    },
+    {
+      "country": "au",
+      "name": "Australia",
+      "pages": 6,
+      "players": 528,
+      "status": "complete"
+    },
+    {
+      "country": "as",
+      "name": "American Samoa",
+      "pages": 0,
+      "players": 0,
+      "status": "complete"
+    },
+    {
+      "country": "ck",
+      "name": "Cook Islands",
+      "pages": 0,
+      "players": 0,
+      "status": "complete"
+    },
+    {
+      "country": "fj",
+      "name": "Fiji",
+      "pages": 1,
+      "players": 1,
+      "status": "complete"
+    },
+    {
+      "country": "pf",
+      "name": "French Polynesia",
+      "pages": 0,
+      "players": 0,
+      "status": "complete"
+    },
+    {
+      "country": "gu",
+      "name": "Guam",
+      "pages": 1,
+      "players": 2,
+      "status": "complete"
+    },
+    {
+      "country": "ki",
+      "name": "Kiribati",
+      "pages": 0,
+      "players": 0,
+      "status": "complete"
+    },
+    {
+      "country": "mh",
+      "name": "Marshall Islands",
+      "pages": 0,
+      "players": 0,
+      "status": "complete"
+    },
+    {
+      "country": "fm",
+      "name": "Micronesia",
+      "pages": 0,
+      "players": 0,
+      "status": "complete"
+    },
+    {
+      "country": "nc",
+      "name": "New Caledonia",
+      "pages": 1,
+      "players": 1,
+      "status": "complete"
+    },
+    {
+      "country": "nz",
+      "name": "New Zealand",
+      "pages": 1,
+      "players": 91,
+      "status": "complete"
+    },
+    {
+      "country": "nf",
+      "name": "Norfolk Island",
+      "pages": 0,
+      "players": 0,
+      "status": "complete"
+    },
+    {
+      "country": "mp",
+      "name": "Northern Mariana Islands",
+      "pages": 0,
+      "players": 0,
+      "status": "complete"
+    },
+    {
+      "country": "pw",
+      "name": "Palau",
+      "pages": 0,
+      "players": 0,
+      "status": "complete"
+    },
+    {
+      "country": "pg",
+      "name": "Papua New Guinea",
+      "pages": 0,
+      "players": 0,
+      "status": "complete"
+    },
+    {
+      "country": "pn",
+      "name": "Pitcairn Islands",
+      "pages": 0,
+      "players": 0,
+      "status": "complete"
+    },
+    {
+      "country": "ws",
+      "name": "Samoa",
+      "pages": 1,
+      "players": 2,
+      "status": "complete"
+    },
+    {
+      "country": "tk",
+      "name": "Tokelau",
+      "pages": 1,
+      "players": 1,
+      "status": "complete"
+    },
+    {
+      "country": "to",
+      "name": "Tonga",
+      "pages": 0,
+      "players": 0,
+      "status": "complete"
+    },
+    {
+      "country": "tv",
+      "name": "Tuvalu",
+      "pages": 0,
+      "players": 0,
+      "status": "complete"
+    },
+    {
+      "country": "um",
+      "name": "U.S. Outlying Islands",
+      "pages": 0,
+      "players": 0,
+      "status": "complete"
+    },
+    {
+      "country": "vu",
+      "name": "Vanuatu",
+      "pages": 0,
+      "players": 0,
+      "status": "complete"
+    },
+    {
+      "country": "wf",
+      "name": "Wallis and Futuna",
+      "pages": 0,
+      "players": 0,
+      "status": "complete"
+    },
+    {
+      "country": "in",
+      "name": "India",
+      "pages": 4,
+      "players": 306,
+      "status": "complete",
+      "uniquePlayers": 304,
+      "overlappingPlayers": 2
+    },
+    {
+      "country": "jp",
+      "name": "Japan",
+      "pages": 14,
+      "players": 1339,
+      "status": "complete",
+      "uniquePlayers": 1338,
+      "overlappingPlayers": 1
+    },
+    {
+      "country": "vn",
+      "name": "Vietnam",
+      "pages": 3,
+      "players": 276,
+      "status": "complete",
+      "uniquePlayers": 276
+    }
+  ]
+}

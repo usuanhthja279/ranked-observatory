@@ -1,0 +1,5721 @@
+{
+  "recoveries": [
+    {
+      "region": "ap",
+      "country": "jp",
+      "tier": "Immortal 1",
+      "source": "recent leaderboard",
+      "players": 1
+    },
+    {
+      "region": "ap",
+      "country": "kr",
+      "tier": "Immortal 2",
+      "source": "recent leaderboard",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "de",
+      "tier": "Immortal 1",
+      "source": "recent leaderboard",
+      "players": 1
+    },
+    {
+      "region": "kr",
+      "country": "kr",
+      "tier": "Immortal 1",
+      "source": "recent leaderboard",
+      "players": 1
+    },
+    {
+      "region": "latam",
+      "country": "ar",
+      "tier": "Immortal 3",
+      "source": "recent leaderboard",
+      "players": 1
+    }
+  ],
+  "completedAt": "2026-10-20T18:59:39.082+00:00",
+  "snapshotId": 26,
+  "history": [],
+  "inventory": [
+    {
+      "region": "ap",
+      "country": "gu",
+      "tier": "Immortal 2",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "sm",
+      "tier": "Immortal 2",
+      "players": 1
+    },
+    {
+      "region": "ap",
+      "country": "ru",
+      "tier": "Radiant",
+      "players": 9
+    },
+    {
+      "region": "na",
+      "country": "ua",
+      "tier": "Immortal 2",
+      "players": 1
+    },
+    {
+      "region": "na",
+      "country": "us",
+      "tier": "Radiant",
+      "players": 74
+    },
+    {
+      "region": "eu",
+      "country": "hn",
+      "tier": "Immortal 1",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "za",
+      "tier": "Immortal 2",
+      "players": 4
+    },
+    {
+      "region": "ap",
+      "country": "gb",
+      "tier": "Immortal 1",
+      "players": 6
+    },
+    {
+      "region": "na",
+      "country": "kh",
+      "tier": "Immortal 1",
+      "players": 2
+    },
+    {
+      "region": "eu",
+      "country": "xk",
+      "tier": "Immortal 3",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "dz",
+      "tier": "Radiant",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "ch",
+      "tier": "Immortal 2",
+      "players": 36
+    },
+    {
+      "region": "latam",
+      "country": "is",
+      "tier": "Immortal 1",
+      "players": 1
+    },
+    {
+      "region": "ap",
+      "country": "cn",
+      "tier": "Immortal 1",
+      "players": 122
+    },
+    {
+      "region": "latam",
+      "country": "uy",
+      "tier": "Radiant",
+      "players": 7
+    },
+    {
+      "region": "na",
+      "country": "cr",
+      "tier": "Immortal 1",
+      "players": 7
+    },
+    {
+      "region": "na",
+      "country": "br",
+      "tier": "Immortal 2",
+      "players": 9
+    },
+    {
+      "region": "eu",
+      "country": "tz",
+      "tier": "Immortal 3",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "lb",
+      "tier": "Immortal 1",
+      "players": 10
+    },
+    {
+      "region": "eu",
+      "country": "hr",
+      "tier": "Immortal 1",
+      "players": 19
+    },
+    {
+      "region": "eu",
+      "country": "id",
+      "tier": "Immortal 1",
+      "players": 4
+    },
+    {
+      "region": "na",
+      "country": "fo",
+      "tier": "Immortal 1",
+      "players": 1
+    },
+    {
+      "region": "na",
+      "country": "co",
+      "tier": "Immortal 2",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "lu",
+      "tier": "Immortal 3",
+      "players": 1
+    },
+    {
+      "region": "ap",
+      "country": "np",
+      "tier": "Immortal 2",
+      "players": 3
+    },
+    {
+      "region": "eu",
+      "country": "fo",
+      "tier": "Immortal 2",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "pe",
+      "tier": "Immortal 3",
+      "players": 1
+    },
+    {
+      "region": "ap",
+      "country": "so",
+      "tier": "Immortal 1",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "sc",
+      "tier": "Immortal 1",
+      "players": 2
+    },
+    {
+      "region": "eu",
+      "country": "nf",
+      "tier": "Immortal 2",
+      "players": 1
+    },
+    {
+      "region": "ap",
+      "country": "tr",
+      "tier": "Immortal 1",
+      "players": 2
+    },
+    {
+      "region": "kr",
+      "country": "kr",
+      "tier": "Radiant",
+      "players": 25
+    },
+    {
+      "region": "eu",
+      "country": "fi",
+      "tier": "Immortal 2",
+      "players": 20
+    },
+    {
+      "region": "eu",
+      "country": "as",
+      "tier": "Immortal 3",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "pe",
+      "tier": "Immortal 2",
+      "players": 2
+    },
+    {
+      "region": "eu",
+      "country": "mn",
+      "tier": "Immortal 2",
+      "players": 3
+    },
+    {
+      "region": "eu",
+      "country": "bg",
+      "tier": "Radiant",
+      "players": 2
+    },
+    {
+      "region": "latam",
+      "country": "cu",
+      "tier": "Immortal 3",
+      "players": 1
+    },
+    {
+      "region": "na",
+      "country": "do",
+      "tier": "Radiant",
+      "players": 1
+    },
+    {
+      "region": "ap",
+      "country": "ph",
+      "tier": "Immortal 2",
+      "players": 146
+    },
+    {
+      "region": "latam",
+      "country": "aq",
+      "tier": "Immortal 1",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "ma",
+      "tier": "Immortal 1",
+      "players": 46
+    },
+    {
+      "region": "eu",
+      "country": "kz",
+      "tier": "Immortal 1",
+      "players": 60
+    },
+    {
+      "region": "na",
+      "country": "mx",
+      "tier": "Immortal 1",
+      "players": 41
+    },
+    {
+      "region": "na",
+      "country": "ar",
+      "tier": "Immortal 1",
+      "players": 1
+    },
+    {
+      "region": "kr",
+      "country": "cn",
+      "tier": "Immortal 1",
+      "players": 1
+    },
+    {
+      "region": "ap",
+      "country": "mn",
+      "tier": "Immortal 1",
+      "players": 16
+    },
+    {
+      "region": "latam",
+      "country": "fr",
+      "tier": "Immortal 1",
+      "players": 2
+    },
+    {
+      "region": "br",
+      "country": "it",
+      "tier": "Immortal 1",
+      "players": 5
+    },
+    {
+      "region": "eu",
+      "country": "ni",
+      "tier": "Immortal 1",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "gt",
+      "tier": "Immortal 2",
+      "players": 1
+    },
+    {
+      "region": "latam",
+      "country": "pe",
+      "tier": "Immortal 1",
+      "players": 219
+    },
+    {
+      "region": "eu",
+      "country": "mo",
+      "tier": "Immortal 1",
+      "players": 1
+    },
+    {
+      "region": "ap",
+      "country": "th",
+      "tier": "Immortal 2",
+      "players": 65
+    },
+    {
+      "region": "eu",
+      "country": "gs",
+      "tier": "Immortal 1",
+      "players": 3
+    },
+    {
+      "region": "latam",
+      "country": "im",
+      "tier": "Immortal 1",
+      "players": 2
+    },
+    {
+      "region": "eu",
+      "country": "pn",
+      "tier": "Immortal 2",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "is",
+      "tier": "Immortal 1",
+      "players": 9
+    },
+    {
+      "region": "ap",
+      "country": "br",
+      "tier": "Immortal 1",
+      "players": 4
+    },
+    {
+      "region": "eu",
+      "country": "va",
+      "tier": "Immortal 1",
+      "players": 8
+    },
+    {
+      "region": "eu",
+      "country": "kh",
+      "tier": "Immortal 2",
+      "players": 1
+    },
+    {
+      "region": "ap",
+      "country": "my",
+      "tier": "Immortal 1",
+      "players": 104
+    },
+    {
+      "region": "na",
+      "country": "cl",
+      "tier": "Immortal 1",
+      "players": 2
+    },
+    {
+      "region": "latam",
+      "country": "br",
+      "tier": "Immortal 2",
+      "players": 2
+    },
+    {
+      "region": "eu",
+      "country": "kh",
+      "tier": "Immortal 1",
+      "players": 3
+    },
+    {
+      "region": "na",
+      "country": "in",
+      "tier": "Immortal 1",
+      "players": 5
+    },
+    {
+      "region": "eu",
+      "country": "sa",
+      "tier": "Immortal 2",
+      "players": 23
+    },
+    {
+      "region": "ap",
+      "country": "gu",
+      "tier": "Immortal 1",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "cy",
+      "tier": "Immortal 3",
+      "players": 1
+    },
+    {
+      "region": "na",
+      "country": "pk",
+      "tier": "Immortal 1",
+      "players": 6
+    },
+    {
+      "region": "latam",
+      "country": "tt",
+      "tier": "Immortal 1",
+      "players": 3
+    },
+    {
+      "region": "na",
+      "country": "il",
+      "tier": "Immortal 3",
+      "players": 1
+    },
+    {
+      "region": "br",
+      "country": "us",
+      "tier": "Immortal 3",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "mk",
+      "tier": "Immortal 2",
+      "players": 3
+    },
+    {
+      "region": "eu",
+      "country": "hu",
+      "tier": "Immortal 2",
+      "players": 16
+    },
+    {
+      "region": "ap",
+      "country": "kr",
+      "tier": "Immortal 2",
+      "players": 155
+    },
+    {
+      "region": "eu",
+      "country": "bd",
+      "tier": "Immortal 1",
+      "players": 3
+    },
+    {
+      "region": "br",
+      "country": "cl",
+      "tier": "Radiant",
+      "players": 1
+    },
+    {
+      "region": "na",
+      "country": "cy",
+      "tier": "Immortal 2",
+      "players": 1
+    },
+    {
+      "region": "latam",
+      "country": "ec",
+      "tier": "Immortal 2",
+      "players": 6
+    },
+    {
+      "region": "eu",
+      "country": "is",
+      "tier": "Immortal 3",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "ba",
+      "tier": "Radiant",
+      "players": 1
+    },
+    {
+      "region": "na",
+      "country": "nl",
+      "tier": "Radiant",
+      "players": 2
+    },
+    {
+      "region": "eu",
+      "country": "ee",
+      "tier": "Immortal 2",
+      "players": 14
+    },
+    {
+      "region": "na",
+      "country": "kg",
+      "tier": "Immortal 1",
+      "players": 2
+    },
+    {
+      "region": "latam",
+      "country": "py",
+      "tier": "Immortal 2",
+      "players": 4
+    },
+    {
+      "region": "br",
+      "country": "jp",
+      "tier": "Immortal 2",
+      "players": 3
+    },
+    {
+      "region": "ap",
+      "country": "jp",
+      "tier": "Radiant",
+      "players": 32
+    },
+    {
+      "region": "eu",
+      "country": "bo",
+      "tier": "Immortal 1",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "af",
+      "tier": "Immortal 3",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "uy",
+      "tier": "Immortal 1",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "cn",
+      "tier": "Immortal 2",
+      "players": 12
+    },
+    {
+      "region": "eu",
+      "country": "ma",
+      "tier": "Immortal 3",
+      "players": 13
+    },
+    {
+      "region": "eu",
+      "country": "pl",
+      "tier": "Radiant",
+      "players": 19
+    },
+    {
+      "region": "latam",
+      "country": "unknown",
+      "tier": "Immortal 2",
+      "players": 216
+    },
+    {
+      "region": "eu",
+      "country": "dz",
+      "tier": "Immortal 2",
+      "players": 17
+    },
+    {
+      "region": "eu",
+      "country": "cy",
+      "tier": "Radiant",
+      "players": 1
+    },
+    {
+      "region": "ap",
+      "country": "sa",
+      "tier": "Immortal 2",
+      "players": 2
+    },
+    {
+      "region": "na",
+      "country": "unknown",
+      "tier": "Radiant",
+      "players": 45
+    },
+    {
+      "region": "eu",
+      "country": "ru",
+      "tier": "Immortal 1",
+      "players": 373
+    },
+    {
+      "region": "eu",
+      "country": "sr",
+      "tier": "Immortal 2",
+      "players": 1
+    },
+    {
+      "region": "ap",
+      "country": "kp",
+      "tier": "Immortal 3",
+      "players": 1
+    },
+    {
+      "region": "latam",
+      "country": "ru",
+      "tier": "Immortal 2",
+      "players": 1
+    },
+    {
+      "region": "br",
+      "country": "mx",
+      "tier": "Immortal 1",
+      "players": 2
+    },
+    {
+      "region": "br",
+      "country": "br",
+      "tier": "Radiant",
+      "players": 75
+    },
+    {
+      "region": "eu",
+      "country": "gg",
+      "tier": "Immortal 1",
+      "players": 1
+    },
+    {
+      "region": "ap",
+      "country": "hk",
+      "tier": "Immortal 3",
+      "players": 21
+    },
+    {
+      "region": "eu",
+      "country": "ps",
+      "tier": "Immortal 2",
+      "players": 4
+    },
+    {
+      "region": "na",
+      "country": "pr",
+      "tier": "Immortal 2",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "so",
+      "tier": "Immortal 1",
+      "players": 6
+    },
+    {
+      "region": "eu",
+      "country": "pk",
+      "tier": "Immortal 2",
+      "players": 6
+    },
+    {
+      "region": "eu",
+      "country": "vi",
+      "tier": "Immortal 1",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "eg",
+      "tier": "Immortal 1",
+      "players": 44
+    },
+    {
+      "region": "latam",
+      "country": "ec",
+      "tier": "Immortal 3",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "sa",
+      "tier": "Radiant",
+      "players": 1
+    },
+    {
+      "region": "ap",
+      "country": "af",
+      "tier": "Immortal 1",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "no",
+      "tier": "Immortal 1",
+      "players": 75
+    },
+    {
+      "region": "br",
+      "country": "jp",
+      "tier": "Immortal 3",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "cw",
+      "tier": "Immortal 2",
+      "players": 1
+    },
+    {
+      "region": "na",
+      "country": "vn",
+      "tier": "Immortal 2",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "fi",
+      "tier": "Immortal 1",
+      "players": 46
+    },
+    {
+      "region": "eu",
+      "country": "il",
+      "tier": "Radiant",
+      "players": 2
+    },
+    {
+      "region": "latam",
+      "country": "al",
+      "tier": "Immortal 1",
+      "players": 3
+    },
+    {
+      "region": "latam",
+      "country": "il",
+      "tier": "Immortal 1",
+      "players": 2
+    },
+    {
+      "region": "ap",
+      "country": "es",
+      "tier": "Immortal 1",
+      "players": 1
+    },
+    {
+      "region": "latam",
+      "country": "ar",
+      "tier": "Immortal 2",
+      "players": 48
+    },
+    {
+      "region": "latam",
+      "country": "py",
+      "tier": "Immortal 3",
+      "players": 1
+    },
+    {
+      "region": "latam",
+      "country": "hn",
+      "tier": "Immortal 2",
+      "players": 2
+    },
+    {
+      "region": "ap",
+      "country": "in",
+      "tier": "Radiant",
+      "players": 3
+    },
+    {
+      "region": "ap",
+      "country": "bd",
+      "tier": "Immortal 2",
+      "players": 3
+    },
+    {
+      "region": "na",
+      "country": "jp",
+      "tier": "Immortal 2",
+      "players": 2
+    },
+    {
+      "region": "eu",
+      "country": "hk",
+      "tier": "Immortal 2",
+      "players": 3
+    },
+    {
+      "region": "eu",
+      "country": "gb",
+      "tier": "Immortal 2",
+      "players": 215
+    },
+    {
+      "region": "kr",
+      "country": "unknown",
+      "tier": "Immortal 3",
+      "players": 73
+    },
+    {
+      "region": "na",
+      "country": "kz",
+      "tier": "Immortal 1",
+      "players": 1
+    },
+    {
+      "region": "br",
+      "country": "il",
+      "tier": "Immortal 2",
+      "players": 1
+    },
+    {
+      "region": "br",
+      "country": "co",
+      "tier": "Immortal 1",
+      "players": 1
+    },
+    {
+      "region": "na",
+      "country": "cn",
+      "tier": "Immortal 1",
+      "players": 25
+    },
+    {
+      "region": "latam",
+      "country": "ar",
+      "tier": "Immortal 1",
+      "players": 308
+    },
+    {
+      "region": "eu",
+      "country": "tr",
+      "tier": "Immortal 2",
+      "players": 266
+    },
+    {
+      "region": "eu",
+      "country": "au",
+      "tier": "Immortal 1",
+      "players": 4
+    },
+    {
+      "region": "br",
+      "country": "az",
+      "tier": "Immortal 1",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "uz",
+      "tier": "Immortal 2",
+      "players": 2
+    },
+    {
+      "region": "eu",
+      "country": "cr",
+      "tier": "Immortal 1",
+      "players": 1
+    },
+    {
+      "region": "ap",
+      "country": "de",
+      "tier": "Immortal 1",
+      "players": 3
+    },
+    {
+      "region": "latam",
+      "country": "unknown",
+      "tier": "Immortal 3",
+      "players": 48
+    },
+    {
+      "region": "latam",
+      "country": "br",
+      "tier": "Immortal 1",
+      "players": 8
+    },
+    {
+      "region": "eu",
+      "country": "ng",
+      "tier": "Immortal 1",
+      "players": 2
+    },
+    {
+      "region": "eu",
+      "country": "mk",
+      "tier": "Immortal 1",
+      "players": 3
+    },
+    {
+      "region": "latam",
+      "country": "ps",
+      "tier": "Immortal 1",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "pt",
+      "tier": "Immortal 2",
+      "players": 43
+    },
+    {
+      "region": "eu",
+      "country": "vn",
+      "tier": "Immortal 3",
+      "players": 4
+    },
+    {
+      "region": "na",
+      "country": "mn",
+      "tier": "Immortal 1",
+      "players": 1
+    },
+    {
+      "region": "na",
+      "country": "kw",
+      "tier": "Immortal 2",
+      "players": 1
+    },
+    {
+      "region": "ap",
+      "country": "cn",
+      "tier": "Radiant",
+      "players": 20
+    },
+    {
+      "region": "eu",
+      "country": "tn",
+      "tier": "Immortal 2",
+      "players": 14
+    },
+    {
+      "region": "ap",
+      "country": "qa",
+      "tier": "Immortal 1",
+      "players": 2
+    },
+    {
+      "region": "eu",
+      "country": "bg",
+      "tier": "Immortal 2",
+      "players": 7
+    },
+    {
+      "region": "eu",
+      "country": "ph",
+      "tier": "Immortal 2",
+      "players": 2
+    },
+    {
+      "region": "eu",
+      "country": "be",
+      "tier": "Immortal 2",
+      "players": 25
+    },
+    {
+      "region": "latam",
+      "country": "ir",
+      "tier": "Immortal 1",
+      "players": 1
+    },
+    {
+      "region": "ap",
+      "country": "vi",
+      "tier": "Immortal 3",
+      "players": 2
+    },
+    {
+      "region": "eu",
+      "country": "lv",
+      "tier": "Immortal 1",
+      "players": 15
+    },
+    {
+      "region": "na",
+      "country": "tr",
+      "tier": "Radiant",
+      "players": 1
+    },
+    {
+      "region": "latam",
+      "country": "cl",
+      "tier": "Immortal 3",
+      "players": 26
+    },
+    {
+      "region": "na",
+      "country": "br",
+      "tier": "Immortal 1",
+      "players": 18
+    },
+    {
+      "region": "ap",
+      "country": "mu",
+      "tier": "Immortal 2",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "sy",
+      "tier": "Immortal 1",
+      "players": 4
+    },
+    {
+      "region": "latam",
+      "country": "cr",
+      "tier": "Immortal 1",
+      "players": 48
+    },
+    {
+      "region": "eu",
+      "country": "ch",
+      "tier": "Immortal 1",
+      "players": 56
+    },
+    {
+      "region": "br",
+      "country": "py",
+      "tier": "Immortal 2",
+      "players": 2
+    },
+    {
+      "region": "eu",
+      "country": "lv",
+      "tier": "Immortal 2",
+      "players": 9
+    },
+    {
+      "region": "latam",
+      "country": "ve",
+      "tier": "Immortal 3",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "mp",
+      "tier": "Immortal 3",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "md",
+      "tier": "Immortal 1",
+      "players": 5
+    },
+    {
+      "region": "eu",
+      "country": "gg",
+      "tier": "Immortal 2",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "se",
+      "tier": "Radiant",
+      "players": 11
+    },
+    {
+      "region": "eu",
+      "country": "eg",
+      "tier": "Immortal 2",
+      "players": 23
+    },
+    {
+      "region": "na",
+      "country": "co",
+      "tier": "Immortal 3",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "nz",
+      "tier": "Immortal 1",
+      "players": 2
+    },
+    {
+      "region": "eu",
+      "country": "fr",
+      "tier": "Immortal 1",
+      "players": 577
+    },
+    {
+      "region": "eu",
+      "country": "ge",
+      "tier": "Immortal 1",
+      "players": 16
+    },
+    {
+      "region": "ap",
+      "country": "tw",
+      "tier": "Radiant",
+      "players": 11
+    },
+    {
+      "region": "br",
+      "country": "uy",
+      "tier": "Immortal 1",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "fi",
+      "tier": "Radiant",
+      "players": 8
+    },
+    {
+      "region": "eu",
+      "country": "ml",
+      "tier": "Immortal 1",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "se",
+      "tier": "Immortal 1",
+      "players": 103
+    },
+    {
+      "region": "na",
+      "country": "kr",
+      "tier": "Immortal 2",
+      "players": 6
+    },
+    {
+      "region": "eu",
+      "country": "ru",
+      "tier": "Immortal 3",
+      "players": 65
+    },
+    {
+      "region": "kr",
+      "country": "kr",
+      "tier": "Immortal 2",
+      "players": 74
+    },
+    {
+      "region": "latam",
+      "country": "nz",
+      "tier": "Immortal 1",
+      "players": 1
+    },
+    {
+      "region": "na",
+      "country": "us",
+      "tier": "Immortal 1",
+      "players": 3158
+    },
+    {
+      "region": "latam",
+      "country": "af",
+      "tier": "Immortal 2",
+      "players": 1
+    },
+    {
+      "region": "na",
+      "country": "tw",
+      "tier": "Immortal 3",
+      "players": 1
+    },
+    {
+      "region": "na",
+      "country": "hk",
+      "tier": "Immortal 2",
+      "players": 3
+    },
+    {
+      "region": "eu",
+      "country": "dz",
+      "tier": "Immortal 3",
+      "players": 8
+    },
+    {
+      "region": "eu",
+      "country": "ci",
+      "tier": "Immortal 1",
+      "players": 3
+    },
+    {
+      "region": "ap",
+      "country": "mm",
+      "tier": "Immortal 2",
+      "players": 2
+    },
+    {
+      "region": "eu",
+      "country": "jm",
+      "tier": "Immortal 1",
+      "players": 5
+    },
+    {
+      "region": "latam",
+      "country": "us",
+      "tier": "Immortal 3",
+      "players": 2
+    },
+    {
+      "region": "latam",
+      "country": "bo",
+      "tier": "Immortal 2",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "jm",
+      "tier": "Immortal 2",
+      "players": 2
+    },
+    {
+      "region": "eu",
+      "country": "cn",
+      "tier": "Radiant",
+      "players": 5
+    },
+    {
+      "region": "eu",
+      "country": "bh",
+      "tier": "Immortal 2",
+      "players": 1
+    },
+    {
+      "region": "na",
+      "country": "tr",
+      "tier": "Immortal 1",
+      "players": 1
+    },
+    {
+      "region": "ap",
+      "country": "mn",
+      "tier": "Radiant",
+      "players": 2
+    },
+    {
+      "region": "eu",
+      "country": "mq",
+      "tier": "Immortal 2",
+      "players": 1
+    },
+    {
+      "region": "latam",
+      "country": "ni",
+      "tier": "Immortal 1",
+      "players": 7
+    },
+    {
+      "region": "eu",
+      "country": "es",
+      "tier": "Immortal 3",
+      "players": 60
+    },
+    {
+      "region": "latam",
+      "country": "kg",
+      "tier": "Immortal 1",
+      "players": 1
+    },
+    {
+      "region": "na",
+      "country": "fr",
+      "tier": "Immortal 1",
+      "players": 2
+    },
+    {
+      "region": "na",
+      "country": "id",
+      "tier": "Immortal 1",
+      "players": 2
+    },
+    {
+      "region": "eu",
+      "country": "qa",
+      "tier": "Immortal 1",
+      "players": 13
+    },
+    {
+      "region": "br",
+      "country": "jp",
+      "tier": "Immortal 1",
+      "players": 9
+    },
+    {
+      "region": "br",
+      "country": "ar",
+      "tier": "Immortal 2",
+      "players": 6
+    },
+    {
+      "region": "na",
+      "country": "se",
+      "tier": "Immortal 3",
+      "players": 1
+    },
+    {
+      "region": "latam",
+      "country": "hn",
+      "tier": "Immortal 1",
+      "players": 11
+    },
+    {
+      "region": "latam",
+      "country": "mx",
+      "tier": "Immortal 1",
+      "players": 264
+    },
+    {
+      "region": "latam",
+      "country": "kr",
+      "tier": "Immortal 2",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "sk",
+      "tier": "Radiant",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "kg",
+      "tier": "Radiant",
+      "players": 2
+    },
+    {
+      "region": "latam",
+      "country": "jp",
+      "tier": "Immortal 1",
+      "players": 8
+    },
+    {
+      "region": "eu",
+      "country": "br",
+      "tier": "Immortal 1",
+      "players": 14
+    },
+    {
+      "region": "br",
+      "country": "jm",
+      "tier": "Immortal 2",
+      "players": 1
+    },
+    {
+      "region": "latam",
+      "country": "sv",
+      "tier": "Immortal 2",
+      "players": 2
+    },
+    {
+      "region": "na",
+      "country": "sk",
+      "tier": "Immortal 3",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "vn",
+      "tier": "Immortal 2",
+      "players": 3
+    },
+    {
+      "region": "eu",
+      "country": "tn",
+      "tier": "Immortal 1",
+      "players": 26
+    },
+    {
+      "region": "eu",
+      "country": "bd",
+      "tier": "Immortal 2",
+      "players": 2
+    },
+    {
+      "region": "na",
+      "country": "id",
+      "tier": "Immortal 2",
+      "players": 1
+    },
+    {
+      "region": "ap",
+      "country": "pt",
+      "tier": "Immortal 2",
+      "players": 1
+    },
+    {
+      "region": "br",
+      "country": "ao",
+      "tier": "Immortal 1",
+      "players": 1
+    },
+    {
+      "region": "br",
+      "country": "gl",
+      "tier": "Immortal 3",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "iq",
+      "tier": "Immortal 3",
+      "players": 5
+    },
+    {
+      "region": "ap",
+      "country": "br",
+      "tier": "Immortal 3",
+      "players": 1
+    },
+    {
+      "region": "latam",
+      "country": "pl",
+      "tier": "Immortal 2",
+      "players": 1
+    },
+    {
+      "region": "na",
+      "country": "sc",
+      "tier": "Immortal 3",
+      "players": 1
+    },
+    {
+      "region": "na",
+      "country": "es",
+      "tier": "Immortal 2",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "bt",
+      "tier": "Immortal 1",
+      "players": 2
+    },
+    {
+      "region": "eu",
+      "country": "mx",
+      "tier": "Immortal 1",
+      "players": 1
+    },
+    {
+      "region": "na",
+      "country": "bd",
+      "tier": "Immortal 1",
+      "players": 5
+    },
+    {
+      "region": "eu",
+      "country": "br",
+      "tier": "Radiant",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "so",
+      "tier": "Immortal 2",
+      "players": 2
+    },
+    {
+      "region": "br",
+      "country": "jp",
+      "tier": "Radiant",
+      "players": 1
+    },
+    {
+      "region": "latam",
+      "country": "us",
+      "tier": "Immortal 2",
+      "players": 11
+    },
+    {
+      "region": "eu",
+      "country": "ro",
+      "tier": "Immortal 3",
+      "players": 5
+    },
+    {
+      "region": "eu",
+      "country": "np",
+      "tier": "Immortal 1",
+      "players": 3
+    },
+    {
+      "region": "ap",
+      "country": "au",
+      "tier": "Immortal 2",
+      "players": 150
+    },
+    {
+      "region": "na",
+      "country": "do",
+      "tier": "Immortal 1",
+      "players": 5
+    },
+    {
+      "region": "ap",
+      "country": "au",
+      "tier": "Immortal 3",
+      "players": 70
+    },
+    {
+      "region": "ap",
+      "country": "nc",
+      "tier": "Immortal 1",
+      "players": 1
+    },
+    {
+      "region": "na",
+      "country": "co",
+      "tier": "Immortal 1",
+      "players": 10
+    },
+    {
+      "region": "eu",
+      "country": "br",
+      "tier": "Immortal 3",
+      "players": 8
+    },
+    {
+      "region": "br",
+      "country": "ru",
+      "tier": "Immortal 1",
+      "players": 4
+    },
+    {
+      "region": "eu",
+      "country": "ly",
+      "tier": "Radiant",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "ge",
+      "tier": "Immortal 2",
+      "players": 8
+    },
+    {
+      "region": "ap",
+      "country": "tk",
+      "tier": "Immortal 3",
+      "players": 1
+    },
+    {
+      "region": "na",
+      "country": "sg",
+      "tier": "Immortal 1",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "cz",
+      "tier": "Radiant",
+      "players": 6
+    },
+    {
+      "region": "eu",
+      "country": "tr",
+      "tier": "Immortal 3",
+      "players": 179
+    },
+    {
+      "region": "latam",
+      "country": "ru",
+      "tier": "Radiant",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "gr",
+      "tier": "Radiant",
+      "players": 3
+    },
+    {
+      "region": "ap",
+      "country": "kz",
+      "tier": "Immortal 2",
+      "players": 2
+    },
+    {
+      "region": "eu",
+      "country": "cl",
+      "tier": "Immortal 1",
+      "players": 1
+    },
+    {
+      "region": "latam",
+      "country": "ec",
+      "tier": "Immortal 1",
+      "players": 55
+    },
+    {
+      "region": "na",
+      "country": "ca",
+      "tier": "Immortal 2",
+      "players": 89
+    },
+    {
+      "region": "eu",
+      "country": "kz",
+      "tier": "Immortal 2",
+      "players": 26
+    },
+    {
+      "region": "latam",
+      "country": "us",
+      "tier": "Immortal 1",
+      "players": 74
+    },
+    {
+      "region": "eu",
+      "country": "at",
+      "tier": "Immortal 3",
+      "players": 11
+    },
+    {
+      "region": "ap",
+      "country": "bh",
+      "tier": "Immortal 1",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "om",
+      "tier": "Immortal 2",
+      "players": 2
+    },
+    {
+      "region": "eu",
+      "country": "fr",
+      "tier": "Immortal 2",
+      "players": 189
+    },
+    {
+      "region": "eu",
+      "country": "bh",
+      "tier": "Immortal 3",
+      "players": 2
+    },
+    {
+      "region": "eu",
+      "country": "ae",
+      "tier": "Radiant",
+      "players": 1
+    },
+    {
+      "region": "ap",
+      "country": "th",
+      "tier": "Immortal 1",
+      "players": 223
+    },
+    {
+      "region": "ap",
+      "country": "ch",
+      "tier": "Immortal 3",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "la",
+      "tier": "Immortal 1",
+      "players": 2
+    },
+    {
+      "region": "eu",
+      "country": "us",
+      "tier": "Immortal 3",
+      "players": 2
+    },
+    {
+      "region": "eu",
+      "country": "ar",
+      "tier": "Immortal 1",
+      "players": 4
+    },
+    {
+      "region": "eu",
+      "country": "hk",
+      "tier": "Immortal 1",
+      "players": 10
+    },
+    {
+      "region": "na",
+      "country": "th",
+      "tier": "Immortal 2",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "it",
+      "tier": "Immortal 1",
+      "players": 92
+    },
+    {
+      "region": "latam",
+      "country": "sa",
+      "tier": "Immortal 1",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "pg",
+      "tier": "Immortal 1",
+      "players": 2
+    },
+    {
+      "region": "ap",
+      "country": "au",
+      "tier": "Immortal 1",
+      "players": 306
+    },
+    {
+      "region": "latam",
+      "country": "pa",
+      "tier": "Immortal 1",
+      "players": 18
+    },
+    {
+      "region": "ap",
+      "country": "ca",
+      "tier": "Immortal 3",
+      "players": 2
+    },
+    {
+      "region": "ap",
+      "country": "my",
+      "tier": "Radiant",
+      "players": 2
+    },
+    {
+      "region": "ap",
+      "country": "mm",
+      "tier": "Immortal 1",
+      "players": 5
+    },
+    {
+      "region": "eu",
+      "country": "mt",
+      "tier": "Immortal 3",
+      "players": 1
+    },
+    {
+      "region": "kr",
+      "country": "unknown",
+      "tier": "Immortal 1",
+      "players": 3621
+    },
+    {
+      "region": "ap",
+      "country": "us",
+      "tier": "Immortal 1",
+      "players": 13
+    },
+    {
+      "region": "eu",
+      "country": "fj",
+      "tier": "Immortal 3",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "lk",
+      "tier": "Immortal 1",
+      "players": 1
+    },
+    {
+      "region": "na",
+      "country": "ua",
+      "tier": "Immortal 3",
+      "players": 1
+    },
+    {
+      "region": "na",
+      "country": "gi",
+      "tier": "Immortal 2",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "unknown",
+      "tier": "Immortal 2",
+      "players": 1276
+    },
+    {
+      "region": "na",
+      "country": "kp",
+      "tier": "Immortal 1",
+      "players": 3
+    },
+    {
+      "region": "eu",
+      "country": "gl",
+      "tier": "Immortal 2",
+      "players": 2
+    },
+    {
+      "region": "eu",
+      "country": "pg",
+      "tier": "Immortal 3",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "ps",
+      "tier": "Immortal 3",
+      "players": 4
+    },
+    {
+      "region": "na",
+      "country": "aw",
+      "tier": "Immortal 1",
+      "players": 1
+    },
+    {
+      "region": "na",
+      "country": "za",
+      "tier": "Immortal 1",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "rs",
+      "tier": "Immortal 1",
+      "players": 26
+    },
+    {
+      "region": "ap",
+      "country": "nz",
+      "tier": "Immortal 3",
+      "players": 8
+    },
+    {
+      "region": "kr",
+      "country": "ru",
+      "tier": "Immortal 1",
+      "players": 1
+    },
+    {
+      "region": "ap",
+      "country": "us",
+      "tier": "Immortal 2",
+      "players": 7
+    },
+    {
+      "region": "eu",
+      "country": "nl",
+      "tier": "Immortal 3",
+      "players": 20
+    },
+    {
+      "region": "eu",
+      "country": "iq",
+      "tier": "Immortal 2",
+      "players": 2
+    },
+    {
+      "region": "ap",
+      "country": "jp",
+      "tier": "Immortal 3",
+      "players": 197
+    },
+    {
+      "region": "na",
+      "country": "kr",
+      "tier": "Immortal 1",
+      "players": 24
+    },
+    {
+      "region": "ap",
+      "country": "ky",
+      "tier": "Immortal 1",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "br",
+      "tier": "Immortal 2",
+      "players": 6
+    },
+    {
+      "region": "na",
+      "country": "ma",
+      "tier": "Immortal 1",
+      "players": 2
+    },
+    {
+      "region": "eu",
+      "country": "lt",
+      "tier": "Immortal 3",
+      "players": 15
+    },
+    {
+      "region": "eu",
+      "country": "in",
+      "tier": "Immortal 1",
+      "players": 6
+    },
+    {
+      "region": "latam",
+      "country": "mx",
+      "tier": "Radiant",
+      "players": 9
+    },
+    {
+      "region": "eu",
+      "country": "kp",
+      "tier": "Immortal 3",
+      "players": 3
+    },
+    {
+      "region": "br",
+      "country": "ar",
+      "tier": "Immortal 3",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "cc",
+      "tier": "Immortal 1",
+      "players": 1
+    },
+    {
+      "region": "ap",
+      "country": "br",
+      "tier": "Immortal 2",
+      "players": 3
+    },
+    {
+      "region": "eu",
+      "country": "pr",
+      "tier": "Immortal 2",
+      "players": 1
+    },
+    {
+      "region": "na",
+      "country": "ps",
+      "tier": "Immortal 1",
+      "players": 1
+    },
+    {
+      "region": "latam",
+      "country": "gb",
+      "tier": "Immortal 2",
+      "players": 1
+    },
+    {
+      "region": "br",
+      "country": "unknown",
+      "tier": "Immortal 1",
+      "players": 1894
+    },
+    {
+      "region": "eu",
+      "country": "hm",
+      "tier": "Immortal 1",
+      "players": 3
+    },
+    {
+      "region": "latam",
+      "country": "it",
+      "tier": "Immortal 1",
+      "players": 3
+    },
+    {
+      "region": "eu",
+      "country": "re",
+      "tier": "Immortal 1",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "sk",
+      "tier": "Immortal 2",
+      "players": 9
+    },
+    {
+      "region": "eu",
+      "country": "sk",
+      "tier": "Immortal 1",
+      "players": 24
+    },
+    {
+      "region": "latam",
+      "country": "ve",
+      "tier": "Immortal 1",
+      "players": 41
+    },
+    {
+      "region": "na",
+      "country": "jo",
+      "tier": "Immortal 2",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "ee",
+      "tier": "Radiant",
+      "players": 1
+    },
+    {
+      "region": "na",
+      "country": "ng",
+      "tier": "Immortal 1",
+      "players": 2
+    },
+    {
+      "region": "latam",
+      "country": "gi",
+      "tier": "Immortal 1",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "tg",
+      "tier": "Immortal 2",
+      "players": 1
+    },
+    {
+      "region": "br",
+      "country": "us",
+      "tier": "Immortal 2",
+      "players": 1
+    },
+    {
+      "region": "na",
+      "country": "jo",
+      "tier": "Immortal 1",
+      "players": 1
+    },
+    {
+      "region": "latam",
+      "country": "eh",
+      "tier": "Immortal 1",
+      "players": 1
+    },
+    {
+      "region": "br",
+      "country": "pt",
+      "tier": "Immortal 1",
+      "players": 3
+    },
+    {
+      "region": "eu",
+      "country": "pt",
+      "tier": "Radiant",
+      "players": 6
+    },
+    {
+      "region": "latam",
+      "country": "pe",
+      "tier": "Immortal 2",
+      "players": 26
+    },
+    {
+      "region": "eu",
+      "country": "hu",
+      "tier": "Immortal 1",
+      "players": 36
+    },
+    {
+      "region": "kr",
+      "country": "unknown",
+      "tier": "Radiant",
+      "players": 96
+    },
+    {
+      "region": "eu",
+      "country": "cn",
+      "tier": "Immortal 1",
+      "players": 23
+    },
+    {
+      "region": "eu",
+      "country": "bt",
+      "tier": "Immortal 3",
+      "players": 3
+    },
+    {
+      "region": "eu",
+      "country": "af",
+      "tier": "Radiant",
+      "players": 1
+    },
+    {
+      "region": "br",
+      "country": "uy",
+      "tier": "Immortal 2",
+      "players": 5
+    },
+    {
+      "region": "na",
+      "country": "tn",
+      "tier": "Immortal 1",
+      "players": 1
+    },
+    {
+      "region": "ap",
+      "country": "fi",
+      "tier": "Immortal 2",
+      "players": 1
+    },
+    {
+      "region": "ap",
+      "country": "id",
+      "tier": "Radiant",
+      "players": 4
+    },
+    {
+      "region": "eu",
+      "country": "um",
+      "tier": "Immortal 2",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "sa",
+      "tier": "Immortal 1",
+      "players": 103
+    },
+    {
+      "region": "br",
+      "country": "ca",
+      "tier": "Immortal 2",
+      "players": 1
+    },
+    {
+      "region": "br",
+      "country": "gb",
+      "tier": "Immortal 1",
+      "players": 1
+    },
+    {
+      "region": "latam",
+      "country": "pr",
+      "tier": "Immortal 1",
+      "players": 11
+    },
+    {
+      "region": "eu",
+      "country": "lu",
+      "tier": "Immortal 2",
+      "players": 2
+    },
+    {
+      "region": "na",
+      "country": "de",
+      "tier": "Immortal 1",
+      "players": 7
+    },
+    {
+      "region": "br",
+      "country": "de",
+      "tier": "Immortal 2",
+      "players": 2
+    },
+    {
+      "region": "eu",
+      "country": "mu",
+      "tier": "Immortal 3",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "lv",
+      "tier": "Immortal 3",
+      "players": 4
+    },
+    {
+      "region": "br",
+      "country": "cl",
+      "tier": "Immortal 1",
+      "players": 8
+    },
+    {
+      "region": "eu",
+      "country": "dj",
+      "tier": "Immortal 3",
+      "players": 2
+    },
+    {
+      "region": "ap",
+      "country": "kr",
+      "tier": "Immortal 1",
+      "players": 223
+    },
+    {
+      "region": "eu",
+      "country": "gr",
+      "tier": "Immortal 1",
+      "players": 23
+    },
+    {
+      "region": "br",
+      "country": "af",
+      "tier": "Radiant",
+      "players": 1
+    },
+    {
+      "region": "na",
+      "country": "au",
+      "tier": "Immortal 1",
+      "players": 3
+    },
+    {
+      "region": "eu",
+      "country": "ps",
+      "tier": "Immortal 1",
+      "players": 13
+    },
+    {
+      "region": "na",
+      "country": "hm",
+      "tier": "Immortal 1",
+      "players": 1
+    },
+    {
+      "region": "ap",
+      "country": "us",
+      "tier": "Immortal 3",
+      "players": 6
+    },
+    {
+      "region": "eu",
+      "country": "il",
+      "tier": "Immortal 2",
+      "players": 14
+    },
+    {
+      "region": "eu",
+      "country": "mz",
+      "tier": "Immortal 1",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "jp",
+      "tier": "Radiant",
+      "players": 5
+    },
+    {
+      "region": "ap",
+      "country": "ru",
+      "tier": "Immortal 2",
+      "players": 11
+    },
+    {
+      "region": "latam",
+      "country": "de",
+      "tier": "Radiant",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "bw",
+      "tier": "Immortal 1",
+      "players": 1
+    },
+    {
+      "region": "br",
+      "country": "th",
+      "tier": "Immortal 1",
+      "players": 2
+    },
+    {
+      "region": "ap",
+      "country": "hk",
+      "tier": "Immortal 2",
+      "players": 27
+    },
+    {
+      "region": "latam",
+      "country": "do",
+      "tier": "Immortal 3",
+      "players": 1
+    },
+    {
+      "region": "ap",
+      "country": "ua",
+      "tier": "Immortal 3",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "ro",
+      "tier": "Radiant",
+      "players": 1
+    },
+    {
+      "region": "br",
+      "country": "it",
+      "tier": "Immortal 2",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "ec",
+      "tier": "Immortal 3",
+      "players": 1
+    },
+    {
+      "region": "na",
+      "country": "us",
+      "tier": "Immortal 2",
+      "players": 426
+    },
+    {
+      "region": "eu",
+      "country": "jo",
+      "tier": "Immortal 1",
+      "players": 18
+    },
+    {
+      "region": "na",
+      "country": "mk",
+      "tier": "Immortal 1",
+      "players": 1
+    },
+    {
+      "region": "na",
+      "country": "ge",
+      "tier": "Radiant",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "rs",
+      "tier": "Immortal 3",
+      "players": 5
+    },
+    {
+      "region": "eu",
+      "country": "ba",
+      "tier": "Immortal 1",
+      "players": 11
+    },
+    {
+      "region": "na",
+      "country": "cn",
+      "tier": "Radiant",
+      "players": 3
+    },
+    {
+      "region": "na",
+      "country": "as",
+      "tier": "Immortal 1",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "it",
+      "tier": "Immortal 2",
+      "players": 43
+    },
+    {
+      "region": "eu",
+      "country": "ro",
+      "tier": "Immortal 2",
+      "players": 18
+    },
+    {
+      "region": "eu",
+      "country": "ca",
+      "tier": "Immortal 3",
+      "players": 6
+    },
+    {
+      "region": "ap",
+      "country": "id",
+      "tier": "Immortal 3",
+      "players": 19
+    },
+    {
+      "region": "eu",
+      "country": "tc",
+      "tier": "Immortal 2",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "bg",
+      "tier": "Immortal 3",
+      "players": 7
+    },
+    {
+      "region": "eu",
+      "country": "at",
+      "tier": "Immortal 2",
+      "players": 16
+    },
+    {
+      "region": "latam",
+      "country": "cl",
+      "tier": "Radiant",
+      "players": 30
+    },
+    {
+      "region": "eu",
+      "country": "au",
+      "tier": "Immortal 2",
+      "players": 1
+    },
+    {
+      "region": "ap",
+      "country": "nl",
+      "tier": "Immortal 3",
+      "players": 1
+    },
+    {
+      "region": "ap",
+      "country": "kh",
+      "tier": "Immortal 2",
+      "players": 5
+    },
+    {
+      "region": "latam",
+      "country": "al",
+      "tier": "Radiant",
+      "players": 1
+    },
+    {
+      "region": "na",
+      "country": "sv",
+      "tier": "Immortal 1",
+      "players": 2
+    },
+    {
+      "region": "eu",
+      "country": "mq",
+      "tier": "Immortal 1",
+      "players": 1
+    },
+    {
+      "region": "na",
+      "country": "hn",
+      "tier": "Immortal 1",
+      "players": 2
+    },
+    {
+      "region": "latam",
+      "country": "uy",
+      "tier": "Immortal 1",
+      "players": 36
+    },
+    {
+      "region": "eu",
+      "country": "sy",
+      "tier": "Immortal 3",
+      "players": 3
+    },
+    {
+      "region": "eu",
+      "country": "nl",
+      "tier": "Radiant",
+      "players": 6
+    },
+    {
+      "region": "latam",
+      "country": "ar",
+      "tier": "Immortal 3",
+      "players": 20
+    },
+    {
+      "region": "na",
+      "country": "tt",
+      "tier": "Immortal 1",
+      "players": 2
+    },
+    {
+      "region": "eu",
+      "country": "kn",
+      "tier": "Immortal 1",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "dk",
+      "tier": "Immortal 3",
+      "players": 20
+    },
+    {
+      "region": "ap",
+      "country": "vn",
+      "tier": "Immortal 1",
+      "players": 159
+    },
+    {
+      "region": "latam",
+      "country": "ru",
+      "tier": "Immortal 3",
+      "players": 1
+    },
+    {
+      "region": "na",
+      "country": "mx",
+      "tier": "Radiant",
+      "players": 3
+    },
+    {
+      "region": "eu",
+      "country": "vc",
+      "tier": "Immortal 1",
+      "players": 1
+    },
+    {
+      "region": "na",
+      "country": "pe",
+      "tier": "Immortal 1",
+      "players": 2
+    },
+    {
+      "region": "na",
+      "country": "pk",
+      "tier": "Radiant",
+      "players": 1
+    },
+    {
+      "region": "na",
+      "country": "it",
+      "tier": "Immortal 2",
+      "players": 1
+    },
+    {
+      "region": "latam",
+      "country": "ru",
+      "tier": "Immortal 1",
+      "players": 10
+    },
+    {
+      "region": "latam",
+      "country": "gt",
+      "tier": "Immortal 1",
+      "players": 21
+    },
+    {
+      "region": "br",
+      "country": "br",
+      "tier": "Immortal 1",
+      "players": 1858
+    },
+    {
+      "region": "na",
+      "country": "no",
+      "tier": "Immortal 1",
+      "players": 2
+    },
+    {
+      "region": "eu",
+      "country": "bg",
+      "tier": "Immortal 1",
+      "players": 16
+    },
+    {
+      "region": "ap",
+      "country": "cv",
+      "tier": "Immortal 1",
+      "players": 1
+    },
+    {
+      "region": "na",
+      "country": "ro",
+      "tier": "Immortal 1",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "lt",
+      "tier": "Radiant",
+      "players": 3
+    },
+    {
+      "region": "eu",
+      "country": "mm",
+      "tier": "Immortal 1",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "th",
+      "tier": "Immortal 2",
+      "players": 3
+    },
+    {
+      "region": "eu",
+      "country": "za",
+      "tier": "Immortal 1",
+      "players": 8
+    },
+    {
+      "region": "eu",
+      "country": "fr",
+      "tier": "Immortal 3",
+      "players": 97
+    },
+    {
+      "region": "eu",
+      "country": "cl",
+      "tier": "Immortal 3",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "ae",
+      "tier": "Immortal 2",
+      "players": 11
+    },
+    {
+      "region": "ap",
+      "country": "mm",
+      "tier": "Immortal 3",
+      "players": 1
+    },
+    {
+      "region": "na",
+      "country": "pr",
+      "tier": "Immortal 1",
+      "players": 7
+    },
+    {
+      "region": "eu",
+      "country": "my",
+      "tier": "Immortal 1",
+      "players": 1
+    },
+    {
+      "region": "ap",
+      "country": "sg",
+      "tier": "Radiant",
+      "players": 6
+    },
+    {
+      "region": "ap",
+      "country": "do",
+      "tier": "Immortal 1",
+      "players": 1
+    },
+    {
+      "region": "na",
+      "country": "do",
+      "tier": "Immortal 2",
+      "players": 1
+    },
+    {
+      "region": "ap",
+      "country": "cx",
+      "tier": "Immortal 3",
+      "players": 1
+    },
+    {
+      "region": "ap",
+      "country": "in",
+      "tier": "Immortal 2",
+      "players": 66
+    },
+    {
+      "region": "eu",
+      "country": "ie",
+      "tier": "Immortal 1",
+      "players": 38
+    },
+    {
+      "region": "eu",
+      "country": "by",
+      "tier": "Radiant",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "ci",
+      "tier": "Immortal 3",
+      "players": 1
+    },
+    {
+      "region": "na",
+      "country": "tt",
+      "tier": "Immortal 2",
+      "players": 1
+    },
+    {
+      "region": "ap",
+      "country": "cn",
+      "tier": "Immortal 2",
+      "players": 65
+    },
+    {
+      "region": "ap",
+      "country": "ru",
+      "tier": "Immortal 1",
+      "players": 22
+    },
+    {
+      "region": "ap",
+      "country": "mn",
+      "tier": "Immortal 2",
+      "players": 12
+    },
+    {
+      "region": "na",
+      "country": "nl",
+      "tier": "Immortal 1",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "us",
+      "tier": "Immortal 2",
+      "players": 6
+    },
+    {
+      "region": "eu",
+      "country": "kr",
+      "tier": "Immortal 3",
+      "players": 11
+    },
+    {
+      "region": "br",
+      "country": "ar",
+      "tier": "Radiant",
+      "players": 2
+    },
+    {
+      "region": "eu",
+      "country": "dk",
+      "tier": "Immortal 1",
+      "players": 56
+    },
+    {
+      "region": "latam",
+      "country": "cr",
+      "tier": "Immortal 2",
+      "players": 9
+    },
+    {
+      "region": "latam",
+      "country": "ee",
+      "tier": "Immortal 1",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "nl",
+      "tier": "Immortal 1",
+      "players": 97
+    },
+    {
+      "region": "latam",
+      "country": "kr",
+      "tier": "Radiant",
+      "players": 1
+    },
+    {
+      "region": "na",
+      "country": "ir",
+      "tier": "Immortal 1",
+      "players": 2
+    },
+    {
+      "region": "eu",
+      "country": "mn",
+      "tier": "Immortal 1",
+      "players": 1
+    },
+    {
+      "region": "ap",
+      "country": "bn",
+      "tier": "Immortal 1",
+      "players": 4
+    },
+    {
+      "region": "eu",
+      "country": "unknown",
+      "tier": "Immortal 3",
+      "players": 564
+    },
+    {
+      "region": "latam",
+      "country": "unknown",
+      "tier": "Radiant",
+      "players": 65
+    },
+    {
+      "region": "eu",
+      "country": "qa",
+      "tier": "Immortal 2",
+      "players": 4
+    },
+    {
+      "region": "eu",
+      "country": "ba",
+      "tier": "Immortal 2",
+      "players": 2
+    },
+    {
+      "region": "ap",
+      "country": "pl",
+      "tier": "Immortal 2",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "de",
+      "tier": "Immortal 1",
+      "players": 547
+    },
+    {
+      "region": "latam",
+      "country": "mr",
+      "tier": "Immortal 1",
+      "players": 1
+    },
+    {
+      "region": "latam",
+      "country": "pa",
+      "tier": "Immortal 3",
+      "players": 2
+    },
+    {
+      "region": "br",
+      "country": "al",
+      "tier": "Immortal 2",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "zw",
+      "tier": "Immortal 1",
+      "players": 7
+    },
+    {
+      "region": "eu",
+      "country": "fo",
+      "tier": "Immortal 1",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "jo",
+      "tier": "Immortal 3",
+      "players": 3
+    },
+    {
+      "region": "ap",
+      "country": "pl",
+      "tier": "Immortal 1",
+      "players": 1
+    },
+    {
+      "region": "latam",
+      "country": "es",
+      "tier": "Immortal 1",
+      "players": 3
+    },
+    {
+      "region": "eu",
+      "country": "sg",
+      "tier": "Immortal 2",
+      "players": 2
+    },
+    {
+      "region": "eu",
+      "country": "dz",
+      "tier": "Immortal 1",
+      "players": 18
+    },
+    {
+      "region": "eu",
+      "country": "il",
+      "tier": "Immortal 1",
+      "players": 27
+    },
+    {
+      "region": "latam",
+      "country": "va",
+      "tier": "Immortal 1",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "th",
+      "tier": "Immortal 1",
+      "players": 14
+    },
+    {
+      "region": "eu",
+      "country": "ir",
+      "tier": "Immortal 1",
+      "players": 7
+    },
+    {
+      "region": "br",
+      "country": "unknown",
+      "tier": "Radiant",
+      "players": 40
+    },
+    {
+      "region": "latam",
+      "country": "do",
+      "tier": "Immortal 2",
+      "players": 4
+    },
+    {
+      "region": "ap",
+      "country": "au",
+      "tier": "Radiant",
+      "players": 10
+    },
+    {
+      "region": "eu",
+      "country": "ye",
+      "tier": "Immortal 3",
+      "players": 2
+    },
+    {
+      "region": "ap",
+      "country": "se",
+      "tier": "Radiant",
+      "players": 1
+    },
+    {
+      "region": "br",
+      "country": "nl",
+      "tier": "Immortal 2",
+      "players": 1
+    },
+    {
+      "region": "na",
+      "country": "mm",
+      "tier": "Immortal 1",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "no",
+      "tier": "Immortal 3",
+      "players": 11
+    },
+    {
+      "region": "ap",
+      "country": "mv",
+      "tier": "Immortal 1",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "uz",
+      "tier": "Immortal 1",
+      "players": 10
+    },
+    {
+      "region": "na",
+      "country": "ba",
+      "tier": "Immortal 1",
+      "players": 1
+    },
+    {
+      "region": "ap",
+      "country": "kr",
+      "tier": "Immortal 3",
+      "players": 147
+    },
+    {
+      "region": "ap",
+      "country": "mt",
+      "tier": "Immortal 3",
+      "players": 1
+    },
+    {
+      "region": "latam",
+      "country": "hk",
+      "tier": "Immortal 2",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "ng",
+      "tier": "Immortal 2",
+      "players": 1
+    },
+    {
+      "region": "ap",
+      "country": "ru",
+      "tier": "Immortal 3",
+      "players": 21
+    },
+    {
+      "region": "eu",
+      "country": "kp",
+      "tier": "Immortal 1",
+      "players": 6
+    },
+    {
+      "region": "ap",
+      "country": "gr",
+      "tier": "Immortal 1",
+      "players": 1
+    },
+    {
+      "region": "ap",
+      "country": "vn",
+      "tier": "Radiant",
+      "players": 10
+    },
+    {
+      "region": "na",
+      "country": "so",
+      "tier": "Immortal 1",
+      "players": 1
+    },
+    {
+      "region": "na",
+      "country": "es",
+      "tier": "Immortal 1",
+      "players": 4
+    },
+    {
+      "region": "kr",
+      "country": "kr",
+      "tier": "Immortal 3",
+      "players": 15
+    },
+    {
+      "region": "eu",
+      "country": "ie",
+      "tier": "Immortal 3",
+      "players": 7
+    },
+    {
+      "region": "eu",
+      "country": "va",
+      "tier": "Radiant",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "rs",
+      "tier": "Radiant",
+      "players": 2
+    },
+    {
+      "region": "ap",
+      "country": "mo",
+      "tier": "Immortal 2",
+      "players": 3
+    },
+    {
+      "region": "eu",
+      "country": "ly",
+      "tier": "Immortal 1",
+      "players": 2
+    },
+    {
+      "region": "latam",
+      "country": "ch",
+      "tier": "Immortal 1",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "se",
+      "tier": "Immortal 2",
+      "players": 63
+    },
+    {
+      "region": "latam",
+      "country": "sr",
+      "tier": "Immortal 1",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "kw",
+      "tier": "Immortal 2",
+      "players": 3
+    },
+    {
+      "region": "ap",
+      "country": "id",
+      "tier": "Immortal 2",
+      "players": 34
+    },
+    {
+      "region": "ap",
+      "country": "ws",
+      "tier": "Immortal 1",
+      "players": 2
+    },
+    {
+      "region": "br",
+      "country": "ar",
+      "tier": "Immortal 1",
+      "players": 13
+    },
+    {
+      "region": "eu",
+      "country": "ie",
+      "tier": "Immortal 2",
+      "players": 18
+    },
+    {
+      "region": "eu",
+      "country": "gr",
+      "tier": "Immortal 2",
+      "players": 13
+    },
+    {
+      "region": "eu",
+      "country": "dj",
+      "tier": "Immortal 1",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "hu",
+      "tier": "Immortal 3",
+      "players": 7
+    },
+    {
+      "region": "ap",
+      "country": "th",
+      "tier": "Immortal 3",
+      "players": 34
+    },
+    {
+      "region": "br",
+      "country": "th",
+      "tier": "Immortal 2",
+      "players": 2
+    },
+    {
+      "region": "br",
+      "country": "us",
+      "tier": "Radiant",
+      "players": 2
+    },
+    {
+      "region": "eu",
+      "country": "va",
+      "tier": "Immortal 3",
+      "players": 2
+    },
+    {
+      "region": "latam",
+      "country": "no",
+      "tier": "Immortal 1",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "ru",
+      "tier": "Radiant",
+      "players": 20
+    },
+    {
+      "region": "br",
+      "country": "ch",
+      "tier": "Immortal 1",
+      "players": 3
+    },
+    {
+      "region": "eu",
+      "country": "sy",
+      "tier": "Immortal 2",
+      "players": 2
+    },
+    {
+      "region": "br",
+      "country": "cn",
+      "tier": "Immortal 1",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "mh",
+      "tier": "Immortal 2",
+      "players": 2
+    },
+    {
+      "region": "eu",
+      "country": "ch",
+      "tier": "Immortal 3",
+      "players": 11
+    },
+    {
+      "region": "na",
+      "country": "am",
+      "tier": "Immortal 1",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "jp",
+      "tier": "Immortal 1",
+      "players": 53
+    },
+    {
+      "region": "eu",
+      "country": "li",
+      "tier": "Immortal 1",
+      "players": 1
+    },
+    {
+      "region": "latam",
+      "country": "sv",
+      "tier": "Radiant",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "ae",
+      "tier": "Immortal 1",
+      "players": 43
+    },
+    {
+      "region": "eu",
+      "country": "sx",
+      "tier": "Immortal 2",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "tm",
+      "tier": "Immortal 1",
+      "players": 1
+    },
+    {
+      "region": "ap",
+      "country": "unknown",
+      "tier": "Radiant",
+      "players": 296
+    },
+    {
+      "region": "br",
+      "country": "de",
+      "tier": "Radiant",
+      "players": 2
+    },
+    {
+      "region": "latam",
+      "country": "kr",
+      "tier": "Immortal 1",
+      "players": 8
+    },
+    {
+      "region": "ap",
+      "country": "is",
+      "tier": "Immortal 1",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "pt",
+      "tier": "Immortal 1",
+      "players": 94
+    },
+    {
+      "region": "ap",
+      "country": "unknown",
+      "tier": "Immortal 1",
+      "players": 5695
+    },
+    {
+      "region": "na",
+      "country": "in",
+      "tier": "Radiant",
+      "players": 3
+    },
+    {
+      "region": "ap",
+      "country": "ae",
+      "tier": "Immortal 2",
+      "players": 1
+    },
+    {
+      "region": "latam",
+      "country": "hk",
+      "tier": "Immortal 3",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "si",
+      "tier": "Immortal 2",
+      "players": 13
+    },
+    {
+      "region": "latam",
+      "country": "py",
+      "tier": "Immortal 1",
+      "players": 16
+    },
+    {
+      "region": "eu",
+      "country": "om",
+      "tier": "Immortal 1",
+      "players": 7
+    },
+    {
+      "region": "eu",
+      "country": "ro",
+      "tier": "Immortal 1",
+      "players": 44
+    },
+    {
+      "region": "ap",
+      "country": "bt",
+      "tier": "Immortal 2",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "unknown",
+      "tier": "Radiant",
+      "players": 117
+    },
+    {
+      "region": "eu",
+      "country": "aq",
+      "tier": "Immortal 2",
+      "players": 3
+    },
+    {
+      "region": "ap",
+      "country": "sg",
+      "tier": "Immortal 2",
+      "players": 71
+    },
+    {
+      "region": "eu",
+      "country": "be",
+      "tier": "Radiant",
+      "players": 4
+    },
+    {
+      "region": "br",
+      "country": "uz",
+      "tier": "Immortal 2",
+      "players": 1
+    },
+    {
+      "region": "na",
+      "country": "cz",
+      "tier": "Immortal 3",
+      "players": 1
+    },
+    {
+      "region": "latam",
+      "country": "jp",
+      "tier": "Immortal 3",
+      "players": 2
+    },
+    {
+      "region": "latam",
+      "country": "de",
+      "tier": "Immortal 1",
+      "players": 6
+    },
+    {
+      "region": "ap",
+      "country": "unknown",
+      "tier": "Immortal 3",
+      "players": 1284
+    },
+    {
+      "region": "latam",
+      "country": "co",
+      "tier": "Immortal 3",
+      "players": 10
+    },
+    {
+      "region": "latam",
+      "country": "bo",
+      "tier": "Immortal 1",
+      "players": 4
+    },
+    {
+      "region": "eu",
+      "country": "tw",
+      "tier": "Immortal 1",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "hm",
+      "tier": "Immortal 3",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "pl",
+      "tier": "Immortal 1",
+      "players": 183
+    },
+    {
+      "region": "latam",
+      "country": "cu",
+      "tier": "Immortal 2",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "tr",
+      "tier": "Radiant",
+      "players": 68
+    },
+    {
+      "region": "eu",
+      "country": "zw",
+      "tier": "Immortal 2",
+      "players": 2
+    },
+    {
+      "region": "eu",
+      "country": "gb",
+      "tier": "Radiant",
+      "players": 35
+    },
+    {
+      "region": "latam",
+      "country": "sv",
+      "tier": "Immortal 1",
+      "players": 7
+    },
+    {
+      "region": "na",
+      "country": "gr",
+      "tier": "Immortal 1",
+      "players": 1
+    },
+    {
+      "region": "latam",
+      "country": "cn",
+      "tier": "Immortal 1",
+      "players": 1
+    },
+    {
+      "region": "ap",
+      "country": "vn",
+      "tier": "Immortal 3",
+      "players": 39
+    },
+    {
+      "region": "eu",
+      "country": "tn",
+      "tier": "Immortal 3",
+      "players": 2
+    },
+    {
+      "region": "latam",
+      "country": "gt",
+      "tier": "Radiant",
+      "players": 2
+    },
+    {
+      "region": "eu",
+      "country": "af",
+      "tier": "Immortal 2",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "hr",
+      "tier": "Immortal 2",
+      "players": 5
+    },
+    {
+      "region": "na",
+      "country": "ug",
+      "tier": "Immortal 1",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "hk",
+      "tier": "Immortal 3",
+      "players": 3
+    },
+    {
+      "region": "eu",
+      "country": "by",
+      "tier": "Immortal 3",
+      "players": 2
+    },
+    {
+      "region": "eu",
+      "country": "gr",
+      "tier": "Immortal 3",
+      "players": 1
+    },
+    {
+      "region": "na",
+      "country": "th",
+      "tier": "Immortal 1",
+      "players": 2
+    },
+    {
+      "region": "ap",
+      "country": "gr",
+      "tier": "Radiant",
+      "players": 1
+    },
+    {
+      "region": "latam",
+      "country": "ad",
+      "tier": "Immortal 1",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "aq",
+      "tier": "Radiant",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "ca",
+      "tier": "Immortal 1",
+      "players": 11
+    },
+    {
+      "region": "eu",
+      "country": "bt",
+      "tier": "Immortal 2",
+      "players": 3
+    },
+    {
+      "region": "eu",
+      "country": "af",
+      "tier": "Immortal 1",
+      "players": 1
+    },
+    {
+      "region": "br",
+      "country": "kr",
+      "tier": "Immortal 1",
+      "players": 8
+    },
+    {
+      "region": "eu",
+      "country": "ws",
+      "tier": "Immortal 2",
+      "players": 1
+    },
+    {
+      "region": "latam",
+      "country": "gb",
+      "tier": "Radiant",
+      "players": 1
+    },
+    {
+      "region": "ap",
+      "country": "jm",
+      "tier": "Immortal 3",
+      "players": 1
+    },
+    {
+      "region": "latam",
+      "country": "jp",
+      "tier": "Radiant",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "az",
+      "tier": "Immortal 3",
+      "players": 3
+    },
+    {
+      "region": "br",
+      "country": "unknown",
+      "tier": "Immortal 3",
+      "players": 77
+    },
+    {
+      "region": "eu",
+      "country": "kw",
+      "tier": "Immortal 3",
+      "players": 1
+    },
+    {
+      "region": "latam",
+      "country": "sc",
+      "tier": "Immortal 1",
+      "players": 1
+    },
+    {
+      "region": "br",
+      "country": "es",
+      "tier": "Immortal 2",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "gl",
+      "tier": "Immortal 3",
+      "players": 2
+    },
+    {
+      "region": "ap",
+      "country": "id",
+      "tier": "Immortal 1",
+      "players": 96
+    },
+    {
+      "region": "ap",
+      "country": "in",
+      "tier": "Immortal 3",
+      "players": 22
+    },
+    {
+      "region": "na",
+      "country": "unknown",
+      "tier": "Immortal 2",
+      "players": 391
+    },
+    {
+      "region": "ap",
+      "country": "kw",
+      "tier": "Immortal 1",
+      "players": 1
+    },
+    {
+      "region": "kr",
+      "country": "jp",
+      "tier": "Immortal 1",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "mx",
+      "tier": "Immortal 3",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "si",
+      "tier": "Immortal 1",
+      "players": 18
+    },
+    {
+      "region": "eu",
+      "country": "cu",
+      "tier": "Immortal 1",
+      "players": 1
+    },
+    {
+      "region": "na",
+      "country": "va",
+      "tier": "Immortal 1",
+      "players": 3
+    },
+    {
+      "region": "ap",
+      "country": "tw",
+      "tier": "Immortal 2",
+      "players": 58
+    },
+    {
+      "region": "eu",
+      "country": "at",
+      "tier": "Radiant",
+      "players": 6
+    },
+    {
+      "region": "eu",
+      "country": "ir",
+      "tier": "Immortal 3",
+      "players": 1
+    },
+    {
+      "region": "ap",
+      "country": "tw",
+      "tier": "Immortal 1",
+      "players": 140
+    },
+    {
+      "region": "na",
+      "country": "ec",
+      "tier": "Immortal 1",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "ph",
+      "tier": "Immortal 3",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "jp",
+      "tier": "Immortal 3",
+      "players": 20
+    },
+    {
+      "region": "eu",
+      "country": "re",
+      "tier": "Immortal 3",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "is",
+      "tier": "Immortal 2",
+      "players": 4
+    },
+    {
+      "region": "eu",
+      "country": "jp",
+      "tier": "Immortal 2",
+      "players": 23
+    },
+    {
+      "region": "na",
+      "country": "tr",
+      "tier": "Immortal 2",
+      "players": 1
+    },
+    {
+      "region": "na",
+      "country": "my",
+      "tier": "Immortal 2",
+      "players": 1
+    },
+    {
+      "region": "na",
+      "country": "hk",
+      "tier": "Immortal 1",
+      "players": 6
+    },
+    {
+      "region": "ap",
+      "country": "ph",
+      "tier": "Immortal 1",
+      "players": 281
+    },
+    {
+      "region": "ap",
+      "country": "my",
+      "tier": "Immortal 2",
+      "players": 35
+    },
+    {
+      "region": "eu",
+      "country": "lc",
+      "tier": "Immortal 2",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "cx",
+      "tier": "Immortal 1",
+      "players": 1
+    },
+    {
+      "region": "na",
+      "country": "mx",
+      "tier": "Immortal 2",
+      "players": 8
+    },
+    {
+      "region": "eu",
+      "country": "es",
+      "tier": "Immortal 2",
+      "players": 98
+    },
+    {
+      "region": "na",
+      "country": "pt",
+      "tier": "Immortal 1",
+      "players": 3
+    },
+    {
+      "region": "na",
+      "country": "ua",
+      "tier": "Immortal 1",
+      "players": 2
+    },
+    {
+      "region": "eu",
+      "country": "de",
+      "tier": "Immortal 2",
+      "players": 215
+    },
+    {
+      "region": "br",
+      "country": "pt",
+      "tier": "Immortal 2",
+      "players": 2
+    },
+    {
+      "region": "latam",
+      "country": "cv",
+      "tier": "Immortal 1",
+      "players": 1
+    },
+    {
+      "region": "latam",
+      "country": "sy",
+      "tier": "Immortal 1",
+      "players": 1
+    },
+    {
+      "region": "na",
+      "country": "pl",
+      "tier": "Immortal 1",
+      "players": 4
+    },
+    {
+      "region": "eu",
+      "country": "ca",
+      "tier": "Radiant",
+      "players": 2
+    },
+    {
+      "region": "eu",
+      "country": "ly",
+      "tier": "Immortal 3",
+      "players": 3
+    },
+    {
+      "region": "eu",
+      "country": "fj",
+      "tier": "Immortal 1",
+      "players": 3
+    },
+    {
+      "region": "ap",
+      "country": "mo",
+      "tier": "Immortal 1",
+      "players": 2
+    },
+    {
+      "region": "na",
+      "country": "af",
+      "tier": "Immortal 1",
+      "players": 1
+    },
+    {
+      "region": "na",
+      "country": "it",
+      "tier": "Radiant",
+      "players": 1
+    },
+    {
+      "region": "ap",
+      "country": "kp",
+      "tier": "Immortal 1",
+      "players": 4
+    },
+    {
+      "region": "ap",
+      "country": "ps",
+      "tier": "Immortal 2",
+      "players": 1
+    },
+    {
+      "region": "latam",
+      "country": "tr",
+      "tier": "Radiant",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "mg",
+      "tier": "Immortal 3",
+      "players": 1
+    },
+    {
+      "region": "na",
+      "country": "cn",
+      "tier": "Immortal 3",
+      "players": 2
+    },
+    {
+      "region": "ap",
+      "country": "ua",
+      "tier": "Immortal 2",
+      "players": 1
+    },
+    {
+      "region": "ap",
+      "country": "ph",
+      "tier": "Immortal 3",
+      "players": 79
+    },
+    {
+      "region": "ap",
+      "country": "bd",
+      "tier": "Immortal 1",
+      "players": 12
+    },
+    {
+      "region": "eu",
+      "country": "ua",
+      "tier": "Radiant",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "ua",
+      "tier": "Immortal 2",
+      "players": 19
+    },
+    {
+      "region": "eu",
+      "country": "mc",
+      "tier": "Immortal 3",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "ee",
+      "tier": "Immortal 3",
+      "players": 7
+    },
+    {
+      "region": "kr",
+      "country": "unknown",
+      "tier": "Immortal 2",
+      "players": 374
+    },
+    {
+      "region": "eu",
+      "country": "fi",
+      "tier": "Immortal 3",
+      "players": 12
+    },
+    {
+      "region": "eu",
+      "country": "by",
+      "tier": "Immortal 2",
+      "players": 7
+    },
+    {
+      "region": "na",
+      "country": "ve",
+      "tier": "Immortal 2",
+      "players": 1
+    },
+    {
+      "region": "br",
+      "country": "ge",
+      "tier": "Immortal 1",
+      "players": 1
+    },
+    {
+      "region": "na",
+      "country": "kr",
+      "tier": "Immortal 3",
+      "players": 1
+    },
+    {
+      "region": "latam",
+      "country": "zw",
+      "tier": "Immortal 1",
+      "players": 1
+    },
+    {
+      "region": "br",
+      "country": "tr",
+      "tier": "Immortal 1",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "kr",
+      "tier": "Immortal 1",
+      "players": 40
+    },
+    {
+      "region": "eu",
+      "country": "il",
+      "tier": "Immortal 3",
+      "players": 10
+    },
+    {
+      "region": "latam",
+      "country": "cl",
+      "tier": "Immortal 1",
+      "players": 679
+    },
+    {
+      "region": "eu",
+      "country": "ne",
+      "tier": "Immortal 1",
+      "players": 4
+    },
+    {
+      "region": "ap",
+      "country": "kr",
+      "tier": "Radiant",
+      "players": 58
+    },
+    {
+      "region": "br",
+      "country": "pk",
+      "tier": "Immortal 3",
+      "players": 1
+    },
+    {
+      "region": "ap",
+      "country": "cv",
+      "tier": "Immortal 2",
+      "players": 1
+    },
+    {
+      "region": "ap",
+      "country": "bn",
+      "tier": "Immortal 3",
+      "players": 1
+    },
+    {
+      "region": "ap",
+      "country": "qa",
+      "tier": "Immortal 3",
+      "players": 1
+    },
+    {
+      "region": "ap",
+      "country": "de",
+      "tier": "Immortal 2",
+      "players": 2
+    },
+    {
+      "region": "latam",
+      "country": "pe",
+      "tier": "Radiant",
+      "players": 9
+    },
+    {
+      "region": "na",
+      "country": "aq",
+      "tier": "Immortal 1",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "dk",
+      "tier": "Radiant",
+      "players": 13
+    },
+    {
+      "region": "ap",
+      "country": "lt",
+      "tier": "Immortal 1",
+      "players": 1
+    },
+    {
+      "region": "na",
+      "country": "ca",
+      "tier": "Immortal 3",
+      "players": 20
+    },
+    {
+      "region": "eu",
+      "country": "mk",
+      "tier": "Immortal 3",
+      "players": 1
+    },
+    {
+      "region": "na",
+      "country": "unknown",
+      "tier": "Immortal 1",
+      "players": 3626
+    },
+    {
+      "region": "br",
+      "country": "cl",
+      "tier": "Immortal 3",
+      "players": 3
+    },
+    {
+      "region": "ap",
+      "country": "tr",
+      "tier": "Radiant",
+      "players": 1
+    },
+    {
+      "region": "latam",
+      "country": "py",
+      "tier": "Radiant",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "cy",
+      "tier": "Immortal 1",
+      "players": 7
+    },
+    {
+      "region": "eu",
+      "country": "gs",
+      "tier": "Immortal 2",
+      "players": 1
+    },
+    {
+      "region": "br",
+      "country": "de",
+      "tier": "Immortal 1",
+      "players": 5
+    },
+    {
+      "region": "ap",
+      "country": "kh",
+      "tier": "Radiant",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "ve",
+      "tier": "Immortal 1",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "hr",
+      "tier": "Radiant",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "cu",
+      "tier": "Immortal 3",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "ph",
+      "tier": "Immortal 1",
+      "players": 9
+    },
+    {
+      "region": "eu",
+      "country": "cn",
+      "tier": "Immortal 3",
+      "players": 5
+    },
+    {
+      "region": "na",
+      "country": "np",
+      "tier": "Immortal 1",
+      "players": 3
+    },
+    {
+      "region": "br",
+      "country": "fr",
+      "tier": "Radiant",
+      "players": 1
+    },
+    {
+      "region": "latam",
+      "country": "mx",
+      "tier": "Immortal 3",
+      "players": 7
+    },
+    {
+      "region": "ap",
+      "country": "mn",
+      "tier": "Immortal 3",
+      "players": 10
+    },
+    {
+      "region": "eu",
+      "country": "ve",
+      "tier": "Immortal 2",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "gs",
+      "tier": "Immortal 3",
+      "players": 4
+    },
+    {
+      "region": "latam",
+      "country": "cl",
+      "tier": "Immortal 2",
+      "players": 66
+    },
+    {
+      "region": "eu",
+      "country": "be",
+      "tier": "Immortal 1",
+      "players": 69
+    },
+    {
+      "region": "br",
+      "country": "dk",
+      "tier": "Immortal 1",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "tw",
+      "tier": "Immortal 3",
+      "players": 1
+    },
+    {
+      "region": "latam",
+      "country": "unknown",
+      "tier": "Immortal 1",
+      "players": 2046
+    },
+    {
+      "region": "latam",
+      "country": "gt",
+      "tier": "Immortal 2",
+      "players": 4
+    },
+    {
+      "region": "na",
+      "country": "bt",
+      "tier": "Immortal 1",
+      "players": 3
+    },
+    {
+      "region": "latam",
+      "country": "ca",
+      "tier": "Immortal 1",
+      "players": 8
+    },
+    {
+      "region": "ap",
+      "country": "vn",
+      "tier": "Immortal 2",
+      "players": 80
+    },
+    {
+      "region": "na",
+      "country": "ar",
+      "tier": "Immortal 2",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "kr",
+      "tier": "Radiant",
+      "players": 4
+    },
+    {
+      "region": "latam",
+      "country": "cr",
+      "tier": "Radiant",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "ua",
+      "tier": "Immortal 1",
+      "players": 51
+    },
+    {
+      "region": "eu",
+      "country": "xk",
+      "tier": "Immortal 2",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "jo",
+      "tier": "Immortal 2",
+      "players": 6
+    },
+    {
+      "region": "ap",
+      "country": "xk",
+      "tier": "Immortal 2",
+      "players": 2
+    },
+    {
+      "region": "eu",
+      "country": "pk",
+      "tier": "Radiant",
+      "players": 2
+    },
+    {
+      "region": "eu",
+      "country": "pk",
+      "tier": "Immortal 3",
+      "players": 3
+    },
+    {
+      "region": "ap",
+      "country": "ca",
+      "tier": "Immortal 1",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "ge",
+      "tier": "Immortal 3",
+      "players": 3
+    },
+    {
+      "region": "eu",
+      "country": "no",
+      "tier": "Immortal 2",
+      "players": 33
+    },
+    {
+      "region": "eu",
+      "country": "az",
+      "tier": "Immortal 1",
+      "players": 16
+    },
+    {
+      "region": "br",
+      "country": "br",
+      "tier": "Immortal 2",
+      "players": 415
+    },
+    {
+      "region": "eu",
+      "country": "th",
+      "tier": "Immortal 3",
+      "players": 5
+    },
+    {
+      "region": "eu",
+      "country": "fr",
+      "tier": "Radiant",
+      "players": 35
+    },
+    {
+      "region": "ap",
+      "country": "nz",
+      "tier": "Immortal 2",
+      "players": 30
+    },
+    {
+      "region": "eu",
+      "country": "lu",
+      "tier": "Radiant",
+      "players": 1
+    },
+    {
+      "region": "ap",
+      "country": "fr",
+      "tier": "Radiant",
+      "players": 1
+    },
+    {
+      "region": "na",
+      "country": "us",
+      "tier": "Immortal 3",
+      "players": 82
+    },
+    {
+      "region": "ap",
+      "country": "in",
+      "tier": "Immortal 1",
+      "players": 221
+    },
+    {
+      "region": "eu",
+      "country": "tt",
+      "tier": "Immortal 1",
+      "players": 2
+    },
+    {
+      "region": "ap",
+      "country": "io",
+      "tier": "Radiant",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "bb",
+      "tier": "Immortal 1",
+      "players": 2
+    },
+    {
+      "region": "na",
+      "country": "unknown",
+      "tier": "Immortal 3",
+      "players": 95
+    },
+    {
+      "region": "eu",
+      "country": "ua",
+      "tier": "Immortal 3",
+      "players": 16
+    },
+    {
+      "region": "eu",
+      "country": "kh",
+      "tier": "Immortal 3",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "bh",
+      "tier": "Immortal 1",
+      "players": 6
+    },
+    {
+      "region": "eu",
+      "country": "cz",
+      "tier": "Immortal 1",
+      "players": 87
+    },
+    {
+      "region": "eu",
+      "country": "jm",
+      "tier": "Radiant",
+      "players": 1
+    },
+    {
+      "region": "na",
+      "country": "jp",
+      "tier": "Immortal 1",
+      "players": 11
+    },
+    {
+      "region": "latam",
+      "country": "vn",
+      "tier": "Immortal 1",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "mt",
+      "tier": "Immortal 2",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "mc",
+      "tier": "Immortal 1",
+      "players": 2
+    },
+    {
+      "region": "kr",
+      "country": "kr",
+      "tier": "Immortal 1",
+      "players": 720
+    },
+    {
+      "region": "eu",
+      "country": "ng",
+      "tier": "Immortal 3",
+      "players": 1
+    },
+    {
+      "region": "ap",
+      "country": "ge",
+      "tier": "Immortal 2",
+      "players": 1
+    },
+    {
+      "region": "latam",
+      "country": "my",
+      "tier": "Immortal 1",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "pt",
+      "tier": "Immortal 3",
+      "players": 11
+    },
+    {
+      "region": "na",
+      "country": "vn",
+      "tier": "Immortal 1",
+      "players": 13
+    },
+    {
+      "region": "latam",
+      "country": "al",
+      "tier": "Immortal 2",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "mc",
+      "tier": "Immortal 2",
+      "players": 1
+    },
+    {
+      "region": "na",
+      "country": "in",
+      "tier": "Immortal 2",
+      "players": 2
+    },
+    {
+      "region": "br",
+      "country": "ca",
+      "tier": "Immortal 1",
+      "players": 6
+    },
+    {
+      "region": "na",
+      "country": "tw",
+      "tier": "Immortal 1",
+      "players": 5
+    },
+    {
+      "region": "eu",
+      "country": "lv",
+      "tier": "Radiant",
+      "players": 2
+    },
+    {
+      "region": "eu",
+      "country": "ba",
+      "tier": "Immortal 3",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "no",
+      "tier": "Radiant",
+      "players": 5
+    },
+    {
+      "region": "eu",
+      "country": "by",
+      "tier": "Immortal 1",
+      "players": 18
+    },
+    {
+      "region": "na",
+      "country": "cu",
+      "tier": "Immortal 1",
+      "players": 1
+    },
+    {
+      "region": "ap",
+      "country": "jp",
+      "tier": "Immortal 1",
+      "players": 815
+    },
+    {
+      "region": "ap",
+      "country": "sg",
+      "tier": "Immortal 3",
+      "players": 33
+    },
+    {
+      "region": "eu",
+      "country": "vg",
+      "tier": "Immortal 1",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "sg",
+      "tier": "Immortal 1",
+      "players": 2
+    },
+    {
+      "region": "eu",
+      "country": "ca",
+      "tier": "Immortal 2",
+      "players": 7
+    },
+    {
+      "region": "ap",
+      "country": "nz",
+      "tier": "Immortal 1",
+      "players": 52
+    },
+    {
+      "region": "eu",
+      "country": "lt",
+      "tier": "Immortal 2",
+      "players": 17
+    },
+    {
+      "region": "ap",
+      "country": "hk",
+      "tier": "Immortal 1",
+      "players": 46
+    },
+    {
+      "region": "eu",
+      "country": "cu",
+      "tier": "Immortal 2",
+      "players": 1
+    },
+    {
+      "region": "na",
+      "country": "it",
+      "tier": "Immortal 1",
+      "players": 3
+    },
+    {
+      "region": "eu",
+      "country": "np",
+      "tier": "Immortal 3",
+      "players": 2
+    },
+    {
+      "region": "br",
+      "country": "cl",
+      "tier": "Immortal 2",
+      "players": 6
+    },
+    {
+      "region": "ap",
+      "country": "nl",
+      "tier": "Immortal 1",
+      "players": 2
+    },
+    {
+      "region": "latam",
+      "country": "cr",
+      "tier": "Immortal 3",
+      "players": 2
+    },
+    {
+      "region": "br",
+      "country": "unknown",
+      "tier": "Immortal 2",
+      "players": 392
+    },
+    {
+      "region": "eu",
+      "country": "sv",
+      "tier": "Immortal 3",
+      "players": 1
+    },
+    {
+      "region": "latam",
+      "country": "se",
+      "tier": "Immortal 1",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "li",
+      "tier": "Immortal 2",
+      "players": 1
+    },
+    {
+      "region": "latam",
+      "country": "co",
+      "tier": "Radiant",
+      "players": 11
+    },
+    {
+      "region": "latam",
+      "country": "tr",
+      "tier": "Immortal 2",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "hr",
+      "tier": "Immortal 3",
+      "players": 6
+    },
+    {
+      "region": "ap",
+      "country": "fr",
+      "tier": "Immortal 3",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "ch",
+      "tier": "Radiant",
+      "players": 4
+    },
+    {
+      "region": "eu",
+      "country": "lb",
+      "tier": "Immortal 2",
+      "players": 4
+    },
+    {
+      "region": "eu",
+      "country": "kw",
+      "tier": "Immortal 1",
+      "players": 14
+    },
+    {
+      "region": "eu",
+      "country": "iq",
+      "tier": "Immortal 1",
+      "players": 13
+    },
+    {
+      "region": "eu",
+      "country": "nl",
+      "tier": "Immortal 2",
+      "players": 40
+    },
+    {
+      "region": "eu",
+      "country": "cl",
+      "tier": "Immortal 2",
+      "players": 1
+    },
+    {
+      "region": "na",
+      "country": "ca",
+      "tier": "Immortal 1",
+      "players": 668
+    },
+    {
+      "region": "eu",
+      "country": "kg",
+      "tier": "Immortal 2",
+      "players": 3
+    },
+    {
+      "region": "na",
+      "country": "sg",
+      "tier": "Immortal 2",
+      "players": 2
+    },
+    {
+      "region": "latam",
+      "country": "ve",
+      "tier": "Immortal 2",
+      "players": 6
+    },
+    {
+      "region": "br",
+      "country": "br",
+      "tier": "Immortal 3",
+      "players": 105
+    },
+    {
+      "region": "latam",
+      "country": "pa",
+      "tier": "Immortal 2",
+      "players": 3
+    },
+    {
+      "region": "eu",
+      "country": "sk",
+      "tier": "Immortal 3",
+      "players": 3
+    },
+    {
+      "region": "eu",
+      "country": "rs",
+      "tier": "Immortal 2",
+      "players": 12
+    },
+    {
+      "region": "latam",
+      "country": "ve",
+      "tier": "Radiant",
+      "players": 1
+    },
+    {
+      "region": "na",
+      "country": "gb",
+      "tier": "Immortal 1",
+      "players": 2
+    },
+    {
+      "region": "eu",
+      "country": "si",
+      "tier": "Immortal 3",
+      "players": 3
+    },
+    {
+      "region": "na",
+      "country": "ru",
+      "tier": "Immortal 1",
+      "players": 6
+    },
+    {
+      "region": "ap",
+      "country": "mx",
+      "tier": "Immortal 1",
+      "players": 1
+    },
+    {
+      "region": "latam",
+      "country": "do",
+      "tier": "Immortal 1",
+      "players": 15
+    },
+    {
+      "region": "ap",
+      "country": "nl",
+      "tier": "Immortal 2",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "mt",
+      "tier": "Immortal 1",
+      "players": 2
+    },
+    {
+      "region": "latam",
+      "country": "ug",
+      "tier": "Immortal 1",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "eg",
+      "tier": "Radiant",
+      "players": 2
+    },
+    {
+      "region": "eu",
+      "country": "al",
+      "tier": "Immortal 3",
+      "players": 5
+    },
+    {
+      "region": "br",
+      "country": "py",
+      "tier": "Immortal 1",
+      "players": 4
+    },
+    {
+      "region": "eu",
+      "country": "gi",
+      "tier": "Immortal 1",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "ax",
+      "tier": "Immortal 1",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "vn",
+      "tier": "Immortal 1",
+      "players": 16
+    },
+    {
+      "region": "latam",
+      "country": "za",
+      "tier": "Immortal 1",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "pk",
+      "tier": "Immortal 1",
+      "players": 26
+    },
+    {
+      "region": "eu",
+      "country": "it",
+      "tier": "Immortal 3",
+      "players": 22
+    },
+    {
+      "region": "eu",
+      "country": "de",
+      "tier": "Immortal 3",
+      "players": 93
+    },
+    {
+      "region": "eu",
+      "country": "at",
+      "tier": "Immortal 1",
+      "players": 56
+    },
+    {
+      "region": "eu",
+      "country": "ne",
+      "tier": "Immortal 3",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "mg",
+      "tier": "Immortal 1",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "kg",
+      "tier": "Immortal 1",
+      "players": 6
+    },
+    {
+      "region": "latam",
+      "country": "tr",
+      "tier": "Immortal 1",
+      "players": 2
+    },
+    {
+      "region": "latam",
+      "country": "bb",
+      "tier": "Immortal 1",
+      "players": 1
+    },
+    {
+      "region": "br",
+      "country": "se",
+      "tier": "Immortal 1",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "az",
+      "tier": "Immortal 2",
+      "players": 3
+    },
+    {
+      "region": "na",
+      "country": "sa",
+      "tier": "Immortal 1",
+      "players": 1
+    },
+    {
+      "region": "ap",
+      "country": "br",
+      "tier": "Radiant",
+      "players": 1
+    },
+    {
+      "region": "na",
+      "country": "gt",
+      "tier": "Immortal 1",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "ae",
+      "tier": "Immortal 3",
+      "players": 2
+    },
+    {
+      "region": "latam",
+      "country": "br",
+      "tier": "Radiant",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "cz",
+      "tier": "Immortal 2",
+      "players": 30
+    },
+    {
+      "region": "na",
+      "country": "lc",
+      "tier": "Immortal 1",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "sj",
+      "tier": "Immortal 1",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "ie",
+      "tier": "Radiant",
+      "players": 4
+    },
+    {
+      "region": "ap",
+      "country": "jp",
+      "tier": "Immortal 2",
+      "players": 309
+    },
+    {
+      "region": "ap",
+      "country": "kz",
+      "tier": "Immortal 3",
+      "players": 1
+    },
+    {
+      "region": "ap",
+      "country": "bd",
+      "tier": "Immortal 3",
+      "players": 1
+    },
+    {
+      "region": "latam",
+      "country": "ar",
+      "tier": "Radiant",
+      "players": 27
+    },
+    {
+      "region": "eu",
+      "country": "gb",
+      "tier": "Immortal 3",
+      "players": 126
+    },
+    {
+      "region": "na",
+      "country": "ge",
+      "tier": "Immortal 1",
+      "players": 1
+    },
+    {
+      "region": "br",
+      "country": "fk",
+      "tier": "Immortal 2",
+      "players": 1
+    },
+    {
+      "region": "latam",
+      "country": "us",
+      "tier": "Radiant",
+      "players": 2
+    },
+    {
+      "region": "na",
+      "country": "dk",
+      "tier": "Immortal 1",
+      "players": 1
+    },
+    {
+      "region": "na",
+      "country": "ch",
+      "tier": "Immortal 1",
+      "players": 3
+    },
+    {
+      "region": "ap",
+      "country": "hk",
+      "tier": "Radiant",
+      "players": 6
+    },
+    {
+      "region": "na",
+      "country": "bm",
+      "tier": "Radiant",
+      "players": 1
+    },
+    {
+      "region": "ap",
+      "country": "lk",
+      "tier": "Immortal 1",
+      "players": 2
+    },
+    {
+      "region": "eu",
+      "country": "sa",
+      "tier": "Immortal 3",
+      "players": 16
+    },
+    {
+      "region": "ap",
+      "country": "sg",
+      "tier": "Immortal 1",
+      "players": 151
+    },
+    {
+      "region": "eu",
+      "country": "tw",
+      "tier": "Immortal 2",
+      "players": 1
+    },
+    {
+      "region": "na",
+      "country": "ph",
+      "tier": "Immortal 1",
+      "players": 24
+    },
+    {
+      "region": "eu",
+      "country": "md",
+      "tier": "Immortal 2",
+      "players": 5
+    },
+    {
+      "region": "ap",
+      "country": "fj",
+      "tier": "Immortal 1",
+      "players": 1
+    },
+    {
+      "region": "latam",
+      "country": "pa",
+      "tier": "Radiant",
+      "players": 1
+    },
+    {
+      "region": "latam",
+      "country": "hn",
+      "tier": "Radiant",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "it",
+      "tier": "Radiant",
+      "players": 3
+    },
+    {
+      "region": "na",
+      "country": "ae",
+      "tier": "Immortal 1",
+      "players": 2
+    },
+    {
+      "region": "eu",
+      "country": "cz",
+      "tier": "Immortal 3",
+      "players": 25
+    },
+    {
+      "region": "latam",
+      "country": "hk",
+      "tier": "Immortal 1",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "unknown",
+      "tier": "Immortal 1",
+      "players": 4351
+    },
+    {
+      "region": "ap",
+      "country": "cn",
+      "tier": "Immortal 3",
+      "players": 57
+    },
+    {
+      "region": "latam",
+      "country": "uy",
+      "tier": "Immortal 3",
+      "players": 6
+    },
+    {
+      "region": "ap",
+      "country": "my",
+      "tier": "Immortal 3",
+      "players": 14
+    },
+    {
+      "region": "na",
+      "country": "kr",
+      "tier": "Radiant",
+      "players": 4
+    },
+    {
+      "region": "eu",
+      "country": "kr",
+      "tier": "Immortal 2",
+      "players": 9
+    },
+    {
+      "region": "eu",
+      "country": "do",
+      "tier": "Immortal 1",
+      "players": 2
+    },
+    {
+      "region": "br",
+      "country": "ru",
+      "tier": "Immortal 3",
+      "players": 2
+    },
+    {
+      "region": "eu",
+      "country": "ug",
+      "tier": "Radiant",
+      "players": 1
+    },
+    {
+      "region": "latam",
+      "country": "cy",
+      "tier": "Immortal 1",
+      "players": 1
+    },
+    {
+      "region": "na",
+      "country": "aq",
+      "tier": "Immortal 3",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "hu",
+      "tier": "Radiant",
+      "players": 3
+    },
+    {
+      "region": "latam",
+      "country": "uy",
+      "tier": "Immortal 2",
+      "players": 8
+    },
+    {
+      "region": "br",
+      "country": "tr",
+      "tier": "Immortal 2",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "id",
+      "tier": "Immortal 2",
+      "players": 2
+    },
+    {
+      "region": "eu",
+      "country": "es",
+      "tier": "Radiant",
+      "players": 19
+    },
+    {
+      "region": "eu",
+      "country": "se",
+      "tier": "Immortal 3",
+      "players": 40
+    },
+    {
+      "region": "eu",
+      "country": "md",
+      "tier": "Immortal 3",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "sz",
+      "tier": "Immortal 1",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "cy",
+      "tier": "Immortal 2",
+      "players": 1
+    },
+    {
+      "region": "na",
+      "country": "bg",
+      "tier": "Immortal 1",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "vc",
+      "tier": "Immortal 2",
+      "players": 1
+    },
+    {
+      "region": "na",
+      "country": "im",
+      "tier": "Immortal 1",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "be",
+      "tier": "Immortal 3",
+      "players": 20
+    },
+    {
+      "region": "latam",
+      "country": "co",
+      "tier": "Immortal 2",
+      "players": 33
+    },
+    {
+      "region": "eu",
+      "country": "kz",
+      "tier": "Immortal 3",
+      "players": 16
+    },
+    {
+      "region": "br",
+      "country": "us",
+      "tier": "Immortal 1",
+      "players": 5
+    },
+    {
+      "region": "ap",
+      "country": "fr",
+      "tier": "Immortal 2",
+      "players": 2
+    },
+    {
+      "region": "na",
+      "country": "lb",
+      "tier": "Immortal 1",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "ru",
+      "tier": "Immortal 2",
+      "players": 133
+    },
+    {
+      "region": "na",
+      "country": "jm",
+      "tier": "Immortal 1",
+      "players": 2
+    },
+    {
+      "region": "br",
+      "country": "bq",
+      "tier": "Immortal 2",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "xk",
+      "tier": "Immortal 1",
+      "players": 3
+    },
+    {
+      "region": "eu",
+      "country": "lu",
+      "tier": "Immortal 1",
+      "players": 5
+    },
+    {
+      "region": "eu",
+      "country": "am",
+      "tier": "Immortal 1",
+      "players": 1
+    },
+    {
+      "region": "na",
+      "country": "ca",
+      "tier": "Radiant",
+      "players": 13
+    },
+    {
+      "region": "na",
+      "country": "af",
+      "tier": "Immortal 3",
+      "players": 1
+    },
+    {
+      "region": "latam",
+      "country": "uz",
+      "tier": "Immortal 1",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "ee",
+      "tier": "Immortal 1",
+      "players": 17
+    },
+    {
+      "region": "ap",
+      "country": "fr",
+      "tier": "Immortal 1",
+      "players": 3
+    },
+    {
+      "region": "eu",
+      "country": "eg",
+      "tier": "Immortal 3",
+      "players": 13
+    },
+    {
+      "region": "eu",
+      "country": "ug",
+      "tier": "Immortal 1",
+      "players": 1
+    },
+    {
+      "region": "ap",
+      "country": "unknown",
+      "tier": "Immortal 2",
+      "players": 2284
+    },
+    {
+      "region": "na",
+      "country": "cn",
+      "tier": "Immortal 2",
+      "players": 8
+    },
+    {
+      "region": "latam",
+      "country": "mx",
+      "tier": "Immortal 2",
+      "players": 33
+    },
+    {
+      "region": "ap",
+      "country": "gb",
+      "tier": "Radiant",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "tr",
+      "tier": "Immortal 1",
+      "players": 565
+    },
+    {
+      "region": "na",
+      "country": "eg",
+      "tier": "Immortal 3",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "az",
+      "tier": "Radiant",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "bt",
+      "tier": "Radiant",
+      "players": 2
+    },
+    {
+      "region": "ap",
+      "country": "ph",
+      "tier": "Radiant",
+      "players": 13
+    },
+    {
+      "region": "ap",
+      "country": "bt",
+      "tier": "Immortal 1",
+      "players": 1
+    },
+    {
+      "region": "ap",
+      "country": "sa",
+      "tier": "Immortal 1",
+      "players": 3
+    },
+    {
+      "region": "na",
+      "country": "la",
+      "tier": "Immortal 1",
+      "players": 2
+    },
+    {
+      "region": "br",
+      "country": "cu",
+      "tier": "Immortal 2",
+      "players": 1
+    },
+    {
+      "region": "ap",
+      "country": "np",
+      "tier": "Immortal 1",
+      "players": 10
+    },
+    {
+      "region": "eu",
+      "country": "me",
+      "tier": "Immortal 1",
+      "players": 4
+    },
+    {
+      "region": "eu",
+      "country": "kg",
+      "tier": "Immortal 3",
+      "players": 7
+    },
+    {
+      "region": "latam",
+      "country": "it",
+      "tier": "Immortal 2",
+      "players": 1
+    },
+    {
+      "region": "br",
+      "country": "ky",
+      "tier": "Immortal 2",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "de",
+      "tier": "Radiant",
+      "players": 46
+    },
+    {
+      "region": "eu",
+      "country": "dk",
+      "tier": "Immortal 2",
+      "players": 30
+    },
+    {
+      "region": "eu",
+      "country": "pl",
+      "tier": "Immortal 3",
+      "players": 38
+    },
+    {
+      "region": "ap",
+      "country": "gb",
+      "tier": "Immortal 3",
+      "players": 3
+    },
+    {
+      "region": "eu",
+      "country": "sr",
+      "tier": "Immortal 1",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "kp",
+      "tier": "Immortal 2",
+      "players": 2
+    },
+    {
+      "region": "eu",
+      "country": "pl",
+      "tier": "Immortal 2",
+      "players": 65
+    },
+    {
+      "region": "ap",
+      "country": "bn",
+      "tier": "Immortal 2",
+      "players": 2
+    },
+    {
+      "region": "latam",
+      "country": "fr",
+      "tier": "Radiant",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "al",
+      "tier": "Immortal 1",
+      "players": 7
+    },
+    {
+      "region": "ap",
+      "country": "tw",
+      "tier": "Immortal 3",
+      "players": 49
+    },
+    {
+      "region": "br",
+      "country": "gr",
+      "tier": "Immortal 1",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "vn",
+      "tier": "Radiant",
+      "players": 4
+    },
+    {
+      "region": "na",
+      "country": "de",
+      "tier": "Immortal 2",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "us",
+      "tier": "Immortal 1",
+      "players": 11
+    },
+    {
+      "region": "na",
+      "country": "pr",
+      "tier": "Immortal 3",
+      "players": 1
+    },
+    {
+      "region": "na",
+      "country": "pm",
+      "tier": "Radiant",
+      "players": 1
+    },
+    {
+      "region": "latam",
+      "country": "kh",
+      "tier": "Immortal 1",
+      "players": 1
+    },
+    {
+      "region": "ap",
+      "country": "no",
+      "tier": "Immortal 3",
+      "players": 1
+    },
+    {
+      "region": "na",
+      "country": "cz",
+      "tier": "Immortal 1",
+      "players": 1
+    },
+    {
+      "region": "na",
+      "country": "ph",
+      "tier": "Immortal 2",
+      "players": 2
+    },
+    {
+      "region": "eu",
+      "country": "gb",
+      "tier": "Immortal 1",
+      "players": 500
+    },
+    {
+      "region": "latam",
+      "country": "ht",
+      "tier": "Immortal 2",
+      "players": 2
+    },
+    {
+      "region": "ap",
+      "country": "th",
+      "tier": "Radiant",
+      "players": 10
+    },
+    {
+      "region": "ap",
+      "country": "se",
+      "tier": "Immortal 1",
+      "players": 1
+    },
+    {
+      "region": "ap",
+      "country": "gb",
+      "tier": "Immortal 2",
+      "players": 3
+    },
+    {
+      "region": "na",
+      "country": "de",
+      "tier": "Radiant",
+      "players": 1
+    },
+    {
+      "region": "eu",
+      "country": "ma",
+      "tier": "Immortal 2",
+      "players": 18
+    },
+    {
+      "region": "eu",
+      "country": "lt",
+      "tier": "Immortal 1",
+      "players": 38
+    },
+    {
+      "region": "latam",
+      "country": "co",
+      "tier": "Immortal 1",
+      "players": 214
+    },
+    {
+      "region": "eu",
+      "country": "al",
+      "tier": "Immortal 2",
+      "players": 7
+    },
+    {
+      "region": "eu",
+      "country": "es",
+      "tier": "Immortal 1",
+      "players": 251
+    },
+    {
+      "region": "ap",
+      "country": "kh",
+      "tier": "Immortal 1",
+      "players": 6
+    },
+    {
+      "region": "latam",
+      "country": "pe",
+      "tier": "Immortal 3",
+      "players": 6
+    },
+    {
+      "region": "eu",
+      "country": "ye",
+      "tier": "Immortal 1",
+      "players": 1
+    }
+  ],
+  "missingLabelOdds": "equal: no independent country/tier coverage audit available"
+}

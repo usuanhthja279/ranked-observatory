@@ -1,0 +1,11 @@
+'use strict';
+const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict'),M=require('../../leaderboard-service/src/main/resources/static/country-model.js');
+const html=fs.readFileSync('leaderboard-service/src/main/resources/static/country-model-comparison.html','utf8'),source=fs.readFileSync('leaderboard-service/src/main/resources/static/country-model-comparison.js','utf8'),evidence=JSON.parse(fs.readFileSync('docs/server-access-evidence.json','utf8')),names=JSON.parse(fs.readFileSync('leaderboard-service/src/main/resources/global-countries.json','utf8'));
+const elements=new Map([...html.matchAll(/id="([^"]+)"/g)].map(m=>[m[1],{value:'',innerHTML:'',textContent:'',clientWidth:900,clientHeight:320,selectedOptions:[{text:''}],getContext:()=>new Proxy({},{get:()=>()=>{}})}]));elements.get('region').value='ap';elements.get('metric').value='radiant';
+const context=vm.createContext({CountryModel:M,document:{getElementById:id=>{assert(elements.has(id));return elements.get(id);}},window:{addEventListener(){}},devicePixelRatio:1,console,fetch:async url=>({ok:true,json:async()=>url.includes('country-model')?evidence:{countries:names}})});
+(async()=>{vm.runInContext(source,context);await new Promise(setImmediate);assert.equal(elements.get('error').textContent,'');
+ for(const region of ['ap','eu','na','br','kr','latam'])for(const metric of ['players',...M.tiers]){elements.get('region').value=region;elements.get('metric').value=metric;vm.runInContext('render()',context);const result=vm.runInContext(`compare('${region}')`,context);assert.equal((elements.get('rows').innerHTML.match(/<tr/g)||[]).length,result.next.counts.size);assert(elements.get('source').textContent.includes('Snapshot '+evidence.snapshotId));assert(elements.get('notes').textContent.includes('network-access proxy factor'));assert.equal(elements.get('error').textContent,'');}
+ assert(html.includes('Previous tier model'));assert(html.includes('removing split'));assert(html.includes('country median RR'));
+ console.log('PASS: policy comparison renders all six regions × five metrics, correct snapshot provenance, previous-model control and formula labels.');
+})().catch(e=>{console.error(e);process.exitCode=1;});
+

@@ -1,0 +1,141 @@
+{
+  "checkedAt": "2026-10-20T14:02:39.286384+00:00",
+  "act": "d816f426-48ea-f052-117f-9697a155b319",
+  "historical": {
+    "globalRawRows": 54103,
+    "regionalRawRows": {
+      "ap": 15000,
+      "kr": 5000,
+      "eu": 15000,
+      "na": 9103,
+      "latam": 5000,
+      "br": 5000
+    },
+    "regionalRawTotal": 54103,
+    "globalUnique": 52632,
+    "duplicates": 1471,
+    "duplicateObservationsWithUnchangedRR": 1389,
+    "unmatchedRegionalIdentities": 1593,
+    "unmatchedWithRRPoolOver100Rows": 1484,
+    "adjacentPageBoundariesWithSameRR": 531,
+    "pageBoundaryCount": 541,
+    "observedFrom": "2026-10-20T13:10:32.106412+00:00",
+    "observedThrough": "2026-10-20T13:37:48.573787+00:00"
+  },
+  "liveSamples": [
+    {
+      "page": 1,
+      "sourceUpdated": [
+        "2026-10-20T13:56:27.4549536+00:00",
+        "2026-10-20T14:01:31.4161955+00:00",
+        "2026-10-20T14:01:31.4161955+00:00"
+      ],
+      "overlapWithOrdinary": [
+        98,
+        98
+      ],
+      "rows": [
+        100,
+        100,
+        100
+      ]
+    },
+    {
+      "page": 300,
+      "sourceUpdated": [
+        "2026-10-20T14:01:10.6821913+00:00",
+        "2026-10-20T14:01:10.6821913+00:00",
+        "2026-10-20T14:01:10.6821913+00:00"
+      ],
+      "overlapWithOrdinary": [
+        100,
+        100
+      ],
+      "rows": [
+        100,
+        100,
+        100
+      ]
+    },
+    {
+      "page": 301,
+      "sourceUpdated": [
+        "2026-10-20T14:01:17.4440746+00:00",
+        "2026-10-20T14:01:17.4440746+00:00",
+        "2026-10-20T14:01:17.4440746+00:00"
+      ],
+      "overlapWithOrdinary": [
+        100,
+        100
+      ],
+      "rows": [
+        100,
+        100,
+        100
+      ]
+    },
+    {
+      "page": 302,
+      "sourceUpdated": [
+        "2026-10-20T14:01:22.1955515+00:00",
+        "2026-10-20T14:01:22.1955515+00:00",
+        "2026-10-20T14:01:22.1955515+00:00"
+      ],
+      "overlapWithOrdinary": [
+        100,
+        100
+      ],
+      "rows": [
+        100,
+        100,
+        100
+      ]
+    },
+    {
+      "page": 510,
+      "sourceUpdated": [
+        "2026-10-20T14:01:28.969807+00:00",
+        "2026-10-20T14:01:28.969807+00:00",
+        "2026-10-20T14:01:28.969807+00:00"
+      ],
+      "overlapWithOrdinary": [
+        100,
+        100
+      ],
+      "rows": [
+        100,
+        100,
+        100
+      ]
+    }
+  ],
+  "previouslyUnmatchedRecovered": [
+    {
+      "player": "荒木飛吕彥#0414",
+      "region": "ap",
+      "rr": 584,
+      "page": 1
+    },
+    {
+      "player": "A a#a aa",
+      "region": "kr",
+      "rr": 50,
+      "page": 301
+    },
+    {
+      "player": "babababuibanana#peak",
+      "region": "ap",
+      "rr": 50,
+      "page": 302
+    }
+  ],
+  "conclusions": [
+    "All six regions occur in global; its raw row count equals the sum of regional raw row counts. No evidence of a region omission or early pagination cap in this capture.",
+    "Identity gaps are strongly associated with large RR ties and duplicate observations. Mutable offset pagination and independently cached pages are the leading explanation; these observations do not isolate upstream tie-breaking from live rank movement.",
+    "Four of five sampled pages retained identical source timestamps and identities despite two fresh URL query parameters; outer URL freshness does not guarantee a fresh underlying board.",
+    "Three earlier unmatched identities were recovered in only five sampled global pages. The 1593 value is a historical set difference, not a permanent source exclusion count.",
+    "This targeted investigation did not repeat a full simultaneous global/regional census and cannot prove every unmatched identity recoverable.",
+    "Regional reconciliation improves coverage but itself contains duplicates and is not a guarantee of completeness. For fresh per-player regional statistics regional-only polling costs approximately the same 542 pages as global-only, but does not supply a source global rank.",
+    "Keep the current schedule unchanged during this investigation. If global rank is optional, prefer regional-only half-hour collection; if global rank plus refreshed gap coverage is required, retain reconciliation or explicitly accept stale supplemental observations with a slower regional cadence."
+  ]
+}

@@ -1,0 +1,63 @@
+{
+  "verifiedAt": "2026-10-20T16:41:33.608913+00:00",
+  "snapshotId": 12,
+  "playersChecked": 54582,
+  "radiantChecks": [
+    {
+      "region": "ap",
+      "eligibleRadiants": 500,
+      "top50": 250,
+      "top10": 50,
+      "nearRadiant": 316,
+      "radiantBoundary": 246,
+      "cutoff": 401
+    },
+    {
+      "region": "br",
+      "eligibleRadiants": 122,
+      "top50": 61,
+      "top10": 13,
+      "nearRadiant": 58,
+      "radiantBoundary": 62,
+      "cutoff": 300
+    },
+    {
+      "region": "eu",
+      "eligibleRadiants": 499,
+      "top50": 250,
+      "top10": 50,
+      "nearRadiant": 280,
+      "radiantBoundary": 257,
+      "cutoff": 384
+    },
+    {
+      "region": "kr",
+      "eligibleRadiants": 116,
+      "top50": 58,
+      "top10": 12,
+      "nearRadiant": 83,
+      "radiantBoundary": 77,
+      "cutoff": 200
+    },
+    {
+      "region": "latam",
+      "eligibleRadiants": 168,
+      "top50": 84,
+      "top10": 17,
+      "nearRadiant": 131,
+      "radiantBoundary": 106,
+      "cutoff": 200
+    },
+    {
+      "region": "na",
+      "eligibleRadiants": 156,
+      "top50": 78,
+      "top10": 16,
+      "nearRadiant": 62,
+      "radiantBoundary": 85,
+      "cutoff": 300
+    }
+  ],
+  "accountChecks": "PASS: anonymous registration CSRF enforcement, validation rejection, native form CSRF login with existing administrator, authenticated administrator identity and sign-out. New-user hashed registration/login/privilege isolation tested in isolated H2; no production test account created.",
+  "uiChecks": "PASS: updated DOM/API checks; visual browser layout not inspected."
+}
