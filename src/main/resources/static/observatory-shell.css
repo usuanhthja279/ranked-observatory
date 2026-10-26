@@ -1,0 +1,53 @@
+:root {
+  color-scheme: dark;
+  --obs-bg: #07121e;
+  --obs-sidebar: #0b1827;
+  --obs-panel: #122337;
+  --obs-panel-raised: #162a40;
+  --obs-stroke: #2b4056;
+  --obs-ink: #f2f7fc;
+  --obs-muted: #9bb1c5;
+  --obs-coral: #ff6476;
+  --obs-teal: #6bd9c6;
+  --obs-focus: #83b5ff;
+}
+
+body { margin: 0; background: var(--obs-bg); color: var(--obs-ink); }
+.observatory-app { box-sizing: border-box; min-height: 100vh; display: grid; grid-template-columns: 224px minmax(0, 1fr); }
+.observatory-sidebar { position: sticky; top: 0; z-index: 10; display: flex; flex-direction: column; gap: 24px; height: 100vh; padding: 24px 14px; border-right: 1px solid var(--obs-stroke); background: var(--obs-sidebar); }
+.observatory-sidebar-brand { display: flex; align-items: center; gap: 10px; padding: 5px 9px; color: var(--obs-ink); font-size: 14px; font-weight: 800; letter-spacing: .045em; text-decoration: none; }
+.observatory-sidebar-brand .brand-mark { display: grid; width: 32px; height: 32px; place-items: center; border-radius: 10px; background: var(--obs-coral); color: #07121e; }
+.observatory-sidebar nav { display: grid; gap: 7px; }
+.observatory-nav-link { display: flex; min-height: 44px; align-items: center; gap: 11px; padding: 9px 12px; border: 1px solid transparent; border-radius: 10px; background: transparent; color: var(--obs-muted); font: inherit; text-align: left; text-decoration: none; }
+.observatory-nav-link:hover { border-color: #2a435a; background: #122337; color: var(--obs-ink); }
+.observatory-nav-link[aria-current="page"], .observatory-nav-link[aria-pressed="true"] { border-color: #27515d; background: #12323c; color: var(--obs-teal); }
+.observatory-nav-icon { display: grid; width: 22px; height: 22px; flex: 0 0 22px; place-items: center; font-size: 16px; }
+.observatory-sidebar-note { margin: auto 9px 0; color: var(--obs-muted); font-size: 11px; line-height: 1.5; }
+.observatory-app > main { box-sizing: border-box; width: 100%; min-width: 0; max-width: none; margin: 0; padding: 24px clamp(18px, 2.8vw, 42px) 40px; }
+.skip-to-content { position: fixed; z-index: 30; top: 8px; left: 8px; padding: 10px 14px; transform: translateY(-150%); border-radius: 8px; background: var(--obs-ink); color: var(--obs-sidebar); }
+.skip-to-content:focus { transform: translateY(0); }
+.mobile-observatory-nav { display: none; }
+#breadcrumbs { min-height: 22px; gap: 8px; color: var(--obs-muted); font-size: 12px; }
+#breadcrumbs a { color: var(--obs-teal); text-decoration: none; }
+#breadcrumbs a:hover { text-decoration: underline; }
+:focus-visible { outline: 2px solid var(--obs-focus) !important; outline-offset: 3px; }
+
+@media (max-width: 760px) {
+  .observatory-app { display: block; width: 100%; min-width: 0; min-height: 100dvh; }
+  .observatory-sidebar { display: none; }
+  .observatory-app > main { width: 100%; min-width: 0; padding: 16px 14px calc(88px + env(safe-area-inset-bottom)); }
+  .mobile-observatory-nav { position: fixed; z-index: 20; right: 0; bottom: 0; left: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px; padding: 8px 8px calc(8px + env(safe-area-inset-bottom)); border-top: 1px solid var(--obs-stroke); background: #0b1827f5; backdrop-filter: blur(14px); }
+  .mobile-observatory-nav .observatory-nav-link { min-width: 0; min-height: 54px; flex-direction: column; justify-content: center; gap: 3px; padding: 5px 2px; font-size: 10px; text-align: center; }
+  .mobile-observatory-nav .observatory-nav-icon { width: 20px; height: 20px; flex-basis: 20px; font-size: 15px; }
+  .masthead { min-width: 0; }
+  .header-meta, .header-meta .toolbar { min-width: 0; }
+  .act-trend-range-row, .act-trend-scope-row { display: grid !important; grid-template-columns: repeat(2, minmax(0, 1fr)); min-width: 0; gap: 9px; }
+  .act-trend-range-row > label, .act-trend-scope-row > label { width: 100%; min-width: 0 !important; max-width: none !important; }
+  .act-trend-range-row select, .act-trend-scope-row select { width: 100%; min-width: 0 !important; max-width: none !important; }
+  .act-trend-country-multi { width: 100% !important; min-width: 0 !important; max-width: 100% !important; grid-template-columns: minmax(0, 1fr) !important; }
+  .act-trend-country-multi > * { min-width: 0 !important; max-width: 100%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+}

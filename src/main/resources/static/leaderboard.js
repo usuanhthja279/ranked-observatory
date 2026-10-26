@@ -25,12 +25,28 @@ const playerIdentity=value=>{const name=String(value||'Unknown player'),i=name.l
 const flag=c=>!c||c==='unknown'?'<span class="unknown-symbol" aria-hidden="true">?</span>':`<img class="flag" src="/flags/${esc(c)}.svg" alt="" loading="lazy">`;
 const countryLabel=c=>flag(c)+esc(countryName(c));
 const pageUrl=(kind,r='all',c='all')=>{const p=new URLSearchParams({view:kind,region:r,country:c});if(selectedAct&&selectedAct!==currentAct)p.set('act',selectedAct);return '/leaderboard.html?'+p;};
+function updateShellBreadcrumbs(){
+ const host=$('breadcrumbs');if(!host)return;
+ const items=[];
+ if(view==='world')items.push('<span class="breadcrumb-current" aria-current="page">Overview</span>');
+ else items.push(`<a class="breadcrumb-link" href="${esc(pageUrl('world'))}">Overview</a>`);
+ if(view==='region'&&region!=='all')items.push(`<span class="breadcrumb-current" aria-current="page">${esc(regionName(region))}</span>`);
+ if(view==='country'&&region!=='all'){
+  items.push(`<a class="breadcrumb-link" href="${esc(pageUrl('region',region))}">${esc(regionName(region))}</a>`);
+  if(country!=='all')items.push(`<span class="breadcrumb-current" aria-current="page">${esc(countryName(country))}</span>`);
+ }
+ if(view==='global')items.push('<span class="breadcrumb-current" aria-current="page">Global leaderboard</span>');
+ const selected=$('actFilter')?.selectedOptions?.[0]?.textContent?.replace(/\s*·\s*Live$/, '')||'';
+ if(selectedAct&&selectedAct!==currentAct&&selected)items.push(`<span class="breadcrumb-current" aria-current="page">${esc(selected)} archive</span>`);
+ host.innerHTML=items.join('<span class="subtle" aria-hidden="true">›</span>');
+ globalThis.syncShellNavigation?.(currentAct,selectedAct);
+}
 const delta=v=>v==null?'—':`<span class="${v>=0?'positive':'negative'}">${v>0?'+':''}${fmt(v)}</span>`;
 const rank=(v,p)=>v==null?'—':`${fmt(v)}${p.rank_ambiguous||p.stats_ambiguous?'*':''}`;
 async function api(path){if(selectedAct&&path!=='acts'){const [endpoint,query='']=path.split('?',2),p=new URLSearchParams(query);if(!p.has('act'))p.set('act',selectedAct);path=endpoint+'?'+p;}const r=await fetch('/api/leaderboard/'+path);if(!r.ok)throw new Error(`Unable to load leaderboard (${r.status}).`);return r.json();}
 async function initializeActFilter(){
  const response=await fetch('/api/leaderboard/acts');if(!response.ok)throw new Error('Unable to load available acts.');const acts=await response.json();
- const current=acts.find(a=>a.current_act);currentAct=current?.act||'';if(!selectedAct||!acts.some(a=>a.act===selectedAct))selectedAct=currentAct;
+ const current=acts.find(a=>a.current_act);currentAct=current?.act||'';if(!selectedAct||!acts.some(a=>a.act===selectedAct))selectedAct=currentAct;globalThis.syncShellNavigation?.(currentAct,selectedAct);
  $('actFilter').innerHTML=acts.map(a=>`<option value="${esc(a.act)}">${esc(a.label)}${a.current_act?' · Live':''}</option>`).join('');$('actFilter').value=selectedAct;
  $('masthead').querySelector('.brand-eyebrow').href=pageUrl('world');const globalLink=$('regionSection').querySelector('a.page-link');if(globalLink)globalLink.href=pageUrl('global');
  $('actFilter').onchange=()=>{const next=$('actFilter').value,p=new URLSearchParams(location.search);if(next===currentAct)p.delete('act');else p.set('act',next);location.href=location.pathname+(p.toString()?'?'+p:'');};
@@ -223,8 +239,9 @@ function setScope(){
  if(view==='global'){
    for(const id of ['overviewSearchSection','overviewActivitySection','regionSection','regionTableSection','currentSection','countryMovementSection','countrySection','trendLayout','countryPreview'])$(id).classList.add('hidden');
    $('playerSection').classList.remove('hidden');$('playerSection').open=true;$('playerSummary').textContent='Global leaderboard';$('playerTableNote').textContent='All tracked players · source global rank order · 10 per page. Regional-only players without a global rank appear last.';
-   $('pageTitle').textContent='Global leaderboard';document.title='Global leaderboard · Valorant Ranked Observatory';$('regionScenery').src='/scenery/valorant-header.jpg';$('countryPage').hidden=true;$('breadcrumbs').innerHTML=`<a href="${esc(pageUrl('world'))}">Overview</a><span>›</span><span>Global leaderboard</span>`;
+   $('pageTitle').textContent='Global leaderboard';document.title='Global leaderboard · Valorant Ranked Observatory';$('regionScenery').src='/scenery/valorant-header.jpg';$('countryPage').hidden=true;
  }
+ updateShellBreadcrumbs();
 }
 function drawLines(rows,id,series,dateKey='completed_at',fit=false){
  const canvas=$(id),w=Math.max(280,canvas.clientWidth||900),h=230,ratio=globalThis.devicePixelRatio||1,c=canvas.getContext('2d');canvas.width=w*ratio;canvas.height=h*ratio;c.scale(ratio,ratio);c.clearRect(0,0,w,h);

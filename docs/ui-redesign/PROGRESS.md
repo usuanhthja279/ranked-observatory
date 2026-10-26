@@ -100,7 +100,8 @@ No production service was started/restarted, and no collection, migration or liv
 
 - [x] 0 — Audit, reference review, baseline and plan.
 - [x] 1 — Trend correctness and canonical archive summaries (1A/1B).
-- [ ] 2A/2B — Shared shell, routing, accessibility and search.
+- [x] 2A — Shared shell, navigation, breadcrumbs and responsive legacy-route compatibility.
+- [ ] 2B — Search, accessible primitives and lifecycle helper.
 - [ ] 3A/3B — World/regions and region detail.
 - [ ] 4A/4B — Countries and global leaderboard.
 - [ ] 5 — Full player profile and Radiant race.
@@ -111,3 +112,25 @@ No production service was started/restarted, and no collection, migration or liv
 - [ ] 10 — Full integrated/visual release review.
 
 A rendered illustrative reference does not complete a production implementation phase.
+
+## Phase 2A — Complete: shared shell, navigation and responsive fit
+
+### Changes
+
+- Added a lightweight responsive shell around the existing legacy dashboard: desktop sidebar, mobile bottom navigation, skip-to-content link, contextual breadcrumbs and visible keyboard focus.
+- Kept the existing `/leaderboard.html?view=...` routes and selected Act state. Navigation uses the existing query contract and has no new server route dependency.
+- The Act Archive navigation action scrolls to and focuses the existing Act selector; archived Act context is exposed in the breadcrumb and active control state.
+- Corrected the D8 mobile trend-control sizing without hiding document overflow. Wide data tables remain inside their existing scroll containers.
+- Left data/domain workflows and all services unchanged.
+
+### Verification
+
+- `node --check src/main/resources/static/leaderboard.js` — **PASS**.
+- `node --check src/main/resources/static/act-trends.js` — **PASS** (unchanged module, included because shell navigation synchronizes with Act selection).
+- `node --check src/main/resources/static/observatory-shell.js` — **PASS**.
+- `git diff --check` — **PASS**.
+- Synthetic Edge verification with mocked `/api/leaderboard/**` responses — **PASS**: legacy APAC/archive route, active nav and contextual breadcrumbs; Act selector focus from desktop and mobile Archive buttons; Act and region retained in navigation URL; browser Back/Forward restores the legacy query; skip link receives first keyboard focus; no page errors.
+- On the archived APAC route, document width matched viewport at 320, 360, 390, 430, 600, 760, 768 and 1440 px. Wide summary tables stayed within their existing scrollers. The initial D8 433 px document overflow was not reproduced after the fix.
+- Actual synthetic screenshots captured and inspected: `evidence/phase2a-desktop-region.png` (1440 px viewport) and `evidence/phase2a-mobile-region.png` (390 px viewport). The screenshots use mocked data; the trend charts have no populated series because the fixture is focused on shell, route and layout behavior.
+
+No Gradle/backend test was run because Phase 2A changes are static frontend shell code only. No database, collector, active service, or live API was used or changed. Phase 2B remains next.
