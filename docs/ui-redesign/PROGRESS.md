@@ -51,14 +51,36 @@ No fresh PostgreSQL integration, production build, collection POST, migration, a
 
 Initial local main was `b2c51c9` with no origin and only user-provided `ui-sample/` untracked. The verified remote was configured and fetched; the requested target branch was checked out at `c3faa2b` with the same application tree. User sample originals remain untracked/unmodified.
 
-The active audit model was GPT-6.1 Sol. The user selected **wait for manual GPT-6 Luna with Medium reasoning before implementation**. No tool-based model switch is claimed.
+The Phase 0 audit ran with GPT-6.1 Sol. The user later resumed Phase 1; no tool-based model switch is claimed.
 
-Phase 1 has not started. After model selection, begin Phase 1A from the plan and this progress note, inspect only its relevant code, and retain the required phase/test/commit boundaries. Do not change the earlier PrintFlow checkout.
+## Phase 1A — Complete: trend request/range correctness
+
+### Changes
+
+- Kept the complete eligible Act catalog separate from the API's selected range. Chart/table/index calculations now use only the selected range.
+- Added latest-request guards and abort controllers for series and player requests. A country trend's two dependent series reads share one immutable filter context.
+- A current series failure clears stale chart/table/tier rows and reports the failure instead of repainting old results.
+- Allowed the inclusive 36-Act window (35 archived Acts plus current) and retained rejection beyond that bound.
+- Changed the chart-shape default to Standard; Smooth and Stepped remain available.
+
+### Verification
+
+- `.\gradlew.bat test --tests com.valorant.leaderboard.HistoricalTrendsQueryServiceTest --console=plain` — **PASS**; verifies 36 points accepted and 37 rejected.
+- `node --check src/main/resources/static/act-trends.js` — **PASS**.
+- Synthetic Edge browser check using mocked API data — **PASS**: Standard default; inclusive full-range chart/table; latest response wins after an older delayed response; failed current request clears old chart; no page errors; mobile document has no horizontal overflow at 390 × 844.
+- This browser run used synthetic data and did not connect to PostgreSQL or the active collector.
+- Screenshots: `evidence/phase1a-desktop.png`, `evidence/phase1a-mobile.png`.
+- `git diff --check` — **PASS**.
+
+No production service was started/restarted, and no collection, migration or live database operation was performed.
+
+Phase 1B (canonical archived regional summaries and truthful Immortal tier totals/provenance) remains. Phase 1 as a whole is not complete.
 
 ## Remaining phases
 
 - [x] 0 — Audit, reference review, baseline and plan.
-- [ ] 1A/1B — Request/range correctness and canonical archive summaries.
+- [x] 1A — Request/range correctness.
+- [ ] 1B — Canonical archive summaries and tier semantics.
 - [ ] 2A/2B — Shared shell, routing, accessibility and search.
 - [ ] 3A/3B — World/regions and region detail.
 - [ ] 4A/4B — Countries and global leaderboard.

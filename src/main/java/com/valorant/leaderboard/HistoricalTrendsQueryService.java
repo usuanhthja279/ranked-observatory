@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 /** Read-only Act Trends queries over completed regional rows in the V7 archive. */
 @Service
 public class HistoricalTrendsQueryService {
+  private static final int MAX_RANGE_ACTS = 36;
   private final JdbcTemplate db;
 
   public HistoricalTrendsQueryService(JdbcTemplate db){this.db=db;}
@@ -89,7 +90,7 @@ public class HistoricalTrendsQueryService {
     if(acts.isEmpty())return Map.of("acts",List.of(),"rows",List.of(),"message","No acts have all six terminal regional ladders yet.");
     int from=indexOf(acts,fromAct),to=indexOf(acts,toAct);
     if(from<0||to<0||from>to)throw new IllegalArgumentException("Choose an ordered range from the completed-act list.");
-    if(to-from>=35)throw new IllegalArgumentException("The selected act range is too large.");
+    validateRangeSize(from,to);
     var selected=acts.subList(from,to+1);
     var ids=selected.stream().map(a->a.get("act").toString()).toList();
     String marks=String.join(",",Collections.nCopies(ids.size(),"?"));
@@ -206,6 +207,10 @@ public class HistoricalTrendsQueryService {
     // Complete acts are immutable. This read uses only the six validated regional source rows.
     var rows=db.queryForList(sql,args.toArray());
     return Map.of("acts",selected,"rows",rows,"region",region,"country",country,"cohort",cohort,"sourceBasis","six_completed_regional_ladders","captureSemantics","archived_standings","globalSourceUsed",false);
+  }
+
+  static void validateRangeSize(int fromIndex,int toIndex){
+    if(toIndex-fromIndex+1>MAX_RANGE_ACTS)throw new IllegalArgumentException("The selected act range is too large.");
   }
 
   /** Per-account end-of-act trail, joined to the latest complete current snapshot. */
