@@ -77,6 +77,20 @@ public class ObservatoryPageController {
     return new RedirectView(target.build().encode().toUriString(), false);
   }
 
+  @GetMapping("/players")
+  public String playerProfile(@RequestParam String player,
+                              @RequestParam String region,
+                              @RequestParam(required = false) String act) {
+    if (player.isBlank() || player.length() > 300 || !player.contains("#")) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "A valid Riot ID is required");
+    }
+    if (!GlobalLeaderboardService.REGIONS.containsKey(region)) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "A supported player region is required");
+    }
+    validateAct(act);
+    return "forward:/leaderboard.html";
+  }
+
   private RedirectView regionRedirect(String region, String act) {
     if (!GlobalLeaderboardService.REGIONS.containsKey(region)) {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Unknown leaderboard region");

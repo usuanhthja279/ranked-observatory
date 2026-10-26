@@ -1,12 +1,13 @@
 'use strict';
 function renderOvertakeTargets(result,prefix,preview,overview){
  let box=document.getElementById(prefix+'Targets');if(!box){box=document.createElement('section');box.id=prefix+'Targets';box.className='overtake-targets';document.getElementById(prefix+'Details').after(box);}
+ if(data?.status?.archiveOnly){box.innerHTML='<h3>Radiant race and nearby targets</h3><p class="subtle">This archived Act contains one end-of-Act snapshot, so there is no within-Act race timeline or nearby-target movement.</p>';return;}
  if(!result||result.snapshot.snapshot_id!==data.status.latestSnapshot[0]?.id||result.items.some(p=>p.snapshot_id!==result.snapshot.snapshot_id)){
   box.innerHTML='<h3>Overtake targets</h3><p class="subtle">Targets are unavailable for this snapshot.</p>';return;
  }
  const change=p=>p.gap_change==null?'More history needed':Number(p.gap_change)===0?'Unchanged':Number(p.gap_change)<0?`Closing by ${fmt(-p.gap_change)} RR`:`Widening by ${fmt(p.gap_change)} RR`;
  box.innerHTML=`<div class="chart-heading"><h3>Overtake targets</h3><span class="subtle">${esc(regionName(result.region))} · ${result.minutes} min</span></div><p class="subtle">Five nearest higher-RR players · click a target to inspect them.</p>${result.items.length?`<div class="scroll"><table><thead><tr><th>Player</th><th>RR</th><th>RR gap</th><th>Gap movement</th></tr></thead><tbody>${result.items.map(p=>`<tr><td><button data-player="${esc(p.player_key)}" data-region="${esc(p.region)}">${playerIdentity(p.display_name)}</button></td><td>${tierBadge(p.tier)} ${fmt(p.rr)}</td><td>+${fmt(p.rr_gap)}</td><td class="${p.gap_change<0?'positive':p.gap_change>0?'negative':''}" title="${esc(p.baseline_at?'Compared with '+time(p.baseline_at):'No earlier shared usable snapshot in this window')}">${esc(change(p))}</td></tr>`).join('')}</tbody></table></div>`:'<p class="empty-state">No higher-RR targets found among usable observations. The player may lead this region or lack a usable current observation.</p>'}<details class="subtle"><summary>How targets and gaps are calculated</summary><p>${esc(result.definition)}</p><p>Each target can have a different comparison time, shown on its gap movement. Snapshot observations are collected at different source times; gaps are not a live match prediction.</p></details>`;
- box.onclick=e=>{const button=e.target.closest('[data-player]');if(button)showSelectedPlayer(button.dataset.player,button.dataset.region,preview,false,overview);};
+ box.onclick=e=>{const button=e.target.closest('[data-player]');if(button){if(view==='profile'){location.href=playerProfileUrl(button.dataset.player,button.dataset.region);return;}showSelectedPlayer(button.dataset.player,button.dataset.region,preview,false,overview);}};
 }
 
 function renderBoundaryWatch(result){

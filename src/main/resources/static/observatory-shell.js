@@ -1,6 +1,6 @@
 'use strict';
 (()=>{
- const params=new URLSearchParams(location.search),currentView=params.get('view')||(location.pathname==='/leaderboard'?'global':'world');
+ const params=new URLSearchParams(location.search),currentView=params.get('view')||(['/leaderboard','/players'].includes(location.pathname)?'global':'world');
  const currentRegion=params.get('region')||'ap';let selectedAct=params.get('act')||'',currentAct='';
  const validRegions=new Set(['ap','eu','na','latam','br','kr']);
  function shellHref(view){

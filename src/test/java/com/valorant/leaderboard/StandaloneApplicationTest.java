@@ -83,6 +83,17 @@ class StandaloneApplicationTest {
     mvc.perform(get("/leaderboard").param("sort","sql-injection")).andExpect(status().isBadRequest());
   }
 
+  @Test void canonicalPlayerProfileRouteForwardsEncodedIdentityWithoutLosingQuery() throws Exception {
+    mvc.perform(get("/players").param("player","S8UL SkRossi#4646").param("region","ap"))
+        .andExpect(status().isOk()).andExpect(forwardedUrl("/leaderboard.html"));
+    mvc.perform(get("/players").param("player","missing-tag").param("region","ap"))
+        .andExpect(status().isBadRequest());
+    mvc.perform(get("/players").param("player","Riot#tag").param("region","unknown"))
+        .andExpect(status().isBadRequest());
+    mvc.perform(get("/players").param("player","Riot#tag").param("region","ap").param("act","invalid"))
+        .andExpect(status().isBadRequest());
+  }
+
   @Test void playerSortRejectsUnsupportedColumnsAndDirections() throws Exception {
     mvc.perform(get("/api/leaderboard/players").param("sort","p.player_key;drop table x"))
         .andExpect(status().isBadRequest());

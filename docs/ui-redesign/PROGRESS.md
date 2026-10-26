@@ -285,3 +285,31 @@ Phase 4A is implemented and focused verification passed. Proceed to Phase 4B; ke
 - Screenshots were inspected. The global screen has no page-level horizontal overflow; the fixed bottom navigation overlays the viewport edge while the page scrolls, and lower player cards remain reachable by scrolling. The desktop screenshot width is constrained by the built-in browser panel, not by the page's CSS layout.
 
 Phase 4B is implemented and focused verification passed. Continue to Phase 5. Keep all data extraction paused until the redesign phases are complete.
+
+## Phase 5 — Player profile and ranked journey
+
+### Changes
+
+- Added the canonical `/players?player=…&region=…` profile route. Global leaderboard rows and player-search results open this dedicated page while preserving Riot ID tags, region, and selected Act.
+- Reused the existing player history, snapshot summary, Radiant race, overtake target, cross-Act journey, and Tracker profile APIs and renderers. The profile adds source-observation timestamps, a selectable history window, and an expandable observation table without changing API contracts or snapshot meaning.
+- Archived Act profiles show the saved snapshot and account journey, explain that no within-Act race exists, and omit current Tracker data. Existing history selection outside the global page remains in place.
+- Corrected profile-only panels inheriting display styles on the global leaderboard. Corrected the archive profile renderer so a missing live race response does not raise a null-data error.
+
+### Verification
+
+- `node --check src/main/resources/static/leaderboard.js`, `observatory-shell.js`, and `overtake-targets.js` — **PASS**.
+- `node --test src/test/js/countries-directory.test.cjs` — **PASS**, 4 tests, 0 failures.
+- `.\gradlew.bat test --tests com.valorant.leaderboard.StandaloneApplicationTest --console=plain bootJar` — **PASS**, 7 Java tests, 0 failures/errors/skips; packaged build successful with installed Java 21. One initial attempt without a process Java setting failed immediately; the rerun used the installed JDK for that process only.
+- `git diff --check` — **PASS**.
+- ChatGPT in-app browser against local snapshot 400 — **PASS**: opened a player from the real global ranking; confirmed profile route, display identity, source timestamps, published snapshot, Radiant race and gap, Tracker rating, source-history chart, and 23-act journey. Changed the history window to 15 minutes and confirmed the view updated. Returned to the leaderboard and verified profile panels are hidden there. Opened an archived Act profile and confirmed the archived rating/journey and unavailable-race explanation; no JavaScript console errors remained after the archive null-render fix.
+- Responsive DOM — **PASS**: at a 1,440 × 900 CSS viewport, document width was 1,430 px; at 390 × 844, document width was 380 px. Mobile profile cards fit the content width and remain scrollable. Extraction status before and after app restart: `enabled:false`, `paused:true`, `running:false`, snapshot 400.
+
+### Visual evidence and limitations
+
+- `evidence/phase5-player-profile-desktop.png` — actual in-app browser capture at a 1,440 × 900 CSS viewport. The embedded browser capture itself is 1,010 px wide and clips the far-right portion of the desktop layout; DOM measurements show no page-level overflow.
+- `evidence/phase5-player-profile-mobile.png` — actual profile top view at a 390 × 844 CSS viewport (380 × 822 capture content).
+- `evidence/phase5-player-profile-mobile-details.png` — actual mobile capture showing snapshot details, overtake-target explanation, and source observations control.
+- `evidence/phase5-player-profile-archive.png` — actual archived Act profile capture showing archived snapshot mode.
+- Captures use persisted local data, not synthetic fixtures. Tracker profile values are a separate cached external source and carry their own fetched timestamp; leaderboard and history remain anchored to local completed snapshots. The desktop browser panel constrained screenshot width; the mobile fixed navigation overlays the viewport bottom, while remaining page content is scrollable.
+
+Phase 5 is implemented and focused verification passed. Continue to Phase 6A. Keep all data extraction paused until the redesign phases are complete.

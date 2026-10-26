@@ -3,10 +3,11 @@ const $=id=>document.getElementById(id);
 const esc=value=>String(value??'—').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const time=v=>v?new Date(v).toLocaleString():'—';
 const fmt=v=>v==null?'—':Number(v).toLocaleString();
-const params=new URLSearchParams(location.search),view=params.get('view')||(location.pathname==='/leaderboard'?'global':'world');
+const params=new URLSearchParams(location.search),view=params.get('view')||(location.pathname==='/leaderboard'?'global':location.pathname==='/players'?'profile':'world');
 let selectedAct=params.get('act')||'';let currentAct='';
 const playerPageSize=view==='country'||view==='global'?10:20;
 const playerSorts=new Set(['globalRank','regionalRank','name','country','tier','rr','rrChange','updated']);
+const requestedProfilePlayer=params.get('player')||'',requestedProfileRegion=params.get('region')||'ap';
 let region=params.get('region')||'all',country=params.get('country')||'all',page=Math.max(1,Math.floor(Number(params.get('page')||1))),countryPage=1,search=params.get('q')||params.get('search')||'',generation=0,trendMinutes=60,direction='overall',sortKey=playerSorts.has(params.get('sort'))?params.get('sort'):'globalRank',sortDirection=params.get('direction')==='desc'?'desc':'asc';
 let previewCountry=null,previewGeneration=0,worldTrendCountry=null,moverCountry='all',countryMode='current',activityMinutes=60,activityVersion=0;
 let data=null,countryNames={},regionNames={},countryPages=1,playerPages=1,expandedScope='';
@@ -25,8 +26,9 @@ const regionSymbol=c=>`<img class="region-symbol region-photo" src="/scenery/${e
 const playerIdentity=value=>{const name=String(value||'Unknown player'),i=name.lastIndexOf('#');return `<span class="player-identity"><span class="player-initial" aria-hidden="true">${esc(name.slice(0,1).toUpperCase())}</span><span class="riot-name">${esc(i<0?name:name.slice(0,i))}</span>${i<0?'':`<span class="riot-tag">${esc(name.slice(i))}</span>`}</span>`;};
 const flag=c=>!c||c==='unknown'?'<span class="unknown-symbol" aria-hidden="true">?</span>':`<img class="flag" src="/flags/${esc(c)}.svg" alt="" loading="lazy">`;
 const countryLabel=c=>flag(c)+esc(countryName(c));
-const globalPlayerCard=p=>`<details class="global-player-card"><summary><span class="global-card-rank">${p.global_rank==null?'Unranked':'#'+fmt(p.global_rank)}</span><span class="global-card-identity">${playerIdentity(p.display_name)}<small>${countryLabel(p.country)}</small></span><span class="global-card-rating">${fmt(p.rr)} <small>RR</small></span></summary><div class="global-card-details"><div><span>Global rank</span><strong>${rank(p.global_rank,p)}</strong></div><div><span>Regional rank</span><strong>${rank(p.regional_rank,p)}</strong></div><div><span>Rank tier</span><strong>${tierBadge(p.tier)}${p.stats_ambiguous?'*':''}</strong></div><div><span>Rating change</span><strong>${delta(p.rr_change)}</strong></div><div><span>Stats as of</span><strong>${esc(time(p.source_updated_at))}${p.carried_forward?' · older':''}</strong></div><button type="button" class="global-card-open" data-player="${esc(p.player_key)}" data-region="${esc(p.region)}">View player history</button></div></details>`;
+const globalPlayerCard=p=>`<details class="global-player-card"><summary><span class="global-card-rank">${p.global_rank==null?'Unranked':'#'+fmt(p.global_rank)}</span><span class="global-card-identity">${playerIdentity(p.display_name)}<small>${countryLabel(p.country)}</small></span><span class="global-card-rating">${fmt(p.rr)} <small>RR</small></span></summary><div class="global-card-details"><div><span>Global rank</span><strong>${rank(p.global_rank,p)}</strong></div><div><span>Regional rank</span><strong>${rank(p.regional_rank,p)}</strong></div><div><span>Rank tier</span><strong>${tierBadge(p.tier)}${p.stats_ambiguous?'*':''}</strong></div><div><span>Rating change</span><strong>${delta(p.rr_change)}</strong></div><div><span>Stats as of</span><strong>${esc(time(p.source_updated_at))}${p.carried_forward?' · older':''}</strong></div><button type="button" class="global-card-open" data-player="${esc(p.player_key)}" data-region="${esc(p.region)}">Open player profile</button></div></details>`;
 const pageUrl=(kind,r='all',c='all')=>{const p=new URLSearchParams();if(kind==='world'){if(selectedAct&&selectedAct!==currentAct)p.set('act',selectedAct);return '/overview'+(p.size?'?'+p:'');}if(kind==='region'&&r!=='all'){if(selectedAct&&selectedAct!==currentAct)p.set('act',selectedAct);return '/regions/'+encodeURIComponent(r)+(p.size?'?'+p:'');}if(kind==='countries'){if(selectedAct&&selectedAct!==currentAct)p.set('act',selectedAct);return '/countries'+(p.size?'?'+p:'');}if(kind==='country'&&r!=='all'&&c!=='all'){p.set('region',r);if(selectedAct&&selectedAct!==currentAct)p.set('act',selectedAct);return '/countries/'+encodeURIComponent(c)+'?'+p;}if(kind==='global'){if(selectedAct&&selectedAct!==currentAct)p.set('act',selectedAct);return '/leaderboard'+(p.size?'?'+p:'');}p.set('view',kind);p.set('region',r);p.set('country',c);if(selectedAct&&selectedAct!==currentAct)p.set('act',selectedAct);return '/leaderboard.html?'+p;};
+const playerProfileUrl=(player,shard)=>{const p=new URLSearchParams({player,region:shard});if(selectedAct&&selectedAct!==currentAct)p.set('act',selectedAct);return '/players?'+p;};
 function syncGlobalUrl(push=false){if(view!=='global')return;const p=new URLSearchParams();if(selectedAct&&selectedAct!==currentAct)p.set('act',selectedAct);if(search.trim())p.set('q',search.trim());if(page>1)p.set('page',String(page));if(sortKey!=='globalRank')p.set('sort',sortKey);if(sortDirection!=='asc')p.set('direction',sortDirection);const target='/leaderboard'+(p.size?'?'+p:'');if(location.pathname+location.search!==target)history[push?'pushState':'replaceState']({global:true},'',target);}
 function updateShellBreadcrumbs(){
  const host=$('breadcrumbs');if(!host)return;
@@ -145,11 +147,12 @@ globalSearchDialog.addEventListener('cancel',cancelGlobalSearch);globalSearchDia
 window.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&!e.altKey&&e.key.toLowerCase()==='k'){const target=e.target;if(target!==$('overviewSearch')&&target instanceof HTMLElement&&target.matches('input,textarea,select,[contenteditable="true"]'))return;e.preventDefault();openGlobalSearch();}});
 $('overviewSearch').oninput=()=>{cancelGlobalSearch();$('overviewSearchResults').innerHTML='';const query=$('overviewSearch').value.trim();$('overviewSearchNote').textContent=query.length<2?'Enter at least two characters to search all regions.':'Waiting to search…';if(query.length>=2)overviewSearchTimer=setTimeout(searchOverviewPlayers,250);};
 $('overviewSearch').onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();clearTimeout(overviewSearchTimer);searchOverviewPlayers();}else if(e.key==='ArrowDown'){const first=$('overviewSearchResults').querySelector('button[data-player]');if(first){e.preventDefault();first.focus();}}};
-$('overviewSearchResults').onclick=e=>{const b=e.target.closest('[data-player]');if(b){playerDialogReturnFocus=globalSearchTrigger;suppressSearchFocusRestore=true;globalSearchDialog.close();showSelectedPlayer(b.dataset.player,b.dataset.region,false,true,true);}};
+$('overviewSearchResults').onclick=e=>{const b=e.target.closest('[data-player]');if(b){globalSearchDialog.close();location.href=playerProfileUrl(b.dataset.player,b.dataset.region);}};
 const playerDialog=document.createElement('dialog');playerDialog.id='playerDialog';playerDialog.setAttribute('aria-labelledby','overviewPlayerTitle');document.body.append(playerDialog);playerDialog.append($('overviewPlayerSection'));
 const closePlayerDialog=()=>{overviewSelection=null;overviewHistoryVersion++;$('overviewPlayerSection').classList.add('hidden');if(playerDialog.open)playerDialog.close();document.body.classList.remove('player-dialog-open');const target=playerDialogReturnFocus?.isConnected?playerDialogReturnFocus:globalSearchTrigger;playerDialogReturnFocus=null;target?.focus();};
 $('overviewPlayerClose').onclick=closePlayerDialog;playerDialog.addEventListener('cancel',e=>{e.preventDefault();closePlayerDialog();});
 $('overviewPlayerWindow').onchange=()=>{if(overviewSelection)showSelectedPlayer(overviewSelection.player,overviewSelection.region,false,false,true);};
+$('profileWindow').onchange=()=>{trendMinutes=Number($('profileWindow').value);if(view==='profile'&&mainSelection)showSelectedPlayer(mainSelection.player,mainSelection.region,false,false);};
 $('overviewRegionWindow').onchange=()=>{overviewRegionMinutes=Number($('overviewRegionWindow').value);loadOverviewActivity('region');};
 $('overviewCountryWindow').onchange=()=>{overviewCountryMinutes=Number($('overviewCountryWindow').value);loadOverviewActivity('country');};
 async function loadCountryActivity(){
@@ -216,7 +219,16 @@ function renderCurrent(){
  const estimate=hasCountry?estimatedCounts.get(country):null;
  $('currentNumbers').innerHTML=totals?`<tr><td>${esc(hasCountry?countryName(country):regionName(region))}</td>${cols.map(k=>`<td${k.startsWith('estimated_')?' class="estimate-value"':''}>${fmt(totals[k])}</td>${enabled?`<td class="estimate-value">${hasCountry?(estimate?'≈ '+fmt(estimate['estimated_'+k]):'—'):'≈ '+fmt(totals[k])}</td>`:''}`).join('')}</tr>`:'<tr><td colspan="11">No current observations.</td></tr>';
 }
+function setProfileScope(){
+ for(const id of ['countriesDirectory','regionExperienceTabs','regionTabHint','regionOverviewPanel','regionDistributionPanel','regionSection','regionTableSection','overviewActivitySection','currentSection','countryMovementSection','playerSection','trendLayout','countrySection','countryPreview','historySection','historicalTrendDisclosure','timelineSection','scopeSection'])$(id).classList.add('hidden');
+ $('dataConfidence').classList.remove('hidden');$('dataFreshness').classList.remove('hidden');$('dataFreshness').textContent='Player metrics are tied to the latest completed snapshot. Source observation times remain visible in each panel.';
+ $('playerProfileIntro').classList.remove('hidden');$('playerProfileWorkspace').classList.remove('hidden');$('playerProfileWorkspace').appendChild($('selectedPlayerSection'));$('selectedPlayerSection').classList.remove('hidden');$('selectedPlayerSection').classList.add('player-profile-section');
+ $('profileBack').href=pageUrl('global');$('profileWindow').value=String(trendMinutes);$('pageTitle').textContent='Player profile';document.title='Player profile · Valorant Ranked Observatory';$('subtitle').textContent='A source-aware view of ranked position, history and competition.';
+ $('breadcrumbs').innerHTML=`<a class="breadcrumb-link" href="${esc(pageUrl('world'))}">Overview</a><span class="subtle">›</span><a class="breadcrumb-link" href="${esc(pageUrl('global'))}">Global leaderboard</a><span class="subtle">›</span><span class="breadcrumb-current" aria-current="page">Player profile</span>`;
+ $('playerProfileHeading').textContent=requestedProfilePlayer||'Player profile';$('playerProfileMeta').textContent=`${regionName(requestedProfileRegion)} · Loading current snapshot evidence…`;
+}
 function setScope(){
+ if(view==='profile'){setProfileScope();return;}
  const historical=Boolean(data?.status?.archiveOnly),hasRegion=region!=='all',hasCountry=hasRegion&&country!=='all',detail=view==='region'||view==='country';
  $('overviewActivitySection').classList.toggle('hidden',view!=='world'||historical);$('masthead').classList.toggle('overview-masthead',view==='world');
  $('regionSection').classList.toggle('hidden',detail);$('regionTableSection').classList.toggle('hidden',detail);
@@ -288,6 +300,7 @@ function renderTrends(){
 }
 async function refresh(){const version=++generation;try{
  if(view==='countries'){await globalThis.loadCountriesDirectory?.();return;}
+ if(view==='profile'){await refreshPlayerProfilePage(version);return;}
  if(selectedAct&&selectedAct!==currentAct){await refreshArchived(version);return;}
  if(view==='global'){await refreshGlobalPage(version);return;}
  if(view==='country'){await refreshCountryPage(version);return;}
@@ -340,6 +353,14 @@ async function refreshGlobalPage(version){
  data={status,result,confidence,countries:[],regions:[],modelEvidence:{snapshotId:status.latestSnapshot[0]?.id},trends:{points:[],regionPoints:[],movers:[],snapshotCount:0}};countryNames=status.countries;regionNames=status.regions;
  $('lastUpdated').textContent=time(status.latestSnapshot[0]?.completed_at);$('message').textContent='';setScope();renderTables();renderConfidence(status,confidence);
 }
+async function refreshPlayerProfilePage(version){
+ if(!requestedProfilePlayer||requestedProfilePlayer.length>300||!requestedProfilePlayer.includes('#'))throw new Error('Open a player profile from a valid Riot ID link.');
+ const [status,confidence]=await Promise.all([api('status'),api('confidence?'+new URLSearchParams({region:requestedProfileRegion,country:'all'}))]);if(version!==generation)return;
+ if(!status.latestSnapshot?.length)throw new Error('No completed snapshot is available for this player profile.');
+ data={status,confidence,countries:[],regions:[],result:{items:[],total:0},trends:{points:[],regionPoints:[],movers:[],snapshotCount:0},modelEvidence:{snapshotId:status.latestSnapshot[0].id}};
+ countryNames=status.countries||{};regionNames=status.regions||{};$('lastUpdated').textContent=time(status.latestSnapshot[0]?.completed_at);$('message').textContent='';
+ renderConfidence(status,confidence);setProfileScope();await showSelectedPlayer(requestedProfilePlayer,requestedProfileRegion,false,false);
+}
 async function refreshCountryPage(version){
  const [status,core]=await Promise.all([api('status'),api('country-page?'+new URLSearchParams({region,country,page,search}))]);
  if(version!==generation)return;
@@ -369,17 +390,18 @@ const historyVersion=prefix=>prefix==='overviewPlayer'?overviewHistoryVersion:pr
 async function showSelectedPlayer(player,shard,preview=false,scroll=true,overview=false){
  const playerLoadStarted=performance.now();
  const selection={player,region:shard};if(overview){overviewSelection=selection;$('overviewPlayerSection').classList.remove('hidden');if(!playerDialog.open){playerDialog.showModal();document.body.classList.add('player-dialog-open');}}else if(preview)previewSelection=selection;else mainSelection=selection;
- const token=overview?++overviewHistoryVersion:preview?++previewHistoryVersion:++mainHistoryVersion,prefix=overview?'overviewPlayer':preview?'previewPlayer':'selectedPlayer',minutes=overview?Number($('overviewPlayerWindow').value):preview?Number($('previewWindow').value):trendMinutes;
+ const token=overview?++overviewHistoryVersion:preview?++previewHistoryVersion:++mainHistoryVersion,prefix=overview?'overviewPlayer':preview?'previewPlayer':'selectedPlayer',minutes=overview?Number($('overviewPlayerWindow').value):preview?Number($('previewWindow').value):view==='profile'?Number($('profileWindow').value):trendMinutes;
  $(prefix+'Title').textContent=player+' · RR history';$(prefix+'Note').textContent='Loading source observations…';$(prefix+'Chart').classList.add('hidden');$(prefix+'Details').innerHTML='';$(prefix+'Profile').innerHTML='';document.getElementById(prefix+'LiveRating')?.remove();
  const oldRace=$(prefix+'Race');if(oldRace)oldRace.remove();document.getElementById(prefix+'Targets')?.remove();
  try{const archiveOnly=Boolean(data?.status?.archiveOnly),playerRegion=archiveOnly&&view==='global'?'all':shard;const [rows,summary,race,targets,journey]=await Promise.all([api('history?'+new URLSearchParams({player,region:playerRegion})),api('player-summary?'+new URLSearchParams({player,region:playerRegion})),archiveOnly?Promise.resolve(null):api('radiant-race?'+new URLSearchParams({player,region:shard,minutes})).catch(()=>null),archiveOnly?Promise.resolve(null):api('overtake-targets?'+new URLSearchParams({player,region:shard,minutes})).catch(()=>null),api('player-journey?'+new URLSearchParams({player,region:playerRegion})).catch(()=>null)]);if(token!==historyVersion(prefix))return;
  renderOvertakeTargets(targets,prefix,preview,overview);
  const end=new Date(data.status.latestSnapshot[0]?.completed_at).getTime(),start=end-minutes*60000;
- renderPlayerDetails(summary,prefix);renderPlayerJourney(journey,prefix);if(!archiveOnly)loadTrackerProfile(summary.current[0]?.display_name||player,prefix,token);else $(prefix+'Profile').innerHTML='<p class="subtle">Historical profile details are not part of this archived leaderboard capture.</p>';
+ renderPlayerDetails(summary,prefix);renderPlayerJourney(journey,prefix);if(view==='profile'){const current=summary.current?.[0];$('playerProfileHeading').textContent=current?.display_name||player;$('playerProfileMeta').textContent=[regionName(current?.region||shard),current?.country?countryName(current.country):'Unknown country',summary.act?`${summary.act===currentAct?'Current act':'Archived act'} · ${summary.act}`:'Current act',current?.source_updated_at?`Stats observed ${time(current.source_updated_at)}`:'No current player observation',current?.regional_rank_updated_at?`Regional rank observed ${time(current.regional_rank_updated_at)}`:null].filter(Boolean).join(' · ');}if(!archiveOnly)loadTrackerProfile(summary.current[0]?.display_name||player,prefix,token);else $(prefix+'Profile').innerHTML='<p class="subtle">Tracker profile and live competition data are not available for an archived Act. The source snapshot and journey remain available.</p>';
  const allPoints=rows.filter(p=>!p.stats_ambiguous&&!p.carried_forward).map(p=>({...p,observed:p.observed_at||p.source_updated_at}));const points=archiveOnly?allPoints:allPoints.filter(p=>{const t=new Date(p.observed).getTime();return t>=start&&t<=end;});
+ if(view==='profile'){$('selectedPlayerHistoryRows').innerHTML=points.length?points.slice().sort((a,b)=>new Date(a.observed)-new Date(b.observed)).map(p=>`<tr><td>${esc(time(p.observed))}</td><td>${esc(regionName(p.region))}</td><td>${countryLabel(p.country)}</td><td>${fmt(p.global_rank)}</td><td>${fmt(p.regional_rank)}</td><td>${fmt(p.rr)}</td><td>${esc(p.tier)}</td></tr>`).join(''):'<tr><td colspan="7">No usable source observations are available in this window.</td></tr>';}
  $(prefix+'Note').textContent=archiveOnly?(points.length?'Archived act snapshot · RR at archived source time':'No archived observation for this player in this act.'):points.length?`${minutes} min · ${points.length} source observation${points.length===1?'':'s'} · RR at source time`:'No source observations for this player in the selected time range.';
  if(points.length){$(prefix+'Chart').classList.remove('hidden');drawLines(points,prefix+'Chart',[{key:'rr',color:'#73c9c4'}],'observed',true);}
- if(renderRadiantRace(race,prefix))$(prefix+'Note').textContent=`${minutes} min · RR and observed Radiant boundary at completed snapshots · source times shown in player details`;
+ if(!archiveOnly&&renderRadiantRace(race,prefix))$(prefix+'Note').textContent=`${minutes} min · RR and observed Radiant boundary at completed snapshots · source times shown in player details`;
  $(prefix+'Note').dataset.readyMs=String(Math.round(performance.now()-playerLoadStarted));
  if(scroll&&(overview||globalThis.matchMedia?.('(max-width:950px)').matches))$(prefix+'Title').scrollIntoView({behavior:'smooth',block:'start'});
  }catch(e){if(token===historyVersion(prefix))$(prefix+'Note').textContent=e.message;}
@@ -437,8 +459,8 @@ $('countryMovementWindow').onchange=()=>{activityMinutes=Number($('countryMoveme
 $('countryActivityWindow').onchange=()=>{activityMinutes=Number($('countryActivityWindow').value);countryPage=1;loadCountryActivity();};
 $('currentEstimateToggle').onchange=()=>{if(data?.status?.archiveOnly){renderCurrent();return;}changeEstimateSetting($('currentEstimateToggle'));};
 $('regions').onclick=e=>{const b=e.target.closest('[data-region]');if(b){if($('standingsDialog').open){location.href=pageUrl('region',b.dataset.region);return;}region=region===b.dataset.region?'all':b.dataset.region;country='all';previewCountry=null;previewGeneration++;$('countryPreview').classList.add('hidden');changeScope();}};
-$('players').onclick=async e=>{const b=e.target.closest('[data-player]');if(b){if(view==='global'){playerDialogReturnFocus=b;await showSelectedPlayer(b.dataset.player,b.dataset.region,false,true,true);return;}await showSelectedPlayer(b.dataset.player,b.dataset.region);$('selectedPlayerSection').scrollIntoView({behavior:'smooth',block:'start'});}};
-$('globalPlayerCards').onclick=async e=>{const b=e.target.closest('[data-player]');if(b){playerDialogReturnFocus=b;await showSelectedPlayer(b.dataset.player,b.dataset.region,false,true,true);}};
+$('players').onclick=async e=>{const b=e.target.closest('[data-player]');if(b){if(view==='global'){location.href=playerProfileUrl(b.dataset.player,b.dataset.region);return;}await showSelectedPlayer(b.dataset.player,b.dataset.region);$('selectedPlayerSection').scrollIntoView({behavior:'smooth',block:'start'});}};
+$('globalPlayerCards').onclick=e=>{const b=e.target.closest('[data-player]');if(b)location.href=playerProfileUrl(b.dataset.player,b.dataset.region);};
 for(const id of ['movers','previewPlayers'])$(id).onclick=e=>{const b=e.target.closest('[data-player]');if(b)showSelectedPlayer(b.dataset.player,b.dataset.region,id==='previewPlayers');};
 for(const [id,sort] of [['regionHead',regionSort],['countryHead',countrySort]])$(id).onclick=e=>{const b=e.target.closest('[data-sort]');if(b){sort.dir=sort.key===b.dataset.sort&&sort.dir==='desc'?'asc':'desc';sort.key=b.dataset.sort;if(id==='countryHead')countryPage=1;renderTables();}};
 $('countryFirst').onclick=()=>{countryPage=1;renderTables();};$('countryPrev').onclick=()=>{countryPage=Math.max(1,countryPage-1);renderTables();};$('countryNext').onclick=()=>{countryPage=Math.min(countryPages,countryPage+1);renderTables();};$('countryLast').onclick=()=>{countryPage=countryPages;renderTables();};$('countryJump').onchange=()=>{countryPage=Math.min(countryPages,Math.max(1,Number($('countryJump').value)||1));renderTables();};
