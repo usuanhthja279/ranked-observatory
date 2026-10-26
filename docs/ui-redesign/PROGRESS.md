@@ -155,3 +155,33 @@ No Gradle/backend test was run because Phase 2A changes are static frontend shel
 - Actual synthetic screenshots captured and inspected: `evidence/phase2b-search-desktop.png`, `evidence/phase2b-search-error-desktop.png`, and `evidence/phase2b-search-mobile.png`. The search fixtures and error responses are synthetic and do not represent live account/player data.
 
 No Gradle/backend test was run because Phase 2B changes are static frontend behavior and a pure JavaScript helper. No database, collector, active service, or live API was used or changed. Phase 2 (2A and 2B) is complete; proceed to Phase 3A.
+
+## Phase 3A — Region explorer and canonical overview routes
+
+### Changes
+
+- Added canonical `/overview`, `/regions`, and `/regions/{region}` entry points while retaining the existing leaderboard renderer and query contracts behind redirects.
+- Added server-side region and Act validation for the new routes; malformed region and Act values return client errors.
+- Made the overview consistently show all six regions. Regions without data in the current snapshot are explicitly marked unavailable, with no fabricated zero-valued statistics.
+- Moved historical trend charts below the region explorer in a collapsed disclosure, and refreshes chart sizing when opened.
+- Added focused route coverage and retained the responsive shell's canonical navigation links.
+
+### Verification
+
+- `.\gradlew.bat test --tests com.valorant.leaderboard.StandaloneApplicationTest --console=plain` — **PASS**, 6 tests, 0 failures, 0 errors, 0 skipped. The focused Spring test uses its configured H2 test database; this is not a live PostgreSQL test.
+- `node --check src/main/resources/static/leaderboard.js` — **PASS**.
+- `node --check src/main/resources/static/observatory-shell.js` — **PASS**.
+- `node --check src/main/resources/static/observatory-lifecycle.js` — **PASS**.
+- `node --test src/test/js/observatory-lifecycle.test.cjs` — **PASS**, 3 tests, 0 failures.
+- `git diff --check` — **PASS**.
+- Synthetic Edge verification with mocked APIs — **PASS**: six region cards; three fixture regions with data and three explicit unavailable cards; canonical region navigation redirects to the existing renderer; history starts collapsed and opens; no browser errors; desktop width stays 1440 px and mobile width stays 390 px.
+- Captured and inspected synthetic screenshots: `evidence/phase3a-overview-desktop.png` (1440 × 900) and `evidence/phase3a-overview-mobile.png` (390 × 844). These show fixture data, not live region coverage. On mobile the fixed bottom navigation overlaps part of a card at the viewport edge while scrolling; the card carousel remains swipeable and its final card is reachable. No horizontal page overflow was observed.
+
+### Local service boundary
+
+- Before restart, the existing app on port 8090 had completed snapshot 399 (543 pages). A subsequent live extraction was allowed to finish before stopping the service; no active collection was interrupted.
+- Packaged with `.\gradlew.bat bootJar --console=plain` — **PASS** using the installed Java 21 JDK.
+- Restarted only the verified 8090 listener with `scripts/Stop-LeaderboardService.ps1 -Port 8090` followed by `scripts/Start-LeaderboardService.ps1 -Port 8090` — **PASS**. The standard script loaded the existing private database settings; no credential values were printed or changed.
+- Post-restart `GET /api/leaderboard/status` — **HTTP 200**; app enabled on port 8090 and durable snapshot 399 remained available. The scheduled live collector resumed automatically after restart.
+- Post-restart route checks — **PASS**: `/overview` and `/regions/ap` redirect to their established renderer URLs; invalid region returns 404; malformed Act returns 400; the renderer serves the new region-availability and collapsed-history hooks.
+- Phase 3A is complete. Phase 3B remains next.

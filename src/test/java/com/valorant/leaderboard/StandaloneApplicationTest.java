@@ -36,6 +36,20 @@ class StandaloneApplicationTest {
     mvc.perform(get("/leaderboard.html")).andExpect(status().isOk()).andExpect(content().string(org.hamcrest.Matchers.containsString("Valorant Ranked Observatory")));
     mvc.perform(get("/api/leaderboard/status")).andExpect(status().isOk()).andExpect(jsonPath("$.enabled").value(false));
   }
+  @Test void canonicalOverviewAndRegionRoutesPreserveLegacyActScope() throws Exception {
+    String act="01234567-89ab-cdef-0123-456789abcdef";
+    mvc.perform(get("/overview").param("act",act)).andExpect(status().is3xxRedirection())
+        .andExpect(redirectedUrl("/leaderboard.html?view=world&act="+act));
+    mvc.perform(get("/regions")).andExpect(status().is3xxRedirection())
+        .andExpect(redirectedUrl("/leaderboard.html?view=world"));
+    mvc.perform(get("/regions").param("region","ap").param("act",act)).andExpect(status().is3xxRedirection())
+        .andExpect(redirectedUrl("/leaderboard.html?view=region&region=ap&act="+act));
+    mvc.perform(get("/regions/eu").param("act",act)).andExpect(status().is3xxRedirection())
+        .andExpect(redirectedUrl("/leaderboard.html?view=region&region=eu&act="+act));
+    mvc.perform(get("/regions/unknown")).andExpect(status().isNotFound());
+    mvc.perform(get("/overview").param("act","invalid")).andExpect(status().isBadRequest());
+  }
+
   @Test void collectionUsesIndependentAuthenticationAndCsrf() throws Exception {
     mvc.perform(post("/api/leaderboard/collect").with(csrf())).andExpect(status().isUnauthorized());
     mvc.perform(post("/api/leaderboard/collect").with(user("admin").roles("ADMIN"))).andExpect(status().isForbidden());
