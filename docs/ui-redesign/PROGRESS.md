@@ -254,3 +254,34 @@ No Gradle/backend test was run because Phase 2B changes are static frontend beha
 - Data in these captures comes from the local persisted snapshot (snapshot 400), not synthetic fixtures. New extraction remained paused throughout verification.
 
 Phase 4A is implemented and focused verification passed. Proceed to Phase 4B; keep extraction paused.
+
+## Phase 4B — Global leaderboard and mobile player preview
+
+### Changes
+
+- Added canonical `/leaderboard`, with validated search, page, Act, sort and direction parameters. Existing `/leaderboard.html?view=global` remains supported.
+- Added URL-backed global search, paging, sorting and browser Back/Forward restoration. Search and page totals are sourced from the full current or archived player set.
+- Added safe server-side sort choices for global rank, regional rank, player name, country, tier, rating, rating change and observation time. Sort SQL expressions are selected from an allowlist; invalid columns/directions return HTTP 400. Existing callers retain the default global-rank ordering.
+- Added compact mobile player cards with ranking, identity, country, rating and an expandable details area. The existing player-history view opens from each card. Desktop retains the established table.
+- Hid region-only overview panels while the global leaderboard is active. Preserved Act context in the canonical route and API requests.
+
+### Verification
+
+- `node --check src/main/resources/static/leaderboard.js` — **PASS**.
+- `node --check src/main/resources/static/observatory-shell.js` — **PASS**.
+- `node --test src/test/js/countries-directory.test.cjs` — **PASS**, 4 tests, 0 failures.
+- `.\gradlew.bat test --tests com.valorant.leaderboard.StandaloneApplicationTest --console=plain bootJar` — **PASS**, 9 Java tests, 0 failures/errors/skips; packaged build successful using Java 21. The new route test covers canonical query preservation and bad route inputs; the sort test rejects unsupported SQL sort/direction values. No Docker was used.
+- `git diff --check` — **PASS**.
+- ChatGPT in-app browser using the local app and PostgreSQL snapshot 400 — **PASS**: global leaderboard showed 54,429 players; searching `Jaggi` returned one match and updated the URL; page 2 displayed rows 11–20 and browser Back restored page 1; country sort began with Andorra and then United Arab Emirates; rating and rating-change sorts returned data; clicking “View player history” opened the existing history dialog and loaded source observations. No browser console errors were recorded.
+- Responsive checks — **PASS**: at 390 × 844 CSS viewport, the document measured 380 px wide (the in-app browser content area) with no horizontal overflow; mobile cards expand and remain scrollable, and the player-history dialog is usable with its own vertical scrolling. Desktop DOM measured 1,430 px wide at a 1,440 px CSS viewport.
+- Local application was rebuilt and restarted on port 8090. After startup completed, API health/status returned **HTTP 200** with `enabled:false`, `paused:true`, `running:false`, and latest complete snapshot 400. No collection request was sent.
+
+### Visual evidence and limitations
+
+- `evidence/phase4b-global-desktop.png` — actual ChatGPT in-app browser capture, 1,010 × 894. The CSS viewport was set to 1,440 × 900 and the document measured 1,430 px wide; the narrower browser-panel capture clips the far-right portion of the wide desktop table.
+- `evidence/phase4b-global-mobile.png` — actual in-app browser capture, 380 × 822, showing the responsive global leaderboard.
+- `evidence/phase4b-global-sort-mobile.png` — actual in-app browser capture, 380 × 822, showing the sort selector and sorted player cards.
+- `evidence/phase4b-global-mobile-history.png` — actual in-app browser capture, 390 × 843, of the player-history dialog on mobile.
+- Screenshots were inspected. The global screen has no page-level horizontal overflow; the fixed bottom navigation overlays the viewport edge while the page scrolls, and lower player cards remain reachable by scrolling. The desktop screenshot width is constrained by the built-in browser panel, not by the page's CSS layout.
+
+Phase 4B is implemented and focused verification passed. Continue to Phase 5. Keep all data extraction paused until the redesign phases are complete.

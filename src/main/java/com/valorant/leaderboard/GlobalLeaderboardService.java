@@ -354,8 +354,13 @@ public class GlobalLeaderboardService {
     return Map.of("points",points,"regionPoints",regionPoints,"movers",movers,"windowMinutes",minutes,"direction",direction,"snapshotCount",points.size());
   }
   public Map<String,Object> players(String region,String country,String search,int page,int size){
+    return players(region,country,search,page,size,"globalRank","asc");
+  }
+  public Map<String,Object> players(String region,String country,String search,int page,int size,String sort,String direction){
     var p=params(region,country);p.put("search",search.toLowerCase(Locale.ROOT));p.put("pattern","%"+search.toLowerCase(Locale.ROOT)+"%");p.put("limit",size);p.put("offset",(page-1)*size);
     String match=FILTER+" and (:search='' or lower(p.display_name) like :pattern) ";
+    String column=switch(sort){case "name"->"p.display_name";case "country"->"p.country";case "regionalRank"->"p.regional_rank";case "tier"->"p.tier";case "rr"->"p.rr";case "rrChange"->"case when p.carried_forward or old.carried_forward or p.stats_ambiguous or old.stats_ambiguous then null else p.rr-old.rr end";case "updated"->"p.source_updated_at";default->"p.global_rank";};
+    String order=column+" "+(direction.equals("desc")?"desc":"asc")+" nulls last,p.global_rank nulls last,p.regional_rank nulls last,p.region,p.player_key";
     Long total=sql.queryForObject("select count(*) from global_leaderboard_players p where p.run_id="+LATEST+" and "+match,p,Long.class);
     var rows=sql.queryForList("""
       with recent as (select id from global_leaderboard_runs where act=:act and status='COMPLETE' order by id desc limit 2),
@@ -367,7 +372,7 @@ public class GlobalLeaderboardService {
       case when p.carried_forward then 'CARRIED_FORWARD' when p.stats_ambiguous then 'UNCERTAIN' when old.player_key is not null then 'RETURNING' when (select id from previous) is null then 'BASELINE' else 'ENTERED' end movement
       from global_leaderboard_players p left join global_leaderboard_players old on old.run_id=(select id from previous) and old.region=p.region and old.player_key=p.player_key
       where p.run_id=
-      """+LATEST+" and "+match+" order by p.global_rank nulls last,p.regional_rank nulls last,p.region,p.player_key limit :limit offset :offset",p);
+      """+LATEST+" and "+match+" order by "+order+" limit :limit offset :offset",p);
     return Map.of("items",rows,"total",total,"page",page,"size",size);
   }
   public Map<String,Object> playerSummary(String player,String region){

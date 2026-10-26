@@ -1,0 +1,28 @@
+#playerSection .global-player-cards[hidden] { display: none !important; }
+#playerSection .global-player-cards { display: none; }
+.global-player-card { border: 1px solid #2b4054; border-radius: 12px; background: linear-gradient(145deg, #142436, #101c2a); }
+.global-player-card + .global-player-card { margin-top: 9px; }
+.global-player-card > summary { display: grid; grid-template-columns: 66px minmax(0, 1fr) auto; align-items: center; gap: 11px; padding: 12px; list-style: none; cursor: pointer; }
+.global-player-card > summary::-webkit-details-marker { display: none; }
+.global-card-rank { color: #77d9cf; font-variant-numeric: tabular-nums; font-weight: 800; }
+.global-card-identity { display: grid; min-width: 0; gap: 4px; }
+.global-card-identity .player-identity { min-width: 0; }
+.global-card-identity > small { display: inline-flex; align-items: center; gap: 6px; color: #a9bfd1; font-size: 11px; }
+.global-card-identity .flag { width: 16px; height: 12px; margin: 0; }
+.global-card-rating { color: #f2d589; font-size: 16px; font-variant-numeric: tabular-nums; font-weight: 800; white-space: nowrap; }
+.global-card-rating small { color: #a9bfd1; font-size: 10px; font-weight: 600; }
+.global-player-card[open] > summary { border-bottom: 1px solid #2b4054; }
+.global-card-details { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; padding: 12px; }
+.global-card-details > div { display: grid; min-width: 0; gap: 4px; }
+.global-card-details > div > span { color: #9db3c7; font-size: 10px; }
+.global-card-details > div > strong { min-width: 0; font-size: 12px; font-weight: 650; }
+.global-card-open { grid-column: 1 / -1; min-height: 40px; border: 1px solid #416375; border-radius: 8px; background: #153a43; color: #c5f3ed; font: inherit; font-weight: 700; cursor: pointer; }
+.global-card-open:hover { border-color: #78d4ca; background: #1b4b52; }
+@media (max-width: 650px) {
+  #playerSection[data-view="global"] > .scroll { display: none; }
+  #playerSection[data-view="global"] .global-player-cards:not([hidden]) { display: grid; gap: 9px; }
+  #playerSection[data-view="global"] .global-player-card > summary { grid-template-columns: 58px minmax(0, 1fr) auto; gap: 8px; padding: 11px 9px; }
+  #playerSection[data-view="global"] .global-card-rank { font-size: 12px; }
+  #playerSection[data-view="global"] .global-card-rating { font-size: 14px; }
+  #playerSection[data-view="global"] .global-card-identity .player-identity { gap: 4px; font-size: 12px; }
+}

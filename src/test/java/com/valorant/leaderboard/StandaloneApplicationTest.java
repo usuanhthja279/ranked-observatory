@@ -67,6 +67,29 @@ class StandaloneApplicationTest {
     mvc.perform(get("/countries").param("act","invalid")).andExpect(status().isBadRequest());
   }
 
+  @Test void canonicalGlobalLeaderboardRoutePreservesSearchPageAndAct() throws Exception {
+    String act="01234567-89ab-cdef-0123-456789abcdef";
+    mvc.perform(get("/leaderboard")).andExpect(status().is3xxRedirection())
+        .andExpect(redirectedUrl("/leaderboard.html?view=global&region=all&country=all"));
+    mvc.perform(get("/leaderboard").param("q","India #1").param("page","3").param("act",act))
+        .andExpect(status().is3xxRedirection())
+        .andExpect(redirectedUrl("/leaderboard.html?view=global&region=all&country=all&q=India%20%231&page=3&act="+act));
+    mvc.perform(get("/leaderboard").param("sort","rr").param("direction","desc"))
+        .andExpect(status().is3xxRedirection())
+        .andExpect(redirectedUrl("/leaderboard.html?view=global&region=all&country=all&sort=rr&direction=desc"));
+    mvc.perform(get("/leaderboard").param("page","0")).andExpect(status().isBadRequest());
+    mvc.perform(get("/leaderboard").param("act","invalid")).andExpect(status().isBadRequest());
+    mvc.perform(get("/leaderboard").param("q","x".repeat(101))).andExpect(status().isBadRequest());
+    mvc.perform(get("/leaderboard").param("sort","sql-injection")).andExpect(status().isBadRequest());
+  }
+
+  @Test void playerSortRejectsUnsupportedColumnsAndDirections() throws Exception {
+    mvc.perform(get("/api/leaderboard/players").param("sort","p.player_key;drop table x"))
+        .andExpect(status().isBadRequest());
+    mvc.perform(get("/api/leaderboard/players").param("direction","sideways"))
+        .andExpect(status().isBadRequest());
+  }
+
   @Test void collectionUsesIndependentAuthenticationAndCsrf() throws Exception {
     mvc.perform(post("/api/leaderboard/collect").with(csrf())).andExpect(status().isUnauthorized());
     mvc.perform(post("/api/leaderboard/collect").with(user("admin").roles("ADMIN"))).andExpect(status().isForbidden());

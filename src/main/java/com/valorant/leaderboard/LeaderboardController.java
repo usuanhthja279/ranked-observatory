@@ -61,10 +61,10 @@ public class LeaderboardController {
     return service.trends(region(region),country(country),minutes,direction);
   }
   @org.springframework.cache.annotation.Cacheable(cacheNames="dashboardReads",keyGenerator="snapshotKeyGenerator",sync=true)
-  @GetMapping("/players") public Map<String,Object> players(@RequestParam(defaultValue="all")String region,@RequestParam(defaultValue="all")String country,@RequestParam(defaultValue="")String search,@RequestParam(defaultValue="1")int page,@RequestParam(defaultValue="100")int size,@RequestParam(required=false)String act){
-    if(page<1||page>100000||size<1||size>250||search.length()>100)throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Invalid pagination/search");
-    if(act!=null&&!archive.isCurrent(selectedAct(act)))return archive.players(act,region(region),country(country),search,page,size);
-    return service.players(region(region),country(country),search,page,size);
+  @GetMapping("/players") public Map<String,Object> players(@RequestParam(defaultValue="all")String region,@RequestParam(defaultValue="all")String country,@RequestParam(defaultValue="")String search,@RequestParam(defaultValue="1")int page,@RequestParam(defaultValue="100")int size,@RequestParam(required=false)String act,@RequestParam(defaultValue="globalRank")String sort,@RequestParam(defaultValue="asc")String direction){
+    if(page<1||page>100000||size<1||size>250||search.length()>100||!Set.of("globalRank","regionalRank","name","country","tier","rr","rrChange","updated").contains(sort)||!Set.of("asc","desc").contains(direction))throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Invalid pagination/search/sort");
+    if(act!=null&&!archive.isCurrent(selectedAct(act)))return archive.players(act,region(region),country(country),search,page,size,sort,direction);
+    return service.players(region(region),country(country),search,page,size,sort,direction);
   }
   @org.springframework.cache.annotation.Cacheable(cacheNames="dashboardReads",keyGenerator="snapshotKeyGenerator",sync=true)
   @GetMapping("/history") public List<Map<String,Object>> history(@RequestParam String player,@RequestParam String region,@RequestParam(required=false)String act){

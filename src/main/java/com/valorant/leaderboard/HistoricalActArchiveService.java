@@ -235,8 +235,13 @@ public class HistoricalActArchiveService {
     """,act,country,country,act,country,country);}
 
   public Map<String,Object> players(String act,String region,String country,String search,int page,int size){
+    return players(act,region,country,search,page,size,"globalRank","asc");
+  }
+  public Map<String,Object> players(String act,String region,String country,String search,int page,int size,String sort,String direction){
     String source=region.equals("all")?"global":region;int offset=(page-1)*size;
     var params=new Object[]{act,source,region,region,country,country,"%"+search.toLowerCase(Locale.ROOT)+"%",size,offset};
+    String column=switch(sort){case "name"->"p.display_name";case "country"->"p.country";case "regionalRank"->"case when p.source_region<>'global' then p.source_rank else r.source_rank end";case "tier"->"p.tier";case "rr"->"p.rr";case "updated"->"p.source_updated_at";default->"case when p.source_region='global' then p.source_rank else g.source_rank end";};
+    String order=column+" "+(direction.equals("desc")?"desc":"asc")+" nulls last,global_rank nulls last,regional_rank nulls last,p.player_key";
     var items=db.queryForList("""
       select p.display_name,p.player_key,p.country,p.player_region region,
        case when p.source_region='global' then p.source_rank else g.source_rank end global_rank,
@@ -246,7 +251,7 @@ public class HistoricalActArchiveService {
       left join historical_act_players r on r.act=p.act and r.source_region=p.player_region and r.player_region=p.player_region and r.player_key=p.player_key
       where p.act=? and p.source_region=? and (?='all' or p.player_region=?)
        and (?='all' or coalesce(p.country,'unknown')=?) and lower(p.player_key) like ?
-      order by p.source_rank limit ? offset ?
+      order by "+order+" limit ? offset ?
       """,params);
     Long total=db.queryForObject("select count(*) from historical_act_players p where p.act=? and p.source_region=? and (?='all' or p.player_region=?) and (?='all' or coalesce(p.country,'unknown')=?) and lower(p.player_key) like ?",Long.class,act,source,region,region,country,country,"%"+search.toLowerCase(Locale.ROOT)+"%");
     return Map.of("items",items,"total",total,"page",page,"size",size,"archiveOnly",true);

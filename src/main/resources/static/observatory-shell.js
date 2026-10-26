@@ -1,13 +1,13 @@
 'use strict';
 (()=>{
- const params=new URLSearchParams(location.search),currentView=params.get('view')||'world';
+ const params=new URLSearchParams(location.search),currentView=params.get('view')||(location.pathname==='/leaderboard'?'global':'world');
  const currentRegion=params.get('region')||'ap';let selectedAct=params.get('act')||'',currentAct='';
  const validRegions=new Set(['ap','eu','na','latam','br','kr']);
  function shellHref(view){
   const p=new URLSearchParams({view});
-  if(view==='global'){p.set('view','global');p.set('region','all');p.set('country','all');}
   if(selectedAct&&selectedAct!==currentAct)p.set('act',selectedAct);
-  return (view==='world'?'/overview':view==='region'?'/regions/'+encodeURIComponent(validRegions.has(currentRegion)?currentRegion:'ap'):view==='countries'?'/countries':'/leaderboard.html')+(view==='global'?'?'+p.toString():(p.has('act')?'?act='+encodeURIComponent(p.get('act')):''));
+  if(view==='global')return '/leaderboard'+(p.has('act')?'?act='+encodeURIComponent(p.get('act')):'');
+  return (view==='world'?'/overview':view==='region'?'/regions/'+encodeURIComponent(validRegions.has(currentRegion)?currentRegion:'ap'):view==='countries'?'/countries':'/leaderboard.html')+(p.has('act')?'?act='+encodeURIComponent(p.get('act')):'');
  }
  function syncShellNavigation(latestCurrentAct=currentAct,activeAct=selectedAct){
   currentAct=latestCurrentAct||'';selectedAct=activeAct||'';

@@ -3,10 +3,11 @@ const $=id=>document.getElementById(id);
 const esc=value=>String(value??'—').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const time=v=>v?new Date(v).toLocaleString():'—';
 const fmt=v=>v==null?'—':Number(v).toLocaleString();
-const params=new URLSearchParams(location.search),view=params.get('view')||'world';
+const params=new URLSearchParams(location.search),view=params.get('view')||(location.pathname==='/leaderboard'?'global':'world');
 let selectedAct=params.get('act')||'';let currentAct='';
 const playerPageSize=view==='country'||view==='global'?10:20;
-let region=params.get('region')||'all',country=params.get('country')||'all',page=1,countryPage=1,search='',generation=0,trendMinutes=60,direction='overall';
+const playerSorts=new Set(['globalRank','regionalRank','name','country','tier','rr','rrChange','updated']);
+let region=params.get('region')||'all',country=params.get('country')||'all',page=Math.max(1,Math.floor(Number(params.get('page')||1))),countryPage=1,search=params.get('q')||params.get('search')||'',generation=0,trendMinutes=60,direction='overall',sortKey=playerSorts.has(params.get('sort'))?params.get('sort'):'globalRank',sortDirection=params.get('direction')==='desc'?'desc':'asc';
 let previewCountry=null,previewGeneration=0,worldTrendCountry=null,moverCountry='all',countryMode='current',activityMinutes=60,activityVersion=0;
 let data=null,countryNames={},regionNames={},countryPages=1,playerPages=1,expandedScope='';
 let subregion='all';
@@ -24,7 +25,9 @@ const regionSymbol=c=>`<img class="region-symbol region-photo" src="/scenery/${e
 const playerIdentity=value=>{const name=String(value||'Unknown player'),i=name.lastIndexOf('#');return `<span class="player-identity"><span class="player-initial" aria-hidden="true">${esc(name.slice(0,1).toUpperCase())}</span><span class="riot-name">${esc(i<0?name:name.slice(0,i))}</span>${i<0?'':`<span class="riot-tag">${esc(name.slice(i))}</span>`}</span>`;};
 const flag=c=>!c||c==='unknown'?'<span class="unknown-symbol" aria-hidden="true">?</span>':`<img class="flag" src="/flags/${esc(c)}.svg" alt="" loading="lazy">`;
 const countryLabel=c=>flag(c)+esc(countryName(c));
-const pageUrl=(kind,r='all',c='all')=>{const p=new URLSearchParams();if(kind==='world'){if(selectedAct&&selectedAct!==currentAct)p.set('act',selectedAct);return '/overview'+(p.size?'?'+p:'');}if(kind==='region'&&r!=='all'){if(selectedAct&&selectedAct!==currentAct)p.set('act',selectedAct);return '/regions/'+encodeURIComponent(r)+(p.size?'?'+p:'');}if(kind==='countries'){if(selectedAct&&selectedAct!==currentAct)p.set('act',selectedAct);return '/countries'+(p.size?'?'+p:'');}if(kind==='country'&&r!=='all'&&c!=='all'){p.set('region',r);if(selectedAct&&selectedAct!==currentAct)p.set('act',selectedAct);return '/countries/'+encodeURIComponent(c)+'?'+p;}p.set('view',kind);p.set('region',r);p.set('country',c);if(selectedAct&&selectedAct!==currentAct)p.set('act',selectedAct);return '/leaderboard.html?'+p;};
+const globalPlayerCard=p=>`<details class="global-player-card"><summary><span class="global-card-rank">${p.global_rank==null?'Unranked':'#'+fmt(p.global_rank)}</span><span class="global-card-identity">${playerIdentity(p.display_name)}<small>${countryLabel(p.country)}</small></span><span class="global-card-rating">${fmt(p.rr)} <small>RR</small></span></summary><div class="global-card-details"><div><span>Global rank</span><strong>${rank(p.global_rank,p)}</strong></div><div><span>Regional rank</span><strong>${rank(p.regional_rank,p)}</strong></div><div><span>Rank tier</span><strong>${tierBadge(p.tier)}${p.stats_ambiguous?'*':''}</strong></div><div><span>Rating change</span><strong>${delta(p.rr_change)}</strong></div><div><span>Stats as of</span><strong>${esc(time(p.source_updated_at))}${p.carried_forward?' · older':''}</strong></div><button type="button" class="global-card-open" data-player="${esc(p.player_key)}" data-region="${esc(p.region)}">View player history</button></div></details>`;
+const pageUrl=(kind,r='all',c='all')=>{const p=new URLSearchParams();if(kind==='world'){if(selectedAct&&selectedAct!==currentAct)p.set('act',selectedAct);return '/overview'+(p.size?'?'+p:'');}if(kind==='region'&&r!=='all'){if(selectedAct&&selectedAct!==currentAct)p.set('act',selectedAct);return '/regions/'+encodeURIComponent(r)+(p.size?'?'+p:'');}if(kind==='countries'){if(selectedAct&&selectedAct!==currentAct)p.set('act',selectedAct);return '/countries'+(p.size?'?'+p:'');}if(kind==='country'&&r!=='all'&&c!=='all'){p.set('region',r);if(selectedAct&&selectedAct!==currentAct)p.set('act',selectedAct);return '/countries/'+encodeURIComponent(c)+'?'+p;}if(kind==='global'){if(selectedAct&&selectedAct!==currentAct)p.set('act',selectedAct);return '/leaderboard'+(p.size?'?'+p:'');}p.set('view',kind);p.set('region',r);p.set('country',c);if(selectedAct&&selectedAct!==currentAct)p.set('act',selectedAct);return '/leaderboard.html?'+p;};
+function syncGlobalUrl(push=false){if(view!=='global')return;const p=new URLSearchParams();if(selectedAct&&selectedAct!==currentAct)p.set('act',selectedAct);if(search.trim())p.set('q',search.trim());if(page>1)p.set('page',String(page));if(sortKey!=='globalRank')p.set('sort',sortKey);if(sortDirection!=='asc')p.set('direction',sortDirection);const target='/leaderboard'+(p.size?'?'+p:'');if(location.pathname+location.search!==target)history[push?'pushState':'replaceState']({global:true},'',target);}
 function updateShellBreadcrumbs(){
  const host=$('breadcrumbs');if(!host)return;
  const items=[];
@@ -49,7 +52,7 @@ async function initializeActFilter(){
  const current=acts.find(a=>a.current_act);currentAct=current?.act||'';if(!selectedAct||!acts.some(a=>a.act===selectedAct))selectedAct=currentAct;globalThis.syncShellNavigation?.(currentAct,selectedAct);
  $('actFilter').innerHTML=acts.map(a=>`<option value="${esc(a.act)}">${esc(a.label)}${a.current_act?' · Live':''}</option>`).join('');$('actFilter').value=selectedAct;
  $('masthead').querySelector('.brand-eyebrow').href=pageUrl('world');const globalLink=$('regionSection').querySelector('a.page-link');if(globalLink)globalLink.href=pageUrl('global');
- $('actFilter').onchange=()=>{const next=$('actFilter').value,p=new URLSearchParams(location.search);if(next===currentAct)p.delete('act');else p.set('act',next);location.href=location.pathname+(p.toString()?'?'+p:'');};
+$('actFilter').onchange=()=>{const next=$('actFilter').value,p=new URLSearchParams(location.search);if(next===currentAct)p.delete('act');else p.set('act',next);if(view==='global')p.delete('page');location.href=location.pathname+(p.toString()?'?'+p:'');};
 }
 const tierBadge=name=>{const normalized=String(name).replace(/s$/,'');const slug={'Radiant':'radiant','Immortal 1':'immortal-1','Immortal 2':'immortal-2','Immortal 3':'immortal-3','Immortal':'immortal-3'}[normalized];return slug?`<img class="rank-icon" src="/ranks/${slug}.png" alt="${esc(name)}" title="${esc(normalized==='Immortal'?'Immortal · all tiers':name)}" width="28" height="28">`:esc(name);};
 const rankLabel=label=>String(label).split(/(Immortal [123]|Immortal|Radiants?)/g).map(t=>/^(Immortal(?: [123])?|Radiants?)$/.test(t)?tierBadge(t):esc(t)).join('');
@@ -72,6 +75,7 @@ function countryRow(c,pinned=false){const compact=view==='world',archive=data.st
 let estimates=new Map(),estimatedCounts=new Map(),overviewRegionMinutes=60,overviewCountryMinutes=60,overviewActivityCache=new Map(),overviewActivityVersions={region:0,country:0},overviewSearchTimer;const overviewSearchRequest=ObservatoryLifecycle.createLatestRequest();
 function renderTables(){
  const {regions,countries,result}=data;
+ $('playerSection').dataset.view=view;$('globalPlayerCards').hidden=view!=='global';
  const archiveTierColumns=['players','radiant','immortal_all','immortal','immortal3','immortal2','immortal1'];
  const archiveTierLabels={players:'Players',radiant:'Radiant',immortal_all:'Immortal total',immortal:'Immortal combined only',immortal3:'Reported Immortal 3',immortal2:'Reported Immortal 2',immortal1:'Reported Immortal 1'};
  const tierColumns=data.status.archiveOnly?archiveTierColumns:numericColumns,cardTierColumns=data.status.archiveOnly?['players','radiant','immortal_all']:tierColumns;
@@ -96,6 +100,7 @@ function renderTables(){
  $('countryPageLabel').textContent=known.length?`${(countryPage-1)*10+1}–${Math.min(countryPage*10,known.length)} of ${known.length} countries`:'0 countries';
  $('countryJump').value=countryPage;$('countryJump').max=countryPages;for(const id of ['countryFirst','countryPrev'])$(id).disabled=countryPage<=1;for(const id of ['countryNext','countryLast'])$(id).disabled=countryPage>=countryPages;
  $('players').innerHTML=result.items.map(p=>`<tr><td><button data-player="${esc(p.player_key)}" data-region="${esc(p.region)}">${playerIdentity(p.display_name)}</button></td><td>${countryLabel(p.country)}</td><td>${rank(p.global_rank,p)}</td><td title="${esc(time(p.regional_rank_updated_at))}">${rank(p.regional_rank,p)}</td><td>${tierBadge(p.tier)}${p.stats_ambiguous?'*':''}</td><td>${fmt(p.rr)}</td><td>${delta(p.rr_change)}</td><td title="${p.carried_forward?'Carried observation · not refreshed':'Source observation time'}">${esc(time(p.source_updated_at))}${p.carried_forward?' · older':''}</td></tr>`).join('')||'<tr><td colspan="8">No players found.</td></tr>';
+ $('globalPlayerCards').innerHTML=view==='global'?result.items.map(globalPlayerCard).join('')||'<p class="subtle">No players found for this search.</p>':'';
  renderCurrent();renderCountryView();if(view==='country'&&!data.status.archiveOnly)renderCountryMovement();if(view==='world'&&!data.status.archiveOnly)loadOverviewActivity();
  playerPages=Math.max(1,Math.ceil(result.total/playerPageSize));$('pageLabel').textContent=`${result.total?(page-1)*playerPageSize+1:0}–${Math.min(page*playerPageSize,result.total)} of ${fmt(result.total)} players`;$('playerJump').value=page;$('playerJump').max=playerPages;for(const id of ['playerFirst','prev'])$(id).disabled=page<=1;for(const id of ['next','playerLast'])$(id).disabled=page>=playerPages;
 }
@@ -248,9 +253,10 @@ function setScope(){
  $('countrySummary').textContent=regionName(region)+' · Countries';$('playerSummary').textContent=countryName(country)+' · Players';$('countryMovementTitle').textContent=countryName(country)+' · Movement';$('playerTableNote').textContent='Latest complete leaderboard · '+playerPageSize+' players per page. Select a player to inspect their RR history below. Δ RR compares the two latest snapshots.';
  const scope=hasCountry?countryName(country):hasRegion?regionName(region):'All regions';$('timelineTitle').textContent=scope+' · population over time';$('chartModeLabel').classList.toggle('hidden',hasRegion);
  if(view==='global'){
-   for(const id of ['overviewActivitySection','regionSection','regionTableSection','currentSection','countryMovementSection','countrySection','trendLayout','countryPreview'])$(id).classList.add('hidden');
-   $('playerSection').classList.remove('hidden');$('playerSection').open=true;$('playerSummary').textContent='Global leaderboard';$('playerTableNote').textContent='All tracked players · source global rank order · 10 per page. Regional-only players without a global rank appear last.';
+   for(const id of ['overviewActivitySection','regionSection','regionTableSection','regionExperienceTabs','regionTabHint','regionOverviewPanel','regionDistributionPanel','currentSection','countryMovementSection','countrySection','trendLayout','countryPreview'])$(id).classList.add('hidden');
+   $('playerSection').classList.remove('hidden');$('playerSection').open=true;$('playerSummary').textContent='Global leaderboard';$('playerSearch').value=search;$('globalSortWrap').classList.remove('hidden');$('globalSort').value=sortKey+':'+sortDirection;$('playerTableNote').textContent='All tracked players · sorted across the full result set · 10 per page.';
    $('pageTitle').textContent='Global leaderboard';document.title='Global leaderboard · Valorant Ranked Observatory';$('regionScenery').src='/scenery/valorant-header.jpg';$('countryPage').hidden=true;
+   syncGlobalUrl(false);
  }
  updateShellBreadcrumbs();
 }
@@ -310,7 +316,7 @@ async function refreshArchived(version){
   const requests=[];
   requests.push(detailed?api('countries?'+new URLSearchParams({region,country:'all'})):isGlobal?Promise.resolve([]):api('countries?region=all&country=all'));
   requests.push(isGlobal?Promise.resolve([]):api('regions?country=all'));
-  requests.push(isGlobal?api('players?'+new URLSearchParams({region:'all',country:'all',page,size:10,search})):Promise.resolve({items:[],total:0}));
+  requests.push(isGlobal?api('players?'+new URLSearchParams({region:'all',country:'all',page,size:10,search,sort:sortKey,direction:sortDirection})):Promise.resolve({items:[],total:0}));
   requests.push(api('confidence?'+new URLSearchParams({region:detailed?region:'all',country:'all'})));
   [countries,regions,result,confidence]=await Promise.all(requests);if(version!==generation)return;
  }
@@ -328,8 +334,9 @@ async function refreshArchived(version){
  if(!document.documentElement.dataset.coreReadyMs)document.documentElement.dataset.coreReadyMs=String(Math.round(performance.now()));
 }
 async function refreshGlobalPage(version){
- const [status,result,confidence]=await Promise.all([api('status'),api('players?'+new URLSearchParams({region:'all',country:'all',page,size:10,search})),api('confidence')]);if(version!==generation)return;
+  const [status,result,confidence]=await Promise.all([api('status'),api('players?'+new URLSearchParams({region:'all',country:'all',page,size:10,search,sort:sortKey,direction:sortDirection})),api('confidence')]);if(version!==generation)return;
  if(confidence.snapshot_id!==status.latestSnapshot[0]?.id)throw new Error('Snapshot changed; refresh to load the latest data.');
+ const lastPage=Math.max(1,Math.ceil(Number(result.total||0)/10));if(page>lastPage){page=lastPage;syncGlobalUrl(false);return refreshGlobalPage(version);}
  data={status,result,confidence,countries:[],regions:[],modelEvidence:{snapshotId:status.latestSnapshot[0]?.id},trends:{points:[],regionPoints:[],movers:[],snapshotCount:0}};countryNames=status.countries;regionNames=status.regions;
  $('lastUpdated').textContent=time(status.latestSnapshot[0]?.completed_at);$('message').textContent='';setScope();renderTables();renderConfidence(status,confidence);
 }
@@ -431,11 +438,14 @@ $('countryActivityWindow').onchange=()=>{activityMinutes=Number($('countryActivi
 $('currentEstimateToggle').onchange=()=>{if(data?.status?.archiveOnly){renderCurrent();return;}changeEstimateSetting($('currentEstimateToggle'));};
 $('regions').onclick=e=>{const b=e.target.closest('[data-region]');if(b){if($('standingsDialog').open){location.href=pageUrl('region',b.dataset.region);return;}region=region===b.dataset.region?'all':b.dataset.region;country='all';previewCountry=null;previewGeneration++;$('countryPreview').classList.add('hidden');changeScope();}};
 $('players').onclick=async e=>{const b=e.target.closest('[data-player]');if(b){if(view==='global'){playerDialogReturnFocus=b;await showSelectedPlayer(b.dataset.player,b.dataset.region,false,true,true);return;}await showSelectedPlayer(b.dataset.player,b.dataset.region);$('selectedPlayerSection').scrollIntoView({behavior:'smooth',block:'start'});}};
+$('globalPlayerCards').onclick=async e=>{const b=e.target.closest('[data-player]');if(b){playerDialogReturnFocus=b;await showSelectedPlayer(b.dataset.player,b.dataset.region,false,true,true);}};
 for(const id of ['movers','previewPlayers'])$(id).onclick=e=>{const b=e.target.closest('[data-player]');if(b)showSelectedPlayer(b.dataset.player,b.dataset.region,id==='previewPlayers');};
 for(const [id,sort] of [['regionHead',regionSort],['countryHead',countrySort]])$(id).onclick=e=>{const b=e.target.closest('[data-sort]');if(b){sort.dir=sort.key===b.dataset.sort&&sort.dir==='desc'?'asc':'desc';sort.key=b.dataset.sort;if(id==='countryHead')countryPage=1;renderTables();}};
 $('countryFirst').onclick=()=>{countryPage=1;renderTables();};$('countryPrev').onclick=()=>{countryPage=Math.max(1,countryPage-1);renderTables();};$('countryNext').onclick=()=>{countryPage=Math.min(countryPages,countryPage+1);renderTables();};$('countryLast').onclick=()=>{countryPage=countryPages;renderTables();};$('countryJump').onchange=()=>{countryPage=Math.min(countryPages,Math.max(1,Number($('countryJump').value)||1));renderTables();};
-function playerPage(n){page=Math.min(playerPages,Math.max(1,n));refresh();}$('playerFirst').onclick=()=>playerPage(1);$('prev').onclick=()=>playerPage(page-1);$('next').onclick=()=>playerPage(page+1);$('playerLast').onclick=()=>playerPage(playerPages);$('playerJump').onchange=()=>playerPage(Number($('playerJump').value)||1);
-let searchTimer;$('playerSearch').oninput=()=>{clearTimeout(searchTimer);searchTimer=setTimeout(()=>{search=$('playerSearch').value;page=1;refresh();},300);};
+function playerPage(n){page=Math.min(playerPages,Math.max(1,n));if(view==='global')syncGlobalUrl(true);refresh();}$('playerFirst').onclick=()=>playerPage(1);$('prev').onclick=()=>playerPage(page-1);$('next').onclick=()=>playerPage(page+1);$('playerLast').onclick=()=>playerPage(playerPages);$('playerJump').onchange=()=>playerPage(Number($('playerJump').value)||1);
+let searchTimer;$('playerSearch').oninput=()=>{clearTimeout(searchTimer);searchTimer=setTimeout(()=>{search=$('playerSearch').value;page=1;if(view==='global')syncGlobalUrl(false);refresh();},300);};
+window.addEventListener('popstate',()=>{if(view!=='global')return;const p=new URLSearchParams(location.search);search=p.get('q')||p.get('search')||'';page=Math.max(1,Math.floor(Number(p.get('page')||1)));sortKey=playerSorts.has(p.get('sort'))?p.get('sort'):'globalRank';sortDirection=p.get('direction')==='desc'?'desc':'asc';$('playerSearch').value=search;$('globalSort').value=sortKey+':'+sortDirection;refresh();});
+$('globalSort').onchange=()=>{const [key,dir]=$('globalSort').value.split(':');sortKey=key;sortDirection=dir;page=1;syncGlobalUrl(false);refresh();};
 $('trendWindow').onchange=()=>{trendMinutes=Number($('trendWindow').value);refresh();};$('movementDirection').onchange=()=>{direction=$('movementDirection').value;refresh();};$('moverCountry').onchange=()=>{moverCountry=$('moverCountry').value;resetMainPlayer();refresh();};$('chartMode').onchange=()=>{if(data)renderTrends();};$('refresh').onclick=refresh;
 globalThis.addEventListener?.('resize',()=>{if(data)renderTrends();});
 let authMode='signin',authReturnFocus=null;

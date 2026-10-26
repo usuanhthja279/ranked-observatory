@@ -1,5 +1,6 @@
 package com.valorant.leaderboard;
 
+import java.util.Set;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -53,6 +54,27 @@ public class ObservatoryPageController {
     if (!GlobalLeaderboardService.REGIONS.containsKey(region)) throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Unknown leaderboard region");
     validateAct(act);
     return redirect("country", region, country, act);
+  }
+
+  @GetMapping("/leaderboard")
+  public RedirectView globalLeaderboard(@RequestParam(required = false) String q,
+                                       @RequestParam(required = false) Integer page,
+                                       @RequestParam(required = false) String act,
+                                       @RequestParam(defaultValue = "globalRank") String sort,
+                                       @RequestParam(defaultValue = "asc") String direction) {
+    validateAct(act);
+    if (page != null && page < 1) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid leaderboard page");
+    if (q != null && q.length() > 100) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Search is too long");
+    if (!Set.of("globalRank","regionalRank","name","country","tier","rr","rrChange","updated").contains(sort)
+        || !Set.of("asc","desc").contains(direction)) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid leaderboard sort");
+    var target = UriComponentsBuilder.fromPath("/leaderboard.html")
+        .queryParam("view", "global").queryParam("region", "all").queryParam("country", "all");
+    if (q != null && !q.isBlank()) target.queryParam("q", q);
+    if (page != null && page > 1) target.queryParam("page", page);
+    if (act != null && !act.isBlank()) target.queryParam("act", act);
+    if (!sort.equals("globalRank")) target.queryParam("sort", sort);
+    if (!direction.equals("asc")) target.queryParam("direction", direction);
+    return new RedirectView(target.build().encode().toUriString(), false);
   }
 
   private RedirectView regionRedirect(String region, String act) {
