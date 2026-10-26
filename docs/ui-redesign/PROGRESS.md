@@ -185,3 +185,40 @@ No Gradle/backend test was run because Phase 2B changes are static frontend beha
 - Post-restart `GET /api/leaderboard/status` — **HTTP 200**; app enabled on port 8090 and durable snapshot 399 remained available. The scheduled live collector resumed automatically after restart.
 - Post-restart route checks — **PASS**: `/overview` and `/regions/ap` redirect to their established renderer URLs; invalid region returns 404; malformed Act returns 400; the renderer serves the new region-availability and collapsed-history hooks.
 - Phase 3A is complete. Phase 3B remains next.
+
+## Phase 3B — Region details (complete; data extraction paused for remaining redesign phases)
+
+### Changes
+
+- Added six keyboard-operable region tabs: Overview, Standings, Countries, Rank distribution, Movement and Historical trends.
+- Reused the existing player standings, country/subregion table, movement panels and both within-Act and cross-Act trend systems; no new data endpoint or database change was needed.
+- Added region overview cards from the existing regional summary, including top player/rank, observed player totals, and the boundary value only when the country summary provides it. The UI describes the boundary as observed context, not an official promotion requirement.
+- Added a rank distribution view with observed tier counts and shares explicitly based on the listed tiers. Confirmed Radiant counts are labeled as confirmed.
+- Archived Acts show an explicit movement-unavailable explanation instead of an empty/zero-like movement table.
+- Preserved Act query state when changing tabs, made browser Back/Forward restore a selected tab, and kept subregion filtering available under Countries.
+- Added a mobile hint for the horizontally scrollable tab strip; no document-level overflow was observed.
+- User requested that data extraction remain stopped until all redesign phases are implemented. Added a persistent all-extraction hold that blocks the live scheduler, manual live collection, automatic live resume after archive completion, and the historical archive worker. Status responses expose `paused`; historical archive schedule reports `scheduled:false` while held.
+- The startup script supports `-PauseAllExtractionUntilRedesignComplete`, which stores an ignored local marker under `build/`. The marker survives service restarts. `-ResumeLiveExtraction` removes both the all-extraction and live-only pause markers; use it only after the redesign phases are complete and the user asks to resume extraction.
+- On startup, an abandoned live run is marked `FAILED` only when the PostgreSQL advisory lock confirms no collector still owns it. Its durable page checkpoint remains in `build/live-collection/`.
+
+### Verification
+
+- `node --check src/main/resources/static/leaderboard.js` — **PASS**.
+- `node --check src/main/resources/static/region-detail.js` — **PASS**.
+- `node --test src/test/js/region-detail.test.cjs src/test/js/observatory-lifecycle.test.cjs` — **PASS**, 5 tests, 0 failures.
+- `git diff --check` — **PASS**.
+- `.\gradlew.bat bootJar --console=plain` — **PASS**, Java 21; the build completed successfully.
+- `.\gradlew.bat test --tests com.valorant.leaderboard.StandaloneApplicationTest --tests com.valorant.leaderboard.HistoricalActArchiveServiceTest bootJar --console=plain` — **PASS**, 8 focused tests (6 + 2), 0 failures, 0 errors, 0 skipped; packaged build successful.
+- Synthetic Edge browser flow — **PASS** at 1440 × 900 and 390 × 844: all six tabs, Act query preservation, Asia-Pacific subregion selection, rank bars, movement/history panel visibility, keyboard navigation and no JavaScript errors. Document width remained 390 px on mobile. Synthetic fixture screenshots: `evidence/phase3b-region-overview-desktop.png` and `evidence/phase3b-region-mobile.png`.
+- Real-backend Edge flow — **PASS**, read-only GET requests proxied to the local 8090 API while the updated source UI was served from the workspace. Asia-Pacific summary, confirmed Radiant count, observed boundary, player list, country list, movement and Act-trends panels loaded; no browser errors; desktop width was 1440 px and mobile width was 390 px. Live-data screenshots: `evidence/phase3b-region-live-desktop.png` and `evidence/phase3b-region-live-mobile.png`.
+- The browser comment screenshot's bright blue outline is the comment-selection overlay. On the running app, Ctrl+K opened “Find a player,” focused the input, and the app's own focus treatment was teal (`rgb(131, 216, 208)`); no extra blue app outline was observed.
+- Screenshot inspection found the mobile tab labels extend beyond the visible strip; this is now signaled by “Swipe to explore all six sections” and the final tab remains reachable. The fixed bottom navigation has the existing 88 px safe-area padding on the page.
+
+### Local service boundary
+
+- Snapshot 400 was the latest completed snapshot before the next live run. At the time the user requested a full pause, the active run was collecting LATAM page 49. The service was stopped, and its page-by-page checkpoint was retained at `build/live-collection/88a01c48-0e50-49cb-9e72-748987293947` (1,026 files). The interrupted run was marked `FAILED`; the last completed snapshot remains unchanged.
+- Packaged and restarted the app on port 8090 with `scripts/Stop-LeaderboardService.ps1 -Port 8090` and `scripts/Start-LeaderboardService.ps1 -Port 8090 -PauseAllExtractionUntilRedesignComplete` — **PASS**. The app and `/leaderboard.html` returned HTTP 200.
+- Post-restart `/api/leaderboard/status?compact=true` — **PASS**: `enabled:false`, `paused:true`, `running:false`, latest completed snapshot `400`, latest run `FAILED`.
+- Historical Act status — **PASS**: `paused:true`, `running:false`, `schedule.scheduled:false`.
+- Authenticated local admin `POST /api/leaderboard/collect` — **PASS**: HTTP 409 with `accepted:false`; the pause cannot be bypassed by manually requesting collection. Follow-up status remained paused and idle, with snapshot 400 still latest.
+- Phase 3B is complete and the app remains available for UI work while all live and historical extraction stays paused. Keep the local pause marker for subsequent phase restarts. Do not resume extraction until all redesign phases are implemented.

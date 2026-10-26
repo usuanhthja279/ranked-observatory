@@ -296,6 +296,7 @@ async function refresh(){const version=++generation;try{
  if(confidence.snapshot_id!==status.latestSnapshot[0]?.id)throw new Error('Snapshot changed; confidence will refresh automatically.');
  renderConfidence(status,confidence);
  setScope();renderTables();renderTrends();renderBoundaryWatch(boundary);if(previewCountry)showCountryPreview(previewCountry,false);
+ globalThis.observatoryRegionData={view,region,summary:regions.find(r=>r.region===region)||null,boundary:countries.find(c=>c.radiant_threshold!=null)?.radiant_threshold??null,archive:Boolean(status.archiveOnly)};globalThis.dispatchEvent(new CustomEvent('observatory:region-data',{detail:globalThis.observatoryRegionData}));
  if(!document.documentElement.dataset.coreReadyMs)document.documentElement.dataset.coreReadyMs=String(Math.round(performance.now()));
  }catch(e){if(version===generation)$('message').textContent=e.message;}}
 async function refreshArchived(version){
@@ -322,6 +323,7 @@ async function refreshArchived(version){
  $('playerTableNote').textContent='Archived act standings · 10 players per page. Select a player to inspect the archived rating.';
  if(view==='global'){$('playerSummary').textContent='Global leaderboard · '+$('actFilter').selectedOptions[0]?.textContent;$('playerTableNote').textContent='Archived global rank · 10 players per page. Select a player for this act’s archived rating.';}
  if(previewCountry)showCountryPreview(previewCountry,false);
+ globalThis.observatoryRegionData={view,region,summary:regions.find(r=>r.region===region)||null,boundary:null,archive:true};globalThis.dispatchEvent(new CustomEvent('observatory:region-data',{detail:globalThis.observatoryRegionData}));
  if(!document.documentElement.dataset.coreReadyMs)document.documentElement.dataset.coreReadyMs=String(Math.round(performance.now()));
 }
 async function refreshGlobalPage(version){

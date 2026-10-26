@@ -35,6 +35,7 @@ public class GlobalLeaderboardService {
   @Value("${leaderboard.schedule-zone:Asia/Kolkata}") private String scheduleZone="Asia/Kolkata";
   @Value("${leaderboard.act:d816f426-48ea-f052-117f-9697a155b319}") private String act;
   @Value("${leaderboard.enabled:true}") private volatile boolean enabled;
+  @Value("${leaderboard.pause-all-extraction:false}") private volatile boolean pauseAllExtraction;
   @Value("${LEADERBOARD_LIVE_PAUSE_MARKER:}") private String livePauseMarker="";
   @Value("${leaderboard.global.max-pages:2000}") private int maxPages;
   @Value("${leaderboard.global.request-delay-ms:500}") private long delay;
@@ -64,8 +65,19 @@ public class GlobalLeaderboardService {
   }
   @org.springframework.context.event.EventListener(org.springframework.boot.context.event.ApplicationReadyEvent.class)
   public void startCollectionSchedule(){
-    if(!enabled||!schedulerStarted.compareAndSet(false,true))return;
+    recoverInterruptedCollection();
+    if(!enabled||pauseAllExtraction||!schedulerStarted.compareAndSet(false,true))return;
     scheduleCollection();
+  }
+  private void recoverInterruptedCollection(){
+    try{db.execute((ConnectionCallback<Void>)connection->{
+      try(var statement=connection.createStatement();var result=statement.executeQuery("select pg_try_advisory_lock(782613504)")){
+        result.next();if(!result.getBoolean(1))return null;
+      }
+      try{db.update("update global_leaderboard_runs set status='FAILED',completed_at=?,error='Previous process stopped before publication; durable page checkpoint retained' where act=? and status='RUNNING'",OffsetDateTime.now(ZoneOffset.UTC),act);}
+      finally{try(var statement=connection.createStatement()){statement.execute("select pg_advisory_unlock(782613504)");}}
+      return null;
+    });}catch(Exception error){log.warn("Could not reconcile interrupted live collection; durable checkpoint remains available",error);}
   }
   private void scheduleCollection(){
     long interval=Math.max(1000,collectionInterval);
@@ -74,7 +86,7 @@ public class GlobalLeaderboardService {
   }
   public void enableAfterHistoricalArchive(){
     synchronized(scheduleGuard){
-      if(closing||enabled)return;
+      if(closing||enabled||pauseAllExtraction)return;
       enabled=true;
       if(!schedulerStarted.compareAndSet(false,true))return;
       if(!livePauseMarker.isBlank())try{java.nio.file.Files.deleteIfExists(java.nio.file.Path.of(livePauseMarker));}catch(Exception e){log.warn("Live extraction resumed but pause marker could not be removed: {}",e.getMessage());}
@@ -83,17 +95,17 @@ public class GlobalLeaderboardService {
     scheduleCollection();
   }
   private void safeScheduledTrigger(){try{scheduled();}catch(Exception error){lastScheduledAccepted=false;lastError="Scheduler trigger failed: "+Objects.toString(error.getMessage(),error.getClass().getSimpleName());log.error("Scheduled collection trigger failed; future triggers remain scheduled",error);}}
-  public void scheduled(){synchronized(scheduleGuard){
+  public void scheduled(){if(pauseAllExtraction)return;synchronized(scheduleGuard){
     lastScheduledTriggerAt=Instant.now();
     if(!enabled||closing){lastScheduledAccepted=false;lastScheduledOutcome="disabled";return;}
     if(running.get()){pendingScheduledRun=true;lastScheduledAccepted=false;lastScheduledOutcome="queued after current extraction";return;}
     lastScheduledAccepted=collect();lastScheduledOutcome=lastScheduledAccepted?"started":"not accepted";
   }}
   public boolean collect(){
-    synchronized(scheduleGuard){return launchCollection();}
+    synchronized(scheduleGuard){return !pauseAllExtraction&&launchCollection();}
   }
   private boolean launchCollection(){
-    if(closing)return false;
+    if(closing||pauseAllExtraction)return false;
     if(!enabled||!running.compareAndSet(false,true))return false;
     lastError=null;
     collectionStartedAt=Instant.now();lastProgressAt=null;activeSource="starting";activePage=0;pagesFetched=0;
@@ -216,7 +228,7 @@ public class GlobalLeaderboardService {
     var timer=scheduleFuture;boolean timerActive=enabled&&timer!=null&&!timer.isDone()&&!timer.isCancelled();
     var schedule=new LinkedHashMap<String,Object>();schedule.put("scheduled",timerActive);schedule.put("intervalMillis",Math.max(1000,collectionInterval));schedule.put("nextRunAt",timerActive?Instant.now().plusMillis(Math.max(0,timer.getDelay(TimeUnit.MILLISECONDS))):null);schedule.put("lastTriggerAt",lastScheduledTriggerAt);schedule.put("lastTriggerAccepted",lastScheduledAccepted);schedule.put("pendingRun",pendingScheduledRun);schedule.put("lastTriggerOutcome",lastScheduledOutcome);schedule.put("overlapPolicy","coalesce one pending run; start immediately after current extraction");
     var progress=new LinkedHashMap<String,Object>();progress.put("startedAt",collectionStartedAt);progress.put("source",activeSource);progress.put("sourcePage",activePage);progress.put("pagesFetched",pagesFetched);progress.put("lastProgressAt",lastProgressAt);
-    var result=new LinkedHashMap<String,Object>();result.put("act",act);result.put("region","global");result.put("enabled",enabled);result.put("running",running.get());result.put("lastError",lastError);result.put("regions",REGIONS);result.put("countries",countryNames);result.put("regionalFallback",regionalFallback);result.put("globalIntervalMinutes",20);result.put("regionalIntervalHours",1);result.put("scheduleZone",scheduleZone);result.put("lastRegionalReconciliation",lastReconciliation());result.put("regionalReconciliationDue",regionalFallback&&regionalDue());result.put("bootstrapPending",!bootstrapDirectory.isBlank());result.put("concurrency",Math.max(1,Math.min(10,concurrency)));result.put("requestIntervalMillis",client.requestIntervalMillis());result.put("requestMetrics",client.requestMetrics());result.put("liveCaptureDirectory",pendingCapture==null?null:pendingCapture.directory());
+    var result=new LinkedHashMap<String,Object>();result.put("act",act);result.put("region","global");result.put("enabled",enabled);result.put("paused",pauseAllExtraction);result.put("running",running.get());result.put("lastError",lastError);result.put("regions",REGIONS);result.put("countries",countryNames);result.put("regionalFallback",regionalFallback);result.put("globalIntervalMinutes",20);result.put("regionalIntervalHours",1);result.put("scheduleZone",scheduleZone);result.put("lastRegionalReconciliation",lastReconciliation());result.put("regionalReconciliationDue",regionalFallback&&regionalDue());result.put("bootstrapPending",!bootstrapDirectory.isBlank());result.put("concurrency",Math.max(1,Math.min(10,concurrency)));result.put("requestIntervalMillis",client.requestIntervalMillis());result.put("requestMetrics",client.requestMetrics());result.put("liveCaptureDirectory",pendingCapture==null?null:pendingCapture.directory());
     result.put("schedule",schedule);result.put("liveProgress",progress);
     if(compact)result.remove("countries");
     result.put("runs",db.queryForList(compact?"select id,status,started_at,completed_at,pages,error,source from global_leaderboard_runs where act=? order by id desc limit 1":"select * from global_leaderboard_runs where act=? order by id desc limit 10",act));

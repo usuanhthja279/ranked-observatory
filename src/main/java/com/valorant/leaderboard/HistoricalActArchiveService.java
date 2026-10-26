@@ -35,6 +35,7 @@ public class HistoricalActArchiveService {
   private final ScheduledExecutorService scheduler=Executors.newSingleThreadScheduledExecutor(r->{var t=new Thread(r,"historical-act-archive-resume");t.setDaemon(true);return t;});
   private final AtomicBoolean running=new AtomicBoolean();
   private static final int PAGE_CONCURRENCY=5;
+  @Value("${leaderboard.pause-all-extraction:false}") private boolean pauseAllExtraction;
   @Value("${leaderboard.historical.max-pages:10000}") private int maxPages=10000;
 
   public HistoricalActArchiveService(JdbcTemplate db,TrackerLeaderboardClient client,GlobalLeaderboardService liveLeaderboard,ObjectMapper mapper,PlatformTransactionManager tm,
@@ -61,7 +62,7 @@ public class HistoricalActArchiveService {
       db.update("insert into historical_act_sources(act,source_region) values(?,?) on conflict do nothing",act.get("act"),source);
   }
 
-  private void scheduleWork(){if(!running.compareAndSet(false,true))return;try{worker.execute(()->{try{drain();}catch(Exception e){log.warn("Historical archive worker paused; page checkpoint retained",e);}finally{running.set(false);}});}catch(RejectedExecutionException e){running.set(false);}}
+  private void scheduleWork(){if(pauseAllExtraction||!running.compareAndSet(false,true))return;try{worker.execute(()->{try{drain();}catch(Exception e){log.warn("Historical archive worker paused; page checkpoint retained",e);}finally{running.set(false);}});}catch(RejectedExecutionException e){running.set(false);}}
 
   private void drain(){
     var acts=db.queryForList("select act,label from historical_act_catalog where current_act=false order by act_order desc");
@@ -162,7 +163,7 @@ public class HistoricalActArchiveService {
     var sourceTime=db.queryForObject("select max(source_updated_at) from historical_act_sources where act=?",OffsetDateTime.class,act);
     int pages=sources.stream().mapToInt(s->((Number)s.get("pages")).intValue()).sum();int sourceRows=sources.stream().mapToInt(s->((Number)s.get("players")).intValue()).sum();
     var progress=new LinkedHashMap<String,Object>();progress.put("completedSources",completed);progress.put("totalSources",7);progress.put("pages",pages);progress.put("sourceRows",sourceRows);progress.put("players",totalRows);progress.put("lastPageFetchedAt",latest==null?"":latest.toString());progress.put("sourceUpdatedAt",sourceTime==null?"":sourceTime.toString());progress.putAll(completionEstimate());
-    var result=new LinkedHashMap<String,Object>();result.put("act",act);result.put("archiveOnly",true);result.put("enabled",false);result.put("running",running.get());result.put("pageConcurrency",PAGE_CONCURRENCY);result.put("lastError",null);result.put("regions",GlobalLeaderboardService.REGIONS);result.put("countries",countries);result.put("schedule",Map.of("scheduled",true,"intervalMillis",60000,"overlapPolicy","one low-priority archive worker; five page requests in flight with ordered durable commits; live requests have priority"));result.put("runs",sources);result.put("latestSnapshot",List.of(Map.of("id",act,"act",act,"status",completed==7?"COMPLETE":"PARTIAL","completed_at",latest==null?"":latest.toString(),"pages",pages,"players",totalRows)));result.put("archiveProgress",progress);return result;
+    var result=new LinkedHashMap<String,Object>();result.put("act",act);result.put("archiveOnly",true);result.put("enabled",false);result.put("paused",pauseAllExtraction);result.put("running",running.get());result.put("pageConcurrency",PAGE_CONCURRENCY);result.put("lastError",null);result.put("regions",GlobalLeaderboardService.REGIONS);result.put("countries",countries);result.put("schedule",Map.of("scheduled",!pauseAllExtraction,"paused",pauseAllExtraction,"intervalMillis",60000,"overlapPolicy","one low-priority archive worker; five page requests in flight with ordered durable commits; live requests have priority"));result.put("runs",sources);result.put("latestSnapshot",List.of(Map.of("id",act,"act",act,"status",completed==7?"COMPLETE":"PARTIAL","completed_at",latest==null?"":latest.toString(),"pages",pages,"players",totalRows)));result.put("archiveProgress",progress);return result;
   }
 
   public Map<String,Object> confidence(String act,String region,String country){
