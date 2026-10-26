@@ -30,6 +30,31 @@ public class ObservatoryPageController {
     return regionRedirect(region, act);
   }
 
+  @GetMapping("/countries")
+  public RedirectView countries(@RequestParam(required = false) String region,
+                                @RequestParam(required = false) String q,
+                                @RequestParam(required = false) String act) {
+    if (region != null && !region.equals("all") && !GlobalLeaderboardService.REGIONS.containsKey(region)) {
+      throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Unknown leaderboard region");
+    }
+    validateAct(act);
+    var target = UriComponentsBuilder.fromPath("/leaderboard.html").queryParam("view", "countries");
+    if (region != null && !region.isBlank()) target.queryParam("region", region);
+    if (q != null && !q.isBlank()) target.queryParam("q", q);
+    if (act != null && !act.isBlank()) target.queryParam("act", act);
+    return new RedirectView(target.build().encode().toUriString(), false);
+  }
+
+  @GetMapping("/countries/{country}")
+  public RedirectView country(@PathVariable String country,
+                              @RequestParam String region,
+                              @RequestParam(required = false) String act) {
+    if (!country.matches("[a-z]{2}")) throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Unknown country code");
+    if (!GlobalLeaderboardService.REGIONS.containsKey(region)) throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Unknown leaderboard region");
+    validateAct(act);
+    return redirect("country", region, country, act);
+  }
+
   private RedirectView regionRedirect(String region, String act) {
     if (!GlobalLeaderboardService.REGIONS.containsKey(region)) {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Unknown leaderboard region");
@@ -38,13 +63,25 @@ public class ObservatoryPageController {
   }
 
   private RedirectView redirect(String view, String region, String act) {
-    if (act != null && !act.isBlank() && !act.matches("[a-fA-F0-9-]{36}")) {
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid Act reference");
-    }
+    validateAct(act);
     var target = UriComponentsBuilder.fromPath("/leaderboard.html")
         .queryParam("view", view);
     if (region != null) target.queryParam("region", region);
     if (act != null && !act.isBlank()) target.queryParam("act", act);
     return new RedirectView(target.build().encode().toUriString(), false);
+  }
+
+  private RedirectView redirect(String view, String region, String country, String act) {
+    validateAct(act);
+    var target = UriComponentsBuilder.fromPath("/leaderboard.html")
+        .queryParam("view", view).queryParam("region", region).queryParam("country", country);
+    if (act != null && !act.isBlank()) target.queryParam("act", act);
+    return new RedirectView(target.build().encode().toUriString(), false);
+  }
+
+  private void validateAct(String act) {
+    if (act != null && !act.isBlank() && !act.matches("[a-fA-F0-9-]{36}")) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid Act reference");
+    }
   }
 }

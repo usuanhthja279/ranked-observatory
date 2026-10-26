@@ -24,7 +24,7 @@ const regionSymbol=c=>`<img class="region-symbol region-photo" src="/scenery/${e
 const playerIdentity=value=>{const name=String(value||'Unknown player'),i=name.lastIndexOf('#');return `<span class="player-identity"><span class="player-initial" aria-hidden="true">${esc(name.slice(0,1).toUpperCase())}</span><span class="riot-name">${esc(i<0?name:name.slice(0,i))}</span>${i<0?'':`<span class="riot-tag">${esc(name.slice(i))}</span>`}</span>`;};
 const flag=c=>!c||c==='unknown'?'<span class="unknown-symbol" aria-hidden="true">?</span>':`<img class="flag" src="/flags/${esc(c)}.svg" alt="" loading="lazy">`;
 const countryLabel=c=>flag(c)+esc(countryName(c));
-const pageUrl=(kind,r='all',c='all')=>{const p=new URLSearchParams();if(kind==='world'){if(selectedAct&&selectedAct!==currentAct)p.set('act',selectedAct);return '/overview'+(p.size?'?'+p:'');}if(kind==='region'&&r!=='all'){if(selectedAct&&selectedAct!==currentAct)p.set('act',selectedAct);return '/regions/'+encodeURIComponent(r)+(p.size?'?'+p:'');}p.set('view',kind);p.set('region',r);p.set('country',c);if(selectedAct&&selectedAct!==currentAct)p.set('act',selectedAct);return '/leaderboard.html?'+p;};
+const pageUrl=(kind,r='all',c='all')=>{const p=new URLSearchParams();if(kind==='world'){if(selectedAct&&selectedAct!==currentAct)p.set('act',selectedAct);return '/overview'+(p.size?'?'+p:'');}if(kind==='region'&&r!=='all'){if(selectedAct&&selectedAct!==currentAct)p.set('act',selectedAct);return '/regions/'+encodeURIComponent(r)+(p.size?'?'+p:'');}if(kind==='countries'){if(selectedAct&&selectedAct!==currentAct)p.set('act',selectedAct);return '/countries'+(p.size?'?'+p:'');}if(kind==='country'&&r!=='all'&&c!=='all'){p.set('region',r);if(selectedAct&&selectedAct!==currentAct)p.set('act',selectedAct);return '/countries/'+encodeURIComponent(c)+'?'+p;}p.set('view',kind);p.set('region',r);p.set('country',c);if(selectedAct&&selectedAct!==currentAct)p.set('act',selectedAct);return '/leaderboard.html?'+p;};
 function updateShellBreadcrumbs(){
  const host=$('breadcrumbs');if(!host)return;
  const items=[];
@@ -281,6 +281,7 @@ function renderTrends(){
 
 }
 async function refresh(){const version=++generation;try{
+ if(view==='countries'){await globalThis.loadCountriesDirectory?.();return;}
  if(selectedAct&&selectedAct!==currentAct){await refreshArchived(version);return;}
  if(view==='global'){await refreshGlobalPage(version);return;}
  if(view==='country'){await refreshCountryPage(version);return;}

@@ -1,0 +1,39 @@
+'use strict';
+const test = require('node:test');
+const assert = require('node:assert/strict');
+const {selectRows, indexRegions} = require('../../main/resources/static/countries-directory.js');
+
+const names = {in: 'India', jp: 'Japan', unknown: 'Unknown country'};
+const regionRows = {
+  ap: [{country: 'in', players: 40, radiant_confirmed: 2}, {country: 'jp', players: 12, radiant_confirmed: 1}],
+  eu: [{country: 'in', players: 3, radiant_confirmed: 0}],
+  na: []
+};
+const worldRows = [{country: 'in', players: 43, radiant_confirmed: 2}, {country: 'jp', players: 12, radiant_confirmed: 1}, {country: 'unknown', players: 8, radiant_confirmed: 0}];
+
+test('country entries link only to regional ladders that contain observations', () => {
+  const index = indexRegions(regionRows);
+  assert.deepEqual(index.get('in'), [{region: 'ap', players: 40}, {region: 'eu', players: 3}]);
+  assert.equal(index.has('unknown'), false);
+});
+
+test('directory filters before paging and keeps aggregate counts source-labeled', () => {
+  const result = selectRows(worldRows, regionRows, {query: 'IND', page: 9, pageSize: 1, names});
+  assert.equal(result.total, 1);
+  assert.equal(result.page, 1);
+  assert.equal(result.pageRows[0].country, 'in');
+  assert.deepEqual(result.pageRows[0].regions.map(item => item.region), ['ap', 'eu']);
+});
+
+test('regional scope changes both country presence and observed values', () => {
+  const result = selectRows(worldRows, regionRows, {region: 'eu', sort: 'name', names});
+  assert.equal(result.total, 1);
+  assert.equal(result.pageRows[0].country, 'in');
+  assert.equal(result.pageRows[0].players, 3);
+  assert.equal(result.pageRows[0].regions.length, 2);
+});
+
+test('sort choices order full filtered results deterministically', () => {
+  assert.deepEqual(selectRows(worldRows, regionRows, {sort: 'name', names}).rows.map(row => row.country), ['in', 'jp', 'unknown']);
+  assert.deepEqual(selectRows(worldRows, regionRows, {sort: 'radiant', names}).rows.map(row => row.country), ['in', 'jp', 'unknown']);
+});

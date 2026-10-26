@@ -222,3 +222,35 @@ No Gradle/backend test was run because Phase 2B changes are static frontend beha
 - Historical Act status — **PASS**: `paused:true`, `running:false`, `schedule.scheduled:false`.
 - Authenticated local admin `POST /api/leaderboard/collect` — **PASS**: HTTP 409 with `accepted:false`; the pause cannot be bypassed by manually requesting collection. Follow-up status remained paused and idle, with snapshot 400 still latest.
 - Phase 3B is complete and the app remains available for UI work while all live and historical extraction stays paused. Keep the local pause marker for subsequent phase restarts. Do not resume extraction until all redesign phases are implemented.
+
+## Phase 4A — Countries directory and country detail routes
+
+### Changes
+
+- Added canonical `/countries` and `/countries/{country}` routes while retaining the established leaderboard renderer and API contracts behind redirects. Region, country and Act route context is validated before redirecting.
+- Added a Countries entry to desktop and mobile navigation. The active navigation state now stays on Countries when a country detail view is open.
+- Added a searchable, region-filterable country directory with deterministic sorting and pagination. Regional links are generated only for ladders with observations, and the directory preserves Act context.
+- Used the existing country and status read APIs; the UI labels observed entries and warns that regional views may include the same account. No population totals are implied.
+
+### Verification
+
+- `node --check src/main/resources/static/countries-directory.js` — **PASS**.
+- `node --check src/main/resources/static/leaderboard.js` — **PASS**.
+- `node --check src/main/resources/static/observatory-shell.js` — **PASS**.
+- `node --test src/test/js/countries-directory.test.cjs` — **PASS**, 4 tests, 0 failures.
+- `git diff --check` — **PASS**.
+- `.\gradlew.bat test --tests com.valorant.leaderboard.StandaloneApplicationTest --console=plain bootJar` — **PASS**, 7 Java tests, 0 failures/errors/skips; `bootJar` completed. Gradle used the installed Java 21 JDK with a corrected process-only `JAVA_HOME`; the machine environment was not changed.
+- ChatGPT in-app browser against the local app — **PASS**: opened `/countries`; searched for India; selected Asia-Pacific; verified the URL retained `region=ap&q=India` and results narrowed to India and British Indian Ocean Territory; cleared search, sorted by country name and advanced to page 2; opened India’s Asia-Pacific detail route; after restart, verified the canonical route resolves and Countries is the active desktop/mobile navigation item.
+- Responsive DOM inspection — **PASS**: mobile detail document width 380 CSS px at a 390 CSS px viewport; wide tables stay within their own horizontal scrollers. Desktop document width was 1430 CSS px at a 1440 CSS px viewport; page-level overflow was not observed. Desktop trend-table content remains intentionally horizontally scrollable.
+- Local service was rebuilt and restarted on port 8090 using the checked-in startup script. Post-restart status returned `enabled:false`, `paused:true`, `running:false`, and latest completed snapshot 400. The persistent all-extraction pause marker was retained; no collection request was sent.
+
+### Visual evidence and limitations
+
+- `evidence/phase4a-countries-desktop.png` — actual in-app browser capture, 1430 × 894.
+- `evidence/phase4a-countries-mobile.png` — actual in-app browser capture, 380 × 822.
+- `evidence/phase4a-country-detail-desktop.png` — actual in-app browser capture, 1010 × 894. The current ChatGPT browser panel constrained the captured image width even with a 1440 CSS viewport override; the page DOM measured 1430 px and no document-level overflow was found.
+- `evidence/phase4a-country-detail-mobile.png` — actual in-app browser capture, 380 × 822.
+- Screenshots were inspected. The country detail's wide summary and movement tables expose their own horizontal scrolling; no page-level horizontal overflow was detected. The browser panel's capture width is a visual-evidence limitation for the country-detail desktop image.
+- Data in these captures comes from the local persisted snapshot (snapshot 400), not synthetic fixtures. New extraction remained paused throughout verification.
+
+Phase 4A is implemented and focused verification passed. Proceed to Phase 4B; keep extraction paused.

@@ -50,6 +50,23 @@ class StandaloneApplicationTest {
     mvc.perform(get("/overview").param("act","invalid")).andExpect(status().isBadRequest());
   }
 
+  @Test void canonicalCountryRoutesPreserveRegionSearchAndActContext() throws Exception {
+    String act="01234567-89ab-cdef-0123-456789abcdef";
+    mvc.perform(get("/countries")).andExpect(status().is3xxRedirection())
+        .andExpect(redirectedUrl("/leaderboard.html?view=countries"));
+    mvc.perform(get("/countries").param("region","ap").param("q","India").param("act",act))
+        .andExpect(status().is3xxRedirection())
+        .andExpect(redirectedUrl("/leaderboard.html?view=countries&region=ap&q=India&act="+act));
+    mvc.perform(get("/countries/in").param("region","ap").param("act",act))
+        .andExpect(status().is3xxRedirection())
+        .andExpect(redirectedUrl("/leaderboard.html?view=country&region=ap&country=in&act="+act));
+    mvc.perform(get("/countries/unknown").param("region","ap")).andExpect(status().isNotFound());
+    mvc.perform(get("/countries/in").param("region","invalid")).andExpect(status().isNotFound());
+    mvc.perform(get("/countries/in")).andExpect(status().isBadRequest());
+    mvc.perform(get("/countries").param("region","invalid")).andExpect(status().isNotFound());
+    mvc.perform(get("/countries").param("act","invalid")).andExpect(status().isBadRequest());
+  }
+
   @Test void collectionUsesIndependentAuthenticationAndCsrf() throws Exception {
     mvc.perform(post("/api/leaderboard/collect").with(csrf())).andExpect(status().isUnauthorized());
     mvc.perform(post("/api/leaderboard/collect").with(user("admin").roles("ADMIN"))).andExpect(status().isForbidden());

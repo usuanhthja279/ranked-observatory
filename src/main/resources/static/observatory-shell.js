@@ -7,12 +7,12 @@
   const p=new URLSearchParams({view});
   if(view==='global'){p.set('view','global');p.set('region','all');p.set('country','all');}
   if(selectedAct&&selectedAct!==currentAct)p.set('act',selectedAct);
-  return (view==='world'?'/overview':view==='region'?'/regions/'+encodeURIComponent(validRegions.has(currentRegion)?currentRegion:'ap'):'/leaderboard.html')+(view==='global'?'?'+p.toString():(p.has('act')?'?act='+encodeURIComponent(p.get('act')):''));
+  return (view==='world'?'/overview':view==='region'?'/regions/'+encodeURIComponent(validRegions.has(currentRegion)?currentRegion:'ap'):view==='countries'?'/countries':'/leaderboard.html')+(view==='global'?'?'+p.toString():(p.has('act')?'?act='+encodeURIComponent(p.get('act')):''));
  }
  function syncShellNavigation(latestCurrentAct=currentAct,activeAct=selectedAct){
   currentAct=latestCurrentAct||'';selectedAct=activeAct||'';
   document.querySelectorAll('[data-shell-view]').forEach(link=>{
-   const view=link.dataset.shellView,active=view===currentView||(view==='region'&&['country'].includes(currentView));
+   const view=link.dataset.shellView,active=view===currentView||(view==='countries'&&currentView==='country');
    link.href=shellHref(view);if(active)link.setAttribute('aria-current','page');else link.removeAttribute('aria-current');
   });
   const archived=Boolean(selectedAct&&currentAct&&selectedAct!==currentAct);
