@@ -43,7 +43,7 @@ function updateShellBreadcrumbs(){
 }
 const delta=v=>v==null?'—':`<span class="${v>=0?'positive':'negative'}">${v>0?'+':''}${fmt(v)}</span>`;
 const rank=(v,p)=>v==null?'—':`${fmt(v)}${p.rank_ambiguous||p.stats_ambiguous?'*':''}`;
-async function api(path){if(selectedAct&&path!=='acts'){const [endpoint,query='']=path.split('?',2),p=new URLSearchParams(query);if(!p.has('act'))p.set('act',selectedAct);path=endpoint+'?'+p;}const r=await fetch('/api/leaderboard/'+path);if(!r.ok)throw new Error(`Unable to load leaderboard (${r.status}).`);return r.json();}
+async function api(path,options){if(selectedAct&&path!=='acts'){const [endpoint,query='']=path.split('?',2),p=new URLSearchParams(query);if(!p.has('act'))p.set('act',selectedAct);path=endpoint+'?'+p;}const r=await fetch('/api/leaderboard/'+path,options);if(!r.ok)throw new Error(`Unable to load leaderboard (${r.status}).`);return r.json();}
 async function initializeActFilter(){
  const response=await fetch('/api/leaderboard/acts');if(!response.ok)throw new Error('Unable to load available acts.');const acts=await response.json();
  const current=acts.find(a=>a.current_act);currentAct=current?.act||'';if(!selectedAct||!acts.some(a=>a.act===selectedAct))selectedAct=currentAct;globalThis.syncShellNavigation?.(currentAct,selectedAct);
@@ -69,7 +69,7 @@ const raceColumns=['near_radiant','radiant_boundary','radiant_top50','radiant_to
 function estimatedCountryCounts(rows,shard=region,evidence={}){return CountryModel.estimate(rows,shard,evidence).counts;}
 function estimatedPlayers(rows){return new Map([...estimatedCountryCounts(rows)].map(([c,r])=>[c,r.estimated_players]));}
 function countryRow(c,pinned=false){const compact=view==='world',archive=data.status.archiveOnly,keys=archive?['players','radiant','immortal_all','immortal','immortal3','immortal2','immortal1']:compact?numericColumns:[...numericColumns,...raceColumns];return `<tr${pinned?' class="pinned-unknown"':''}><td><button class="country-link" aria-expanded="${previewCountry===c.country}" data-country="${esc(c.country)}">${countryLabel(c.country)}</button></td>${keys.map(k=>`<td>${fmt(c[k]||0)}</td>${!archive&&numericColumns.includes(k)&&$('estimateToggle').checked?`<td class="estimate-value" title="Model allocation, not an observed country label">${pinned?(k==='players'?'Source only':'—'):estimatedCounts.has(c.country)?'≈ '+fmt(estimatedCounts.get(c.country)['estimated_'+k]):'—'}</td>`:''}`).join('')}${compact||archive?'':`<td>${c.median_rr==null?'—':fmt(c.median_rr)}</td>`}</tr>`;}
-let estimates=new Map(),estimatedCounts=new Map(),overviewRegionMinutes=60,overviewCountryMinutes=60,overviewActivityCache=new Map(),overviewActivityVersions={region:0,country:0},overviewSearchVersion=0,overviewSearchTimer;
+let estimates=new Map(),estimatedCounts=new Map(),overviewRegionMinutes=60,overviewCountryMinutes=60,overviewActivityCache=new Map(),overviewActivityVersions={region:0,country:0},overviewSearchTimer;const overviewSearchRequest=ObservatoryLifecycle.createLatestRequest();
 function renderTables(){
  const {regions,countries,result}=data;
  const archiveTierColumns=['players','radiant','immortal_all','immortal','immortal3','immortal2','immortal1'];
@@ -119,19 +119,27 @@ function renderOverviewActivity(activity,scope='both'){
  $('overviewActivityNote').textContent='Estimated player-matches = wins + assumed losses. Active Players = unique accounts with an observed RR, win-count or tier change (a lower bound). Tracked player results, not unique match lobbies; Unknown country is excluded from the top ten.';
 }
 async function searchOverviewPlayers(){
- const token=++overviewSearchVersion,query=$('overviewSearch').value.trim();
- if(query.length<2){$('overviewSearchResults').innerHTML='';$('overviewSearchNote').textContent='Enter at least two characters to search all regions.';return;}
- $('overviewSearchNote').textContent='Searching players…';
- try{const result=await api('players?'+new URLSearchParams({region:'all',country:'all',search:query,page:1,size:8}));if(token!==overviewSearchVersion)return;
-  $('overviewSearchResults').innerHTML=result.items.map(p=>`<button class="search-result" data-player="${esc(p.player_key)}" data-region="${esc(p.region)}"><strong>${playerIdentity(p.display_name)}</strong><span>${esc(regionName(p.region))} · ${countryLabel(p.country)} · ${tierBadge(p.tier)} ${fmt(p.rr)} RR</span></button>`).join('');
+ const query=$('overviewSearch').value.trim();
+ if(query.length<2){$('overviewSearchResults').innerHTML='';$('overviewSearchNote').textContent='Enter at least two characters to search all regions.';$('overviewSearchResults').setAttribute('aria-busy','false');return;}
+ const request=overviewSearchRequest.begin();$('overviewSearchNote').textContent='Searching players…';$('overviewSearchResults').setAttribute('aria-busy','true');
+ try{const result=await api('players?'+new URLSearchParams({region:'all',country:'all',search:query,page:1,size:8}),{signal:request.signal});if(!request.isCurrent())return;
+  const items=Array.isArray(result.items)?result.items:[];
+  $('overviewSearchResults').innerHTML=items.map(p=>`<button class="search-result" type="button" data-player="${esc(p.player_key)}" data-region="${esc(p.region)}"><strong>${playerIdentity(p.display_name)}</strong><span>${esc(regionName(p.region))} · ${countryLabel(p.country)} · ${tierBadge(p.tier)} ${fmt(p.rr)} RR</span></button>`).join('');
   $('overviewSearchNote').textContent=result.total?`${fmt(result.total)} ${result.total===1?'match':'matches'} · showing up to 8 · select a player for RR history`:'No players found. Try another name or tag.';
- }catch(e){if(token===overviewSearchVersion){$('overviewSearchResults').innerHTML='';$('overviewSearchNote').textContent=e.message;}}
+ }catch(e){if(request.isCurrent()){$('overviewSearchResults').innerHTML='';$('overviewSearchNote').textContent=e.name==='AbortError'?'Search cancelled.':e.message;}}
+ finally{if(request.isCurrent())$('overviewSearchResults').setAttribute('aria-busy','false');}
 }
-$('overviewSearch').oninput=()=>{overviewSearchVersion++;clearTimeout(overviewSearchTimer);overviewSearchTimer=setTimeout(searchOverviewPlayers,250);};
-$('overviewSearch').onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();clearTimeout(overviewSearchTimer);searchOverviewPlayers();}};
-$('overviewSearchResults').onclick=e=>{const b=e.target.closest('[data-player]');if(b)showSelectedPlayer(b.dataset.player,b.dataset.region,false,true,true);};
+const globalSearchDialog=$('globalSearchDialog'),globalSearchTrigger=$('globalSearchTrigger');let suppressSearchFocusRestore=false,playerDialogReturnFocus=null;
+function openGlobalSearch(){if(!globalSearchDialog.open)globalSearchDialog.showModal();requestAnimationFrame(()=>$('overviewSearch').focus());}
+function cancelGlobalSearch(){clearTimeout(overviewSearchTimer);overviewSearchRequest.cancel();$('overviewSearchResults').setAttribute('aria-busy','false');}
+globalSearchTrigger.onclick=openGlobalSearch;$('globalSearchClose').onclick=()=>globalSearchDialog.close();
+globalSearchDialog.addEventListener('cancel',cancelGlobalSearch);globalSearchDialog.addEventListener('close',()=>{cancelGlobalSearch();if(!suppressSearchFocusRestore)globalSearchTrigger.focus();else suppressSearchFocusRestore=false;});globalSearchDialog.addEventListener('keydown',e=>{if(e.key==='Escape'&&globalSearchDialog.open){e.preventDefault();globalSearchDialog.close();}});
+window.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&!e.altKey&&e.key.toLowerCase()==='k'){const target=e.target;if(target!==$('overviewSearch')&&target instanceof HTMLElement&&target.matches('input,textarea,select,[contenteditable="true"]'))return;e.preventDefault();openGlobalSearch();}});
+$('overviewSearch').oninput=()=>{cancelGlobalSearch();$('overviewSearchResults').innerHTML='';const query=$('overviewSearch').value.trim();$('overviewSearchNote').textContent=query.length<2?'Enter at least two characters to search all regions.':'Waiting to search…';if(query.length>=2)overviewSearchTimer=setTimeout(searchOverviewPlayers,250);};
+$('overviewSearch').onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();clearTimeout(overviewSearchTimer);searchOverviewPlayers();}else if(e.key==='ArrowDown'){const first=$('overviewSearchResults').querySelector('button[data-player]');if(first){e.preventDefault();first.focus();}}};
+$('overviewSearchResults').onclick=e=>{const b=e.target.closest('[data-player]');if(b){playerDialogReturnFocus=globalSearchTrigger;suppressSearchFocusRestore=true;globalSearchDialog.close();showSelectedPlayer(b.dataset.player,b.dataset.region,false,true,true);}};
 const playerDialog=document.createElement('dialog');playerDialog.id='playerDialog';playerDialog.setAttribute('aria-labelledby','overviewPlayerTitle');document.body.append(playerDialog);playerDialog.append($('overviewPlayerSection'));
-const closePlayerDialog=()=>{overviewSelection=null;overviewHistoryVersion++;$('overviewPlayerSection').classList.add('hidden');if(playerDialog.open)playerDialog.close();document.body.classList.remove('player-dialog-open');$('overviewSearch').focus();};
+const closePlayerDialog=()=>{overviewSelection=null;overviewHistoryVersion++;$('overviewPlayerSection').classList.add('hidden');if(playerDialog.open)playerDialog.close();document.body.classList.remove('player-dialog-open');const target=playerDialogReturnFocus?.isConnected?playerDialogReturnFocus:globalSearchTrigger;playerDialogReturnFocus=null;target?.focus();};
 $('overviewPlayerClose').onclick=closePlayerDialog;playerDialog.addEventListener('cancel',e=>{e.preventDefault();closePlayerDialog();});
 $('overviewPlayerWindow').onchange=()=>{if(overviewSelection)showSelectedPlayer(overviewSelection.player,overviewSelection.region,false,false,true);};
 $('overviewRegionWindow').onchange=()=>{overviewRegionMinutes=Number($('overviewRegionWindow').value);loadOverviewActivity('region');};
@@ -202,7 +210,7 @@ function renderCurrent(){
 }
 function setScope(){
  const historical=Boolean(data?.status?.archiveOnly),hasRegion=region!=='all',hasCountry=hasRegion&&country!=='all',detail=view==='region'||view==='country';
- $('overviewSearchSection').classList.toggle('hidden',view!=='world');$('overviewActivitySection').classList.toggle('hidden',view!=='world'||historical);$('masthead').classList.toggle('overview-masthead',view==='world');
+ $('overviewActivitySection').classList.toggle('hidden',view!=='world'||historical);$('masthead').classList.toggle('overview-masthead',view==='world');
  $('regionSection').classList.toggle('hidden',detail);$('regionTableSection').classList.toggle('hidden',detail);
  $('trendLayout').classList.toggle('hidden',!detail&&!hasRegion);$('trendLayout').classList.toggle('world-preview',false);$('trendLayout').classList.toggle('world-country-pair',view==='world');
  $('currentSection').classList.toggle('hidden',!detail);$('countryMovementSection').classList.toggle('hidden',historical||view!=='country'||!hasCountry);
@@ -237,7 +245,7 @@ function setScope(){
  $('countrySummary').textContent=regionName(region)+' · Countries';$('playerSummary').textContent=countryName(country)+' · Players';$('countryMovementTitle').textContent=countryName(country)+' · Movement';$('playerTableNote').textContent='Latest complete leaderboard · '+playerPageSize+' players per page. Select a player to inspect their RR history below. Δ RR compares the two latest snapshots.';
  const scope=hasCountry?countryName(country):hasRegion?regionName(region):'All regions';$('timelineTitle').textContent=scope+' · population over time';$('chartModeLabel').classList.toggle('hidden',hasRegion);
  if(view==='global'){
-   for(const id of ['overviewSearchSection','overviewActivitySection','regionSection','regionTableSection','currentSection','countryMovementSection','countrySection','trendLayout','countryPreview'])$(id).classList.add('hidden');
+   for(const id of ['overviewActivitySection','regionSection','regionTableSection','currentSection','countryMovementSection','countrySection','trendLayout','countryPreview'])$(id).classList.add('hidden');
    $('playerSection').classList.remove('hidden');$('playerSection').open=true;$('playerSummary').textContent='Global leaderboard';$('playerTableNote').textContent='All tracked players · source global rank order · 10 per page. Regional-only players without a global rank appear last.';
    $('pageTitle').textContent='Global leaderboard';document.title='Global leaderboard · Valorant Ranked Observatory';$('regionScenery').src='/scenery/valorant-header.jpg';$('countryPage').hidden=true;
  }
@@ -416,7 +424,7 @@ $('countryMovementWindow').onchange=()=>{activityMinutes=Number($('countryMoveme
 $('countryActivityWindow').onchange=()=>{activityMinutes=Number($('countryActivityWindow').value);countryPage=1;loadCountryActivity();};
 $('currentEstimateToggle').onchange=()=>{if(data?.status?.archiveOnly){renderCurrent();return;}changeEstimateSetting($('currentEstimateToggle'));};
 $('regions').onclick=e=>{const b=e.target.closest('[data-region]');if(b){if($('standingsDialog').open){location.href=pageUrl('region',b.dataset.region);return;}region=region===b.dataset.region?'all':b.dataset.region;country='all';previewCountry=null;previewGeneration++;$('countryPreview').classList.add('hidden');changeScope();}};
-$('players').onclick=async e=>{const b=e.target.closest('[data-player]');if(b){if(view==='global'){await showSelectedPlayer(b.dataset.player,b.dataset.region,false,true,true);return;}await showSelectedPlayer(b.dataset.player,b.dataset.region);$('selectedPlayerSection').scrollIntoView({behavior:'smooth',block:'start'});}};
+$('players').onclick=async e=>{const b=e.target.closest('[data-player]');if(b){if(view==='global'){playerDialogReturnFocus=b;await showSelectedPlayer(b.dataset.player,b.dataset.region,false,true,true);return;}await showSelectedPlayer(b.dataset.player,b.dataset.region);$('selectedPlayerSection').scrollIntoView({behavior:'smooth',block:'start'});}};
 for(const id of ['movers','previewPlayers'])$(id).onclick=e=>{const b=e.target.closest('[data-player]');if(b)showSelectedPlayer(b.dataset.player,b.dataset.region,id==='previewPlayers');};
 for(const [id,sort] of [['regionHead',regionSort],['countryHead',countrySort]])$(id).onclick=e=>{const b=e.target.closest('[data-sort]');if(b){sort.dir=sort.key===b.dataset.sort&&sort.dir==='desc'?'asc':'desc';sort.key=b.dataset.sort;if(id==='countryHead')countryPage=1;renderTables();}};
 $('countryFirst').onclick=()=>{countryPage=1;renderTables();};$('countryPrev').onclick=()=>{countryPage=Math.max(1,countryPage-1);renderTables();};$('countryNext').onclick=()=>{countryPage=Math.min(countryPages,countryPage+1);renderTables();};$('countryLast').onclick=()=>{countryPage=countryPages;renderTables();};$('countryJump').onchange=()=>{countryPage=Math.min(countryPages,Math.max(1,Number($('countryJump').value)||1));renderTables();};

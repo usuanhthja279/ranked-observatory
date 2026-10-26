@@ -101,7 +101,7 @@ No production service was started/restarted, and no collection, migration or liv
 - [x] 0 — Audit, reference review, baseline and plan.
 - [x] 1 — Trend correctness and canonical archive summaries (1A/1B).
 - [x] 2A — Shared shell, navigation, breadcrumbs and responsive legacy-route compatibility.
-- [ ] 2B — Search, accessible primitives and lifecycle helper.
+- [x] 2B — Global search, accessible dialog behavior and latest-request lifecycle helper.
 - [ ] 3A/3B — World/regions and region detail.
 - [ ] 4A/4B — Countries and global leaderboard.
 - [ ] 5 — Full player profile and Radiant race.
@@ -134,3 +134,24 @@ A rendered illustrative reference does not complete a production implementation 
 - Actual synthetic screenshots captured and inspected: `evidence/phase2a-desktop-region.png` (1440 px viewport) and `evidence/phase2a-mobile-region.png` (390 px viewport). The screenshots use mocked data; the trend charts have no populated series because the fixture is focused on shell, route and layout behavior.
 
 No Gradle/backend test was run because Phase 2A changes are static frontend shell code only. No database, collector, active service, or live API was used or changed. Phase 2B remains next.
+
+## Phase 2B — Complete: global accessible search and request lifecycle
+
+### Changes
+
+- Made player search available from every legacy view through the header Search players button and Ctrl+K/Meta+K shortcut.
+- Moved search into a labelled native modal dialog with initial input focus, Escape/close controls, keyboard result navigation, live loading/empty/error messaging and focus restoration to the opener.
+- Selecting a result closes search and opens the existing player detail dialog; closing player details returns focus to the search trigger. The global leaderboard row path returns focus to its originating row.
+- Added a reusable latest-request helper that aborts superseded work and exposes a current-request guard. Search now cancels stale network requests as the query changes or the dialog closes, while retaining current-result checks.
+- Preserved existing APIs, query contracts, result limits, player detail renderer and account/security flows.
+
+### Verification
+
+- `node --check src/main/resources/static/leaderboard.js` — **PASS**.
+- `node --check src/main/resources/static/observatory-lifecycle.js` — **PASS**.
+- `node --test src/test/js/observatory-lifecycle.test.cjs` — **PASS**, 3 tests, 0 failures.
+- `git diff --check` — **PASS**.
+- Synthetic Edge test with mocked APIs — **PASS**: Ctrl+K opens search and focuses input; debounced latest-only search cancels a delayed `slow` response when `fast` is requested; arrow-down reaches the result; Enter opens existing player details; Escape closes details and restores trigger focus; no-result and HTTP 503 states are announced; Escape closes search and restores focus; search dialog fits 390 px; no page errors.
+- Actual synthetic screenshots captured and inspected: `evidence/phase2b-search-desktop.png`, `evidence/phase2b-search-error-desktop.png`, and `evidence/phase2b-search-mobile.png`. The search fixtures and error responses are synthetic and do not represent live account/player data.
+
+No Gradle/backend test was run because Phase 2B changes are static frontend behavior and a pure JavaScript helper. No database, collector, active service, or live API was used or changed. Phase 2 (2A and 2B) is complete; proceed to Phase 3A.
