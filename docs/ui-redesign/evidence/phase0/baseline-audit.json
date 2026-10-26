@@ -1,0 +1,1079 @@
+[
+  {
+    "basis": "existing-live-readonly",
+    "view": "overview",
+    "query": "",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "readiness": "core-and-trends-rendered",
+    "title": "Valorant Ranked Observatory",
+    "width": 1440,
+    "documentWidth": 1440,
+    "bodyWidth": 1440,
+    "coreReadyMs": "1316",
+    "message": "",
+    "summary": "No current observations.",
+    "act": "Current act · Live",
+    "overflowing": [
+      {
+        "tag": "TABLE",
+        "id": "",
+        "class": "",
+        "right": 1510,
+        "width": 690
+      },
+      {
+        "tag": "THEAD",
+        "id": "actTrendHead",
+        "class": "",
+        "right": 1510,
+        "width": 690
+      },
+      {
+        "tag": "TBODY",
+        "id": "actTrendRows",
+        "class": "",
+        "right": 1510,
+        "width": 690
+      }
+    ],
+    "errors": [],
+    "failedRequests": [],
+    "coreReadyMarkerPresent": true,
+    "playerRows": 1,
+    "trendStatus": "Latest complete current snapshot is included at the end. Earlier points are archived end-of-act standings, not match history. Global ladder excluded to prevent cross-source double counting. Unknown country is not charted. Unknown players and combined Immortal subdivisions remain unestimated."
+  },
+  {
+    "basis": "existing-live-readonly",
+    "view": "region",
+    "query": "?view=region&region=ap",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "readiness": "core-and-trends-rendered",
+    "title": "Asia-Pacific · Valorant Ranked Observatory",
+    "width": 1440,
+    "documentWidth": 1440,
+    "bodyWidth": 1440,
+    "coreReadyMs": "1354",
+    "message": "",
+    "summary": "Asia-Pacific15,0975002,9634,2447,390",
+    "act": "Current act · Live",
+    "overflowing": [
+      {
+        "tag": "TABLE",
+        "id": "",
+        "class": "",
+        "right": 1510,
+        "width": 690
+      },
+      {
+        "tag": "THEAD",
+        "id": "actTrendHead",
+        "class": "",
+        "right": 1510,
+        "width": 690
+      },
+      {
+        "tag": "TBODY",
+        "id": "actTrendRows",
+        "class": "",
+        "right": 1510,
+        "width": 690
+      }
+    ],
+    "errors": [],
+    "failedRequests": [],
+    "coreReadyMarkerPresent": true,
+    "playerRows": 20,
+    "trendStatus": "Latest complete current snapshot is included at the end. Earlier points are archived end-of-act standings, not match history. Global ladder excluded to prevent cross-source double counting. Unknown country is not charted. Unknown players and combined Immortal subdivisions remain unestimated."
+  },
+  {
+    "basis": "existing-live-readonly",
+    "view": "country",
+    "query": "?view=country&region=ap&country=in",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "readiness": "core-and-trends-rendered",
+    "title": "India · Asia-Pacific · Valorant Ranked Observatory",
+    "width": 1440,
+    "documentWidth": 1440,
+    "bodyWidth": 1440,
+    "coreReadyMs": "12423",
+    "message": "",
+    "summary": "India31532892192",
+    "act": "Current act · Live",
+    "overflowing": [
+      {
+        "tag": "TABLE",
+        "id": "",
+        "class": "",
+        "right": 1510,
+        "width": 690
+      },
+      {
+        "tag": "THEAD",
+        "id": "actTrendHead",
+        "class": "",
+        "right": 1510,
+        "width": 690
+      },
+      {
+        "tag": "TR",
+        "id": "",
+        "class": "",
+        "right": 1510,
+        "width": 690
+      },
+      {
+        "tag": "TH",
+        "id": "",
+        "class": "",
+        "right": 1510,
+        "width": 176
+      },
+      {
+        "tag": "TBODY",
+        "id": "actTrendRows",
+        "class": "",
+        "right": 1510,
+        "width": 690
+      },
+      {
+        "tag": "TR",
+        "id": "",
+        "class": "",
+        "right": 1510,
+        "width": 690
+      },
+      {
+        "tag": "TD",
+        "id": "",
+        "class": "",
+        "right": 1510,
+        "width": 690
+      }
+    ],
+    "errors": [],
+    "failedRequests": [],
+    "coreReadyMarkerPresent": true,
+    "playerRows": 10,
+    "trendStatus": "Latest complete current snapshot is included at the end. Earlier points are archived end-of-act standings, not match history. Global ladder excluded to prevent cross-source double counting. Unknown country is not charted. Unknown players and combined Immortal subdivisions remain unestimated."
+  },
+  {
+    "basis": "existing-live-readonly",
+    "view": "leaderboard",
+    "query": "?view=global",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "readiness": "core-and-trends-rendered",
+    "title": "Global leaderboard · Valorant Ranked Observatory",
+    "width": 1440,
+    "documentWidth": 1440,
+    "bodyWidth": 1440,
+    "coreReadyMs": null,
+    "message": "",
+    "summary": "No current observations.",
+    "act": "Current act · Live",
+    "overflowing": [
+      {
+        "tag": "TABLE",
+        "id": "",
+        "class": "",
+        "right": 1524,
+        "width": 1433
+      },
+      {
+        "tag": "THEAD",
+        "id": "",
+        "class": "",
+        "right": 1524,
+        "width": 1433
+      },
+      {
+        "tag": "TR",
+        "id": "",
+        "class": "",
+        "right": 1524,
+        "width": 1433
+      },
+      {
+        "tag": "TH",
+        "id": "",
+        "class": "",
+        "right": 1524,
+        "width": 282
+      },
+      {
+        "tag": "TBODY",
+        "id": "actTrendTierCoverageRows",
+        "class": "",
+        "right": 1524,
+        "width": 1433
+      },
+      {
+        "tag": "TR",
+        "id": "",
+        "class": "",
+        "right": 1524,
+        "width": 1433
+      },
+      {
+        "tag": "TD",
+        "id": "",
+        "class": "",
+        "right": 1524,
+        "width": 282
+      },
+      {
+        "tag": "TR",
+        "id": "",
+        "class": "",
+        "right": 1524,
+        "width": 1433
+      },
+      {
+        "tag": "TD",
+        "id": "",
+        "class": "",
+        "right": 1524,
+        "width": 282
+      },
+      {
+        "tag": "TR",
+        "id": "",
+        "class": "",
+        "right": 1524,
+        "width": 1433
+      },
+      {
+        "tag": "TD",
+        "id": "",
+        "class": "",
+        "right": 1524,
+        "width": 282
+      },
+      {
+        "tag": "TR",
+        "id": "",
+        "class": "",
+        "right": 1524,
+        "width": 1433
+      }
+    ],
+    "errors": [],
+    "failedRequests": [],
+    "coreReadyMarkerPresent": false,
+    "playerRows": 10,
+    "trendStatus": "Latest complete current snapshot is included at the end. Earlier points are archived end-of-act standings, not match history. Global ladder excluded to prevent cross-source double counting. Unknown country is not charted. Unknown players and combined Immortal subdivisions remain unestimated."
+  },
+  {
+    "basis": "existing-live-readonly",
+    "view": "archive-region",
+    "query": "?view=region&region=ap&act=4f0864e2-40af-28a4-de2c-0e9e64e75f23",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "readiness": "core-and-trends-rendered",
+    "title": "Asia-Pacific · Valorant Ranked Observatory",
+    "width": 1440,
+    "documentWidth": 1440,
+    "bodyWidth": 1440,
+    "coreReadyMs": "435",
+    "message": "",
+    "summary": "No current observations.",
+    "act": "V26: ACT IV",
+    "overflowing": [
+      {
+        "tag": "TABLE",
+        "id": "",
+        "class": "",
+        "right": 1510,
+        "width": 690
+      },
+      {
+        "tag": "THEAD",
+        "id": "actTrendHead",
+        "class": "",
+        "right": 1510,
+        "width": 690
+      },
+      {
+        "tag": "TR",
+        "id": "",
+        "class": "",
+        "right": 1510,
+        "width": 690
+      },
+      {
+        "tag": "TH",
+        "id": "",
+        "class": "",
+        "right": 1510,
+        "width": 176
+      },
+      {
+        "tag": "TBODY",
+        "id": "actTrendRows",
+        "class": "",
+        "right": 1510,
+        "width": 690
+      },
+      {
+        "tag": "TR",
+        "id": "",
+        "class": "",
+        "right": 1510,
+        "width": 690
+      },
+      {
+        "tag": "TD",
+        "id": "",
+        "class": "",
+        "right": 1510,
+        "width": 690
+      }
+    ],
+    "errors": [],
+    "failedRequests": [],
+    "coreReadyMarkerPresent": true,
+    "playerRows": 1,
+    "trendStatus": "Latest complete current snapshot is included at the end. Earlier points are archived end-of-act standings, not match history. Global ladder excluded to prevent cross-source double counting. Unknown country is not charted. Unknown players and combined Immortal subdivisions remain unestimated."
+  },
+  {
+    "basis": "existing-live-readonly",
+    "view": "archive-country",
+    "query": "?view=country&region=ap&country=in&act=4f0864e2-40af-28a4-de2c-0e9e64e75f23",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "readiness": "core-and-trends-rendered",
+    "title": "India · Asia-Pacific · Valorant Ranked Observatory",
+    "width": 1440,
+    "documentWidth": 1440,
+    "bodyWidth": 1440,
+    "coreReadyMs": "375",
+    "message": "",
+    "summary": "India35000",
+    "act": "V26: ACT IV",
+    "overflowing": [
+      {
+        "tag": "TABLE",
+        "id": "",
+        "class": "",
+        "right": 1510,
+        "width": 690
+      },
+      {
+        "tag": "THEAD",
+        "id": "actTrendHead",
+        "class": "",
+        "right": 1510,
+        "width": 690
+      },
+      {
+        "tag": "TR",
+        "id": "",
+        "class": "",
+        "right": 1510,
+        "width": 690
+      },
+      {
+        "tag": "TH",
+        "id": "",
+        "class": "",
+        "right": 1510,
+        "width": 176
+      },
+      {
+        "tag": "TBODY",
+        "id": "actTrendRows",
+        "class": "",
+        "right": 1510,
+        "width": 690
+      },
+      {
+        "tag": "TR",
+        "id": "",
+        "class": "",
+        "right": 1510,
+        "width": 690
+      },
+      {
+        "tag": "TD",
+        "id": "",
+        "class": "",
+        "right": 1510,
+        "width": 690
+      }
+    ],
+    "errors": [],
+    "failedRequests": [],
+    "coreReadyMarkerPresent": true,
+    "playerRows": 10,
+    "trendStatus": "Latest complete current snapshot is included at the end. Earlier points are archived end-of-act standings, not match history. Global ladder excluded to prevent cross-source double counting. Unknown country is not charted. Unknown players and combined Immortal subdivisions remain unestimated."
+  },
+  {
+    "basis": "existing-live-readonly",
+    "view": "overview",
+    "query": "",
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "readiness": "core-and-trends-rendered",
+    "title": "Valorant Ranked Observatory",
+    "width": 390,
+    "documentWidth": 433,
+    "bodyWidth": 433,
+    "coreReadyMs": "480",
+    "message": "",
+    "summary": "No current observations.",
+    "act": "Current act · Live",
+    "overflowing": [
+      {
+        "tag": "LABEL",
+        "id": "",
+        "class": "",
+        "right": 433,
+        "width": 150
+      },
+      {
+        "tag": "SELECT",
+        "id": "actTrendCountry",
+        "class": "",
+        "right": 433,
+        "width": 150
+      },
+      {
+        "tag": "LABEL",
+        "id": "",
+        "class": "",
+        "right": 433,
+        "width": 150
+      },
+      {
+        "tag": "SELECT",
+        "id": "actTrendTier",
+        "class": "",
+        "right": 433,
+        "width": 150
+      },
+      {
+        "tag": "TABLE",
+        "id": "",
+        "class": "",
+        "right": 1392,
+        "width": 1345
+      },
+      {
+        "tag": "THEAD",
+        "id": "",
+        "class": "",
+        "right": 1392,
+        "width": 1345
+      },
+      {
+        "tag": "TR",
+        "id": "",
+        "class": "",
+        "right": 1392,
+        "width": 1345
+      },
+      {
+        "tag": "TH",
+        "id": "",
+        "class": "",
+        "right": 415,
+        "width": 134
+      },
+      {
+        "tag": "TH",
+        "id": "",
+        "class": "",
+        "right": 559,
+        "width": 144
+      },
+      {
+        "tag": "TH",
+        "id": "",
+        "class": "",
+        "right": 650,
+        "width": 91
+      },
+      {
+        "tag": "TH",
+        "id": "",
+        "class": "",
+        "right": 741,
+        "width": 91
+      },
+      {
+        "tag": "TH",
+        "id": "",
+        "class": "",
+        "right": 832,
+        "width": 91
+      }
+    ],
+    "errors": [],
+    "failedRequests": [],
+    "coreReadyMarkerPresent": true,
+    "playerRows": 1,
+    "trendStatus": "Latest complete current snapshot is included at the end. Earlier points are archived end-of-act standings, not match history. Global ladder excluded to prevent cross-source double counting. Unknown country is not charted. Unknown players and combined Immortal subdivisions remain unestimated."
+  },
+  {
+    "basis": "existing-live-readonly",
+    "view": "region",
+    "query": "?view=region&region=ap",
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "readiness": "core-and-trends-rendered",
+    "title": "Asia-Pacific · Valorant Ranked Observatory",
+    "width": 390,
+    "documentWidth": 433,
+    "bodyWidth": 433,
+    "coreReadyMs": "361",
+    "message": "",
+    "summary": "Asia-Pacific15,0975002,9634,2447,390",
+    "act": "Current act · Live",
+    "overflowing": [
+      {
+        "tag": "LABEL",
+        "id": "",
+        "class": "",
+        "right": 433,
+        "width": 150
+      },
+      {
+        "tag": "SELECT",
+        "id": "actTrendTier",
+        "class": "",
+        "right": 433,
+        "width": 150
+      },
+      {
+        "tag": "TABLE",
+        "id": "",
+        "class": "",
+        "right": 1121,
+        "width": 1074
+      },
+      {
+        "tag": "THEAD",
+        "id": "",
+        "class": "",
+        "right": 1121,
+        "width": 1074
+      },
+      {
+        "tag": "TR",
+        "id": "",
+        "class": "",
+        "right": 1121,
+        "width": 1074
+      },
+      {
+        "tag": "TH",
+        "id": "",
+        "class": "",
+        "right": 425,
+        "width": 144
+      },
+      {
+        "tag": "TH",
+        "id": "",
+        "class": "",
+        "right": 516,
+        "width": 91
+      },
+      {
+        "tag": "TH",
+        "id": "",
+        "class": "",
+        "right": 607,
+        "width": 91
+      },
+      {
+        "tag": "TH",
+        "id": "",
+        "class": "",
+        "right": 698,
+        "width": 91
+      },
+      {
+        "tag": "TH",
+        "id": "",
+        "class": "",
+        "right": 793,
+        "width": 95
+      },
+      {
+        "tag": "TH",
+        "id": "",
+        "class": "",
+        "right": 889,
+        "width": 95
+      },
+      {
+        "tag": "TH",
+        "id": "",
+        "class": "",
+        "right": 984,
+        "width": 95
+      }
+    ],
+    "errors": [],
+    "failedRequests": [],
+    "coreReadyMarkerPresent": true,
+    "playerRows": 20,
+    "trendStatus": "Latest complete current snapshot is included at the end. Earlier points are archived end-of-act standings, not match history. Global ladder excluded to prevent cross-source double counting. Unknown country is not charted. Unknown players and combined Immortal subdivisions remain unestimated."
+  },
+  {
+    "basis": "existing-live-readonly",
+    "view": "country",
+    "query": "?view=country&region=ap&country=in",
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "readiness": "core-and-trends-rendered",
+    "title": "India · Asia-Pacific · Valorant Ranked Observatory",
+    "width": 390,
+    "documentWidth": 390,
+    "bodyWidth": 390,
+    "coreReadyMs": "265",
+    "message": "",
+    "summary": "India31532892192",
+    "act": "Current act · Live",
+    "overflowing": [
+      {
+        "tag": "TABLE",
+        "id": "",
+        "class": "",
+        "right": 1121,
+        "width": 1074
+      },
+      {
+        "tag": "THEAD",
+        "id": "",
+        "class": "",
+        "right": 1121,
+        "width": 1074
+      },
+      {
+        "tag": "TR",
+        "id": "",
+        "class": "",
+        "right": 1121,
+        "width": 1074
+      },
+      {
+        "tag": "TH",
+        "id": "",
+        "class": "",
+        "right": 425,
+        "width": 144
+      },
+      {
+        "tag": "TH",
+        "id": "",
+        "class": "",
+        "right": 516,
+        "width": 91
+      },
+      {
+        "tag": "TH",
+        "id": "",
+        "class": "",
+        "right": 607,
+        "width": 91
+      },
+      {
+        "tag": "TH",
+        "id": "",
+        "class": "",
+        "right": 698,
+        "width": 91
+      },
+      {
+        "tag": "TH",
+        "id": "",
+        "class": "",
+        "right": 793,
+        "width": 95
+      },
+      {
+        "tag": "TH",
+        "id": "",
+        "class": "",
+        "right": 889,
+        "width": 95
+      },
+      {
+        "tag": "TH",
+        "id": "",
+        "class": "",
+        "right": 984,
+        "width": 95
+      },
+      {
+        "tag": "TH",
+        "id": "",
+        "class": "",
+        "right": 1121,
+        "width": 137
+      },
+      {
+        "tag": "TBODY",
+        "id": "actTrendTierCoverageRows",
+        "class": "",
+        "right": 1121,
+        "width": 1074
+      }
+    ],
+    "errors": [],
+    "failedRequests": [],
+    "coreReadyMarkerPresent": true,
+    "playerRows": 10,
+    "trendStatus": "Latest complete current snapshot is included at the end. Earlier points are archived end-of-act standings, not match history. Global ladder excluded to prevent cross-source double counting. Unknown country is not charted. Unknown players and combined Immortal subdivisions remain unestimated."
+  },
+  {
+    "basis": "existing-live-readonly",
+    "view": "leaderboard",
+    "query": "?view=global",
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "readiness": "core-and-trends-rendered",
+    "title": "Global leaderboard · Valorant Ranked Observatory",
+    "width": 390,
+    "documentWidth": 433,
+    "bodyWidth": 433,
+    "coreReadyMs": null,
+    "message": "",
+    "summary": "No current observations.",
+    "act": "Current act · Live",
+    "overflowing": [
+      {
+        "tag": "LABEL",
+        "id": "",
+        "class": "",
+        "right": 433,
+        "width": 150
+      },
+      {
+        "tag": "SELECT",
+        "id": "actTrendCountry",
+        "class": "",
+        "right": 433,
+        "width": 150
+      },
+      {
+        "tag": "LABEL",
+        "id": "",
+        "class": "",
+        "right": 433,
+        "width": 150
+      },
+      {
+        "tag": "SELECT",
+        "id": "actTrendTier",
+        "class": "",
+        "right": 433,
+        "width": 150
+      },
+      {
+        "tag": "TABLE",
+        "id": "",
+        "class": "",
+        "right": 1392,
+        "width": 1345
+      },
+      {
+        "tag": "THEAD",
+        "id": "",
+        "class": "",
+        "right": 1392,
+        "width": 1345
+      },
+      {
+        "tag": "TR",
+        "id": "",
+        "class": "",
+        "right": 1392,
+        "width": 1345
+      },
+      {
+        "tag": "TH",
+        "id": "",
+        "class": "",
+        "right": 415,
+        "width": 134
+      },
+      {
+        "tag": "TH",
+        "id": "",
+        "class": "",
+        "right": 559,
+        "width": 144
+      },
+      {
+        "tag": "TH",
+        "id": "",
+        "class": "",
+        "right": 650,
+        "width": 91
+      },
+      {
+        "tag": "TH",
+        "id": "",
+        "class": "",
+        "right": 741,
+        "width": 91
+      },
+      {
+        "tag": "TH",
+        "id": "",
+        "class": "",
+        "right": 832,
+        "width": 91
+      }
+    ],
+    "errors": [],
+    "failedRequests": [],
+    "coreReadyMarkerPresent": false,
+    "playerRows": 10,
+    "trendStatus": "Latest complete current snapshot is included at the end. Earlier points are archived end-of-act standings, not match history. Global ladder excluded to prevent cross-source double counting. Unknown country is not charted. Unknown players and combined Immortal subdivisions remain unestimated."
+  },
+  {
+    "basis": "existing-live-readonly",
+    "view": "archive-region",
+    "query": "?view=region&region=ap&act=4f0864e2-40af-28a4-de2c-0e9e64e75f23",
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "readiness": "core-and-trends-rendered",
+    "title": "Asia-Pacific · Valorant Ranked Observatory",
+    "width": 390,
+    "documentWidth": 433,
+    "bodyWidth": 433,
+    "coreReadyMs": "255",
+    "message": "",
+    "summary": "No current observations.",
+    "act": "V26: ACT IV",
+    "overflowing": [
+      {
+        "tag": "LABEL",
+        "id": "",
+        "class": "",
+        "right": 433,
+        "width": 150
+      },
+      {
+        "tag": "SELECT",
+        "id": "actTrendTier",
+        "class": "",
+        "right": 433,
+        "width": 150
+      },
+      {
+        "tag": "TABLE",
+        "id": "",
+        "class": "",
+        "right": 1121,
+        "width": 1074
+      },
+      {
+        "tag": "THEAD",
+        "id": "",
+        "class": "",
+        "right": 1121,
+        "width": 1074
+      },
+      {
+        "tag": "TR",
+        "id": "",
+        "class": "",
+        "right": 1121,
+        "width": 1074
+      },
+      {
+        "tag": "TH",
+        "id": "",
+        "class": "",
+        "right": 425,
+        "width": 144
+      },
+      {
+        "tag": "TH",
+        "id": "",
+        "class": "",
+        "right": 516,
+        "width": 91
+      },
+      {
+        "tag": "TH",
+        "id": "",
+        "class": "",
+        "right": 607,
+        "width": 91
+      },
+      {
+        "tag": "TH",
+        "id": "",
+        "class": "",
+        "right": 698,
+        "width": 91
+      },
+      {
+        "tag": "TH",
+        "id": "",
+        "class": "",
+        "right": 793,
+        "width": 95
+      },
+      {
+        "tag": "TH",
+        "id": "",
+        "class": "",
+        "right": 889,
+        "width": 95
+      },
+      {
+        "tag": "TH",
+        "id": "",
+        "class": "",
+        "right": 984,
+        "width": 95
+      }
+    ],
+    "errors": [],
+    "failedRequests": [],
+    "coreReadyMarkerPresent": true,
+    "playerRows": 1,
+    "trendStatus": "Latest complete current snapshot is included at the end. Earlier points are archived end-of-act standings, not match history. Global ladder excluded to prevent cross-source double counting. Unknown country is not charted. Unknown players and combined Immortal subdivisions remain unestimated."
+  },
+  {
+    "basis": "existing-live-readonly",
+    "view": "archive-country",
+    "query": "?view=country&region=ap&country=in&act=4f0864e2-40af-28a4-de2c-0e9e64e75f23",
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "readiness": "core-and-trends-rendered",
+    "title": "India · Asia-Pacific · Valorant Ranked Observatory",
+    "width": 390,
+    "documentWidth": 390,
+    "bodyWidth": 390,
+    "coreReadyMs": "378",
+    "message": "",
+    "summary": "India35000",
+    "act": "V26: ACT IV",
+    "overflowing": [
+      {
+        "tag": "TABLE",
+        "id": "",
+        "class": "",
+        "right": 1121,
+        "width": 1074
+      },
+      {
+        "tag": "THEAD",
+        "id": "",
+        "class": "",
+        "right": 1121,
+        "width": 1074
+      },
+      {
+        "tag": "TR",
+        "id": "",
+        "class": "",
+        "right": 1121,
+        "width": 1074
+      },
+      {
+        "tag": "TH",
+        "id": "",
+        "class": "",
+        "right": 425,
+        "width": 144
+      },
+      {
+        "tag": "TH",
+        "id": "",
+        "class": "",
+        "right": 516,
+        "width": 91
+      },
+      {
+        "tag": "TH",
+        "id": "",
+        "class": "",
+        "right": 607,
+        "width": 91
+      },
+      {
+        "tag": "TH",
+        "id": "",
+        "class": "",
+        "right": 698,
+        "width": 91
+      },
+      {
+        "tag": "TH",
+        "id": "",
+        "class": "",
+        "right": 793,
+        "width": 95
+      },
+      {
+        "tag": "TH",
+        "id": "",
+        "class": "",
+        "right": 889,
+        "width": 95
+      },
+      {
+        "tag": "TH",
+        "id": "",
+        "class": "",
+        "right": 984,
+        "width": 95
+      },
+      {
+        "tag": "TH",
+        "id": "",
+        "class": "",
+        "right": 1121,
+        "width": 137
+      },
+      {
+        "tag": "TBODY",
+        "id": "actTrendTierCoverageRows",
+        "class": "",
+        "right": 1121,
+        "width": 1074
+      }
+    ],
+    "errors": [],
+    "failedRequests": [],
+    "coreReadyMarkerPresent": true,
+    "playerRows": 10,
+    "trendStatus": "Latest complete current snapshot is included at the end. Earlier points are archived end-of-act standings, not match history. Global ladder excluded to prevent cross-source double counting. Unknown country is not charted. Unknown players and combined Immortal subdivisions remain unestimated."
+  }
+]

@@ -1,0 +1,496 @@
+[
+  {
+    "basis": "prototype-synthetic",
+    "view": "overview",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "title": "World overview",
+    "width": 1440,
+    "documentWidth": 1440,
+    "bodyWidth": 1440,
+    "buttons": 14,
+    "hasMain": true,
+    "errors": []
+  },
+  {
+    "basis": "prototype-synthetic",
+    "view": "regions",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "title": "Region explorer",
+    "width": 1440,
+    "documentWidth": 1440,
+    "bodyWidth": 1440,
+    "buttons": 9,
+    "hasMain": true,
+    "errors": []
+  },
+  {
+    "basis": "prototype-synthetic",
+    "view": "region",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "title": "🌏 Asia-Pacific",
+    "width": 1440,
+    "documentWidth": 1440,
+    "bodyWidth": 1440,
+    "buttons": 20,
+    "hasMain": true,
+    "errors": []
+  },
+  {
+    "basis": "prototype-synthetic",
+    "view": "countries",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "title": "Countries",
+    "width": 1440,
+    "documentWidth": 1440,
+    "bodyWidth": 1440,
+    "buttons": 13,
+    "hasMain": true,
+    "errors": []
+  },
+  {
+    "basis": "prototype-synthetic",
+    "view": "country",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "title": "🇮🇳 India",
+    "width": 1440,
+    "documentWidth": 1440,
+    "bodyWidth": 1440,
+    "buttons": 15,
+    "hasMain": true,
+    "errors": []
+  },
+  {
+    "basis": "prototype-synthetic",
+    "view": "leaderboard",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "title": "Global leaderboard",
+    "width": 1440,
+    "documentWidth": 1440,
+    "bodyWidth": 1440,
+    "buttons": 16,
+    "hasMain": true,
+    "errors": []
+  },
+  {
+    "basis": "prototype-synthetic",
+    "view": "player",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "title": "S8UL SkRossi #4646",
+    "width": 1440,
+    "documentWidth": 1440,
+    "bodyWidth": 1440,
+    "buttons": 9,
+    "hasMain": true,
+    "errors": []
+  },
+  {
+    "basis": "prototype-synthetic",
+    "view": "trends",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "title": "Act trends analytics",
+    "width": 1440,
+    "documentWidth": 1440,
+    "bodyWidth": 1440,
+    "buttons": 13,
+    "hasMain": true,
+    "errors": []
+  },
+  {
+    "basis": "prototype-synthetic",
+    "view": "archive",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "title": "Archive explorer",
+    "width": 1440,
+    "documentWidth": 1440,
+    "bodyWidth": 1440,
+    "buttons": 7,
+    "hasMain": true,
+    "errors": []
+  },
+  {
+    "basis": "prototype-synthetic",
+    "view": "compare",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "title": "Compare fairly",
+    "width": 1440,
+    "documentWidth": 1440,
+    "bodyWidth": 1440,
+    "buttons": 7,
+    "hasMain": true,
+    "errors": []
+  },
+  {
+    "basis": "prototype-synthetic",
+    "view": "watchlist",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "title": "My watchlist",
+    "width": 1440,
+    "documentWidth": 1440,
+    "bodyWidth": 1440,
+    "buttons": 7,
+    "hasMain": true,
+    "errors": []
+  },
+  {
+    "basis": "prototype-synthetic",
+    "view": "settings",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "title": "Account & preferences",
+    "width": 1440,
+    "documentWidth": 1440,
+    "bodyWidth": 1440,
+    "buttons": 6,
+    "hasMain": true,
+    "errors": []
+  },
+  {
+    "basis": "prototype-synthetic",
+    "view": "methodology",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "title": "Data quality & methodology",
+    "width": 1440,
+    "documentWidth": 1440,
+    "bodyWidth": 1440,
+    "buttons": 3,
+    "hasMain": true,
+    "errors": []
+  },
+  {
+    "basis": "prototype-synthetic",
+    "view": "signin",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "title": "Welcome back to Observatory",
+    "width": 1440,
+    "documentWidth": 1440,
+    "bodyWidth": 1440,
+    "buttons": 5,
+    "hasMain": true,
+    "errors": []
+  },
+  {
+    "basis": "prototype-synthetic",
+    "view": "signup",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "title": "Create your Observatory account",
+    "width": 1440,
+    "documentWidth": 1440,
+    "bodyWidth": 1440,
+    "buttons": 5,
+    "hasMain": true,
+    "errors": []
+  },
+  {
+    "basis": "prototype-synthetic",
+    "view": "features",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "title": "Feature gallery & roadmap",
+    "width": 1440,
+    "documentWidth": 1440,
+    "bodyWidth": 1440,
+    "buttons": 15,
+    "hasMain": true,
+    "errors": []
+  },
+  {
+    "basis": "prototype-interaction",
+    "viewport": "desktop",
+    "searchOpened": true,
+    "searchResults": "S8UL SkRossi #4646India · 480 RRPlayer ↗RvK #895India · 432 RRPlayer ↗Ø R I G I N #VALOIndia · 393 RRPlayer ↗drift #VCTIndia · 365 RRPlayer ↗Sinner #DadIndia · 310 RRPlayer ↗SID #8253India · 410 RRPlayer ↗IndiaAsia-Pacific · 680 observedCountry ↗",
+    "searchClosed": true
+  },
+  {
+    "basis": "prototype-synthetic",
+    "view": "overview",
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "title": "World overview",
+    "width": 390,
+    "documentWidth": 390,
+    "bodyWidth": 390,
+    "buttons": 14,
+    "hasMain": true,
+    "errors": []
+  },
+  {
+    "basis": "prototype-synthetic",
+    "view": "regions",
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "title": "Region explorer",
+    "width": 390,
+    "documentWidth": 390,
+    "bodyWidth": 390,
+    "buttons": 9,
+    "hasMain": true,
+    "errors": []
+  },
+  {
+    "basis": "prototype-synthetic",
+    "view": "region",
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "title": "🌏 Asia-Pacific",
+    "width": 390,
+    "documentWidth": 390,
+    "bodyWidth": 390,
+    "buttons": 20,
+    "hasMain": true,
+    "errors": []
+  },
+  {
+    "basis": "prototype-synthetic",
+    "view": "countries",
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "title": "Countries",
+    "width": 390,
+    "documentWidth": 390,
+    "bodyWidth": 390,
+    "buttons": 13,
+    "hasMain": true,
+    "errors": []
+  },
+  {
+    "basis": "prototype-synthetic",
+    "view": "country",
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "title": "🇮🇳 India",
+    "width": 390,
+    "documentWidth": 390,
+    "bodyWidth": 390,
+    "buttons": 15,
+    "hasMain": true,
+    "errors": []
+  },
+  {
+    "basis": "prototype-synthetic",
+    "view": "leaderboard",
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "title": "Global leaderboard",
+    "width": 390,
+    "documentWidth": 390,
+    "bodyWidth": 390,
+    "buttons": 16,
+    "hasMain": true,
+    "errors": []
+  },
+  {
+    "basis": "prototype-synthetic",
+    "view": "player",
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "title": "S8UL SkRossi #4646",
+    "width": 390,
+    "documentWidth": 390,
+    "bodyWidth": 390,
+    "buttons": 9,
+    "hasMain": true,
+    "errors": []
+  },
+  {
+    "basis": "prototype-synthetic",
+    "view": "trends",
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "title": "Act trends analytics",
+    "width": 390,
+    "documentWidth": 390,
+    "bodyWidth": 390,
+    "buttons": 13,
+    "hasMain": true,
+    "errors": []
+  },
+  {
+    "basis": "prototype-synthetic",
+    "view": "archive",
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "title": "Archive explorer",
+    "width": 390,
+    "documentWidth": 390,
+    "bodyWidth": 390,
+    "buttons": 7,
+    "hasMain": true,
+    "errors": []
+  },
+  {
+    "basis": "prototype-synthetic",
+    "view": "compare",
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "title": "Compare fairly",
+    "width": 390,
+    "documentWidth": 390,
+    "bodyWidth": 390,
+    "buttons": 7,
+    "hasMain": true,
+    "errors": []
+  },
+  {
+    "basis": "prototype-synthetic",
+    "view": "watchlist",
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "title": "My watchlist",
+    "width": 390,
+    "documentWidth": 390,
+    "bodyWidth": 390,
+    "buttons": 7,
+    "hasMain": true,
+    "errors": []
+  },
+  {
+    "basis": "prototype-synthetic",
+    "view": "settings",
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "title": "Account & preferences",
+    "width": 390,
+    "documentWidth": 390,
+    "bodyWidth": 390,
+    "buttons": 6,
+    "hasMain": true,
+    "errors": []
+  },
+  {
+    "basis": "prototype-synthetic",
+    "view": "methodology",
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "title": "Data quality & methodology",
+    "width": 390,
+    "documentWidth": 390,
+    "bodyWidth": 390,
+    "buttons": 3,
+    "hasMain": true,
+    "errors": []
+  },
+  {
+    "basis": "prototype-synthetic",
+    "view": "signin",
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "title": "Welcome back to Observatory",
+    "width": 390,
+    "documentWidth": 390,
+    "bodyWidth": 390,
+    "buttons": 5,
+    "hasMain": true,
+    "errors": []
+  },
+  {
+    "basis": "prototype-synthetic",
+    "view": "signup",
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "title": "Create your Observatory account",
+    "width": 390,
+    "documentWidth": 390,
+    "bodyWidth": 390,
+    "buttons": 5,
+    "hasMain": true,
+    "errors": []
+  },
+  {
+    "basis": "prototype-synthetic",
+    "view": "features",
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "title": "Feature gallery & roadmap",
+    "width": 390,
+    "documentWidth": 390,
+    "bodyWidth": 390,
+    "buttons": 15,
+    "hasMain": true,
+    "errors": []
+  },
+  {
+    "basis": "prototype-interaction",
+    "viewport": "mobile",
+    "searchOpened": true,
+    "searchResults": "S8UL SkRossi #4646India · 480 RRPlayer ↗RvK #895India · 432 RRPlayer ↗Ø R I G I N #VALOIndia · 393 RRPlayer ↗drift #VCTIndia · 365 RRPlayer ↗Sinner #DadIndia · 310 RRPlayer ↗SID #8253India · 410 RRPlayer ↗IndiaAsia-Pacific · 680 observedCountry ↗",
+    "searchClosed": true
+  }
+]

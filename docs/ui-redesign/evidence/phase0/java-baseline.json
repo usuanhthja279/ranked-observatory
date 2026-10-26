@@ -1,0 +1,112 @@
+{
+  "command": ".\\gradlew.bat test --rerun --console=plain",
+  "basis": "external DB/upstream opt-in prerequisites cleared; H2/pure tests",
+  "summary": {
+    "tests": 39,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 5,
+    "passed": 34,
+    "suites": 14
+  },
+  "results": [
+    {
+      "suite": "com.valorant.leaderboard.CountryActivityTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 1
+    },
+    {
+      "suite": "com.valorant.leaderboard.CountryModelEvidenceTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 1
+    },
+    {
+      "suite": "com.valorant.leaderboard.GlobalObservationsTest",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "com.valorant.leaderboard.GlobalPersistenceTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 1
+    },
+    {
+      "suite": "com.valorant.leaderboard.HistoricalActArchiveServiceTest",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "com.valorant.leaderboard.HourlyReconciliationTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "com.valorant.leaderboard.LeaderboardObservationsTest",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "com.valorant.leaderboard.LeaderboardServiceTest",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 1
+    },
+    {
+      "suite": "com.valorant.leaderboard.LiveCaptureTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "com.valorant.leaderboard.RequestPacerTest",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "com.valorant.leaderboard.StandaloneApplicationTest",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "com.valorant.leaderboard.TrackerLeaderboardClientTest",
+      "tests": 11,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 1
+    },
+    {
+      "suite": "com.valorant.leaderboard.TrackerProfilesTest",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "com.valorant.leaderboard.VerifiedCaptureTest",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  ]
+}
