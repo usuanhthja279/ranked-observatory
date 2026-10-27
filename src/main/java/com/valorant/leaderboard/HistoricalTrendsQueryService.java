@@ -15,7 +15,7 @@ public class HistoricalTrendsQueryService {
   /** An act is eligible only when all six regional ladders reached a short terminal page. */
   public List<Map<String,Object>> catalog(){
     return db.queryForList("""
-      select c.act,c.label,c.episode,c.act_order,c.current_act,
+      select c.act,c.label,c.episode,c.act_order,c.current_act,c.threshold_profile,
         count(distinct s.source_region) filter(where s.source_region in ('ap','eu','na','latam','br','kr')
           and s.status='COMPLETE' and terminal.page is not null and terminal.status='COMPLETE' and terminal.rows<100) completed_regions,
         count(distinct s.source_region) filter(where s.source_region='global' and s.status='COMPLETE') global_source_complete,
@@ -24,7 +24,7 @@ public class HistoricalTrendsQueryService {
       left join historical_act_sources s on s.act=c.act
       left join historical_act_pages terminal on terminal.act=s.act and terminal.source_region=s.source_region and terminal.page=s.pages
       where (c.current_act=false or exists(select 1 from global_leaderboard_runs r where r.act=c.act and r.status='COMPLETE'))
-      group by c.act,c.label,c.episode,c.act_order,c.current_act
+      group by c.act,c.label,c.episode,c.act_order,c.current_act,c.threshold_profile
       having c.current_act=true or count(distinct s.source_region) filter(where s.source_region in ('ap','eu','na','latam','br','kr')
         and s.status='COMPLETE' and terminal.page is not null and terminal.status='COMPLETE' and terminal.rows<100)=6
       order by c.current_act,c.act_order
@@ -39,7 +39,7 @@ public class HistoricalTrendsQueryService {
     String marks=String.join(",",Collections.nCopies(ids.size(),"?"));
     var rows=db.queryForList("""
       with tier_rows as (
-        select p.act,p.player_region region,p.rr,c.act_order,
+        select p.act,p.player_region region,p.rr,c.act_order,c.threshold_profile,
           case regexp_replace(lower(p.tier),'[^a-z0-9]','','g')
             when 'immortal' then 'COMBINED'
             when 'immortal1' then 'I1' when 'immortal2' then 'I2' when 'immortal3' then 'I3'
@@ -54,15 +54,15 @@ public class HistoricalTrendsQueryService {
           count(*) filter(where tier='I1' or (tier='COMBINED' and rr<i2_rr)) estimated_immortal1,
           count(*) filter(where tier='I2' or (tier='COMBINED' and rr>=i2_rr and rr<i3_rr)) estimated_immortal2,
           count(*) filter(where tier='I3' or (tier='COMBINED' and rr>=i3_rr)) estimated_immortal3,
-          max(case when act_order>=32 then 'V26_ACT_II_PLUS' else 'EPISODE_3_BACKCAST' end) threshold_profile,
+          max(threshold_profile) threshold_profile,
           max(i2_rr) immortal2_threshold_rr,max(i3_rr) immortal3_threshold_rr
         from (
           select t.*,
-            case when act_order>=32 then case when region in ('latam','kr') then 90 else 100 end else case region when 'ap' then 80 when 'eu' then 100 when 'br' then 100 else 90 end end i2_rr,
-            case when act_order>=32 then case region when 'latam' then 150 when 'kr' then 150 else 200 end
+            case when threshold_profile='V26_ACT_II_PLUS' then case when region in ('latam','kr') then 90 else 100 end else case region when 'ap' then 80 when 'eu' then 100 when 'br' then 100 else 90 end end i2_rr,
+            case when threshold_profile='V26_ACT_II_PLUS' then case region when 'latam' then 150 when 'kr' then 150 else 200 end
               else case region when 'br' then 230 when 'latam' then 150 when 'kr' then 150 else 200 end end i3_rr
           from tier_rows t
-        ) thresholded group by act,region
+        ) thresholded group by act,region,threshold_profile
       )
       select c.act,c.label,c.act_order,x.region,x.combined_immortal,x.split_immortal,x.immortal1,x.immortal2,x.immortal3,
         x.estimated_immortal1,x.estimated_immortal2,x.estimated_immortal3,x.threshold_profile,x.immortal2_threshold_rr,x.immortal3_threshold_rr,
@@ -129,17 +129,17 @@ public class HistoricalTrendsQueryService {
     String countryFilter=world||country.equals("all")?"true":"country='"+country+"'";
     if(!world)groupSql=groupSql.formatted(countryFilter);
     String sql="""
-      with complete_acts as (select act,act_order,current_act from historical_act_catalog where act in (%s)),
+      with complete_acts as (select act,act_order,current_act,threshold_profile from historical_act_catalog where act in (%s)),
       base as (
         select p.act,p.player_region region,coalesce(p.country,'unknown') country,p.rr,
           case regexp_replace(lower(p.tier),'[^a-z0-9]','','g')
             when 'radiant' then 'RADIANT' when 'immortal3' then 'IMMORTAL_3'
             when 'immortal2' then 'IMMORTAL_2' when 'immortal1' then 'IMMORTAL_1'
             when 'immortal' then 'IMMORTAL_COMBINED' else 'UNCLASSIFIED' end tier,
-          case when a.act_order>=32 then case when p.player_region in ('latam','kr') then 90 else 100 end else case p.player_region when 'ap' then 80 when 'eu' then 100 when 'br' then 100 else 90 end end i2_rr,
-          case when a.act_order>=32 then case p.player_region when 'latam' then 150 when 'kr' then 150 else 200 end
+          case when a.threshold_profile='V26_ACT_II_PLUS' then case when p.player_region in ('latam','kr') then 90 else 100 end else case p.player_region when 'ap' then 80 when 'eu' then 100 when 'br' then 100 else 90 end end i2_rr,
+          case when a.threshold_profile='V26_ACT_II_PLUS' then case p.player_region when 'latam' then 150 when 'kr' then 150 else 200 end
             else case p.player_region when 'br' then 230 when 'latam' then 150 when 'kr' then 150 else 200 end end i3_rr,
-          case when a.act_order>=32 then 'V26_ACT_II_PLUS' else 'EPISODE_3_BACKCAST' end threshold_profile
+          a.threshold_profile
         from historical_act_players p join complete_acts a on a.act=p.act and not a.current_act
         where p.source_region=p.player_region and %s and %s
         union all
@@ -148,9 +148,9 @@ public class HistoricalTrendsQueryService {
             when 'radiant' then 'RADIANT' when 'immortal3' then 'IMMORTAL_3'
             when 'immortal2' then 'IMMORTAL_2' when 'immortal1' then 'IMMORTAL_1'
             when 'immortal' then 'IMMORTAL_COMBINED' else 'UNCLASSIFIED' end,
-          case when a.act_order>=32 then case when p.region in ('latam','kr') then 90 else 100 end else case p.region when 'ap' then 80 when 'eu' then 100 when 'br' then 100 else 90 end end,
-          case when a.act_order>=32 then case when p.region='latam' then 150 when p.region='kr' then 150 else 200 end else case when p.region='br' then 230 when p.region in ('latam','kr') then 150 else 200 end end,
-          case when a.act_order>=32 then 'V26_ACT_II_PLUS' else 'EPISODE_3_BACKCAST' end
+          case when a.threshold_profile='V26_ACT_II_PLUS' then case when p.region in ('latam','kr') then 90 else 100 end else case p.region when 'ap' then 80 when 'eu' then 100 when 'br' then 100 else 90 end end,
+          case when a.threshold_profile='V26_ACT_II_PLUS' then case when p.region='latam' then 150 when p.region='kr' then 150 else 200 end else case when p.region='br' then 230 when p.region in ('latam','kr') then 150 else 200 end end,
+          a.threshold_profile
         from global_leaderboard_players p join global_leaderboard_runs run on run.id=p.run_id
           join complete_acts a on a.act=run.act and a.current_act
         where run.id=(select max(r2.id) from global_leaderboard_runs r2 where r2.act=run.act and r2.status='COMPLETE')
@@ -217,14 +217,14 @@ public class HistoricalTrendsQueryService {
   public Map<String,Object> playerJourney(String player,String region){
     var rows=db.queryForList("""
       with trail as (
-        select p.act,c.label,c.act_order,c.current_act,p.player_region region,coalesce(p.country,'unknown') country,
+        select p.act,c.label,c.act_order,c.current_act,c.threshold_profile,p.player_region region,coalesce(p.country,'unknown') country,
           p.display_name,p.source_rank regional_rank,g.source_rank global_rank,p.rr,p.tier source_tier,p.wins,
           p.source_updated_at,'ARCHIVED ACT' source_kind
         from historical_act_players p join historical_act_catalog c on c.act=p.act
           left join historical_act_players g on g.act=p.act and g.source_region='global' and g.player_region=p.player_region and g.player_key=p.player_key
         where p.source_region=p.player_region and lower(p.player_key)=lower(?) and (?='all' or p.player_region=?)
         union all
-        select r.act,c.label,c.act_order,c.current_act,p.region,coalesce(p.country,'unknown'),p.display_name,
+        select r.act,c.label,c.act_order,c.current_act,c.threshold_profile,p.region,coalesce(p.country,'unknown'),p.display_name,
           p.regional_rank,p.global_rank,p.rr,p.tier,p.wins,p.source_updated_at,'LATEST CURRENT SNAPSHOT'
         from global_leaderboard_players p join global_leaderboard_runs r on r.id=p.run_id
           join historical_act_catalog c on c.act=r.act and c.current_act=true
@@ -233,14 +233,14 @@ public class HistoricalTrendsQueryService {
       ), normalized as (
         select t.*,
           case when regexp_replace(lower(source_tier),'[^a-z0-9]','','g')='immortal' then
-            case when rr>=case when act_order>=32 then case when region in ('latam','kr') then 150 else 200 end else case when region='br' then 230 when region in ('latam','kr') then 150 else 200 end end then 'Immortal 3 · estimated'
-                 when rr>=case when act_order>=32 then case when region in ('latam','kr') then 90 else 100 end else case region when 'ap' then 80 when 'eu' then 100 when 'br' then 100 else 90 end end then 'Immortal 2 · estimated'
+            case when rr>=case when threshold_profile='V26_ACT_II_PLUS' then case when region in ('latam','kr') then 150 else 200 end else case when region='br' then 230 when region in ('latam','kr') then 150 else 200 end end then 'Immortal 3 · estimated'
+                 when rr>=case when threshold_profile='V26_ACT_II_PLUS' then case when region in ('latam','kr') then 90 else 100 end else case region when 'ap' then 80 when 'eu' then 100 when 'br' then 100 else 90 end end then 'Immortal 2 · estimated'
                  else 'Immortal 1 · estimated' end
             when regexp_replace(lower(source_tier),'[^a-z0-9]','','g') in ('immortal1','immortal2','immortal3') then 'Immortal '||right(regexp_replace(lower(source_tier),'[^0-9]','','g'),1)||' · observed'
             else source_tier end interpreted_tier
       from trail t
       )
-      select act,label,act_order,current_act,region,country,display_name,regional_rank,global_rank,rr,source_tier,interpreted_tier,wins,source_updated_at,source_kind
+      select act,label,act_order,current_act,threshold_profile,region,country,display_name,regional_rank,global_rank,rr,source_tier,interpreted_tier,wins,source_updated_at,source_kind
       from normalized order by current_act,act_order,region
       """,player,region,region,player,region,region);
     return Map.of("player",player,"region",region,"items",rows,"actCount",rows.size(),"sourceBasis","completed archived end-of-act rows plus latest complete current snapshot","tierNote","Combined Immortal tiers are estimated from act- and region-specific RR thresholds; source tier remains separately shown. Historical archive rows are end-of-act standings, not match-by-match history.");
@@ -255,8 +255,8 @@ public class HistoricalTrendsQueryService {
         p.source_rank regional_rank,p.rr,p.tier,p.tier source_tier,
         case
           when regexp_replace(lower(p.tier),'[^a-z0-9]','','g')='immortal' then
-            case when p.rr>=case when c.act_order>=32 then case when p.player_region in ('latam','kr') then 150 else 200 end else case when p.player_region='br' then 230 when p.player_region in ('latam','kr') then 150 else 200 end end then 'Immortal 3 · estimated'
-                 when p.rr>=case when c.act_order>=32 then case when p.player_region in ('latam','kr') then 90 else 100 end else case p.player_region when 'ap' then 80 when 'eu' then 100 when 'br' then 100 else 90 end end then 'Immortal 2 · estimated'
+            case when (c.threshold_profile='V26_ACT_II_PLUS' and p.rr>=case when p.player_region in ('latam','kr') then 150 else 200 end) or (c.threshold_profile='EPISODE_3_BACKCAST' and p.rr>=case when p.player_region='br' then 230 when p.player_region in ('latam','kr') then 150 else 200 end) then 'Immortal 3 · estimated'
+                 when (c.threshold_profile='V26_ACT_II_PLUS' and p.rr>=case when p.player_region in ('latam','kr') then 90 else 100 end) or (c.threshold_profile='EPISODE_3_BACKCAST' and p.rr>=case p.player_region when 'ap' then 80 when 'eu' then 100 when 'br' then 100 else 90 end) then 'Immortal 2 · estimated'
                  else 'Immortal 1 · estimated' end
           when regexp_replace(lower(p.tier),'[^a-z0-9]','','g') in ('immortal1','immortal2','immortal3') then 'Immortal '||right(regexp_replace(lower(p.tier),'[^0-9]','','g'),1)||' · observed'
           else p.tier end estimated_tier,

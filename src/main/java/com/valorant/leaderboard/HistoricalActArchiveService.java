@@ -56,8 +56,8 @@ public class HistoricalActArchiveService {
   private void seedCatalog() throws Exception {
     var acts=mapper.readValue(new ClassPathResource("historical-acts.json").getInputStream(),new TypeReference<List<Map<String,String>>>(){});
     int order=0;
-    for(var act:acts){order++;db.update("insert into historical_act_catalog(act,label,episode,act_order,current_act) values(?,?,?,?,false) on conflict(act) do update set label=excluded.label,episode=excluded.episode,act_order=excluded.act_order",act.get("id"),act.get("label"),act.get("episode"),order);}
-    db.update("insert into historical_act_catalog(act,label,episode,act_order,current_act) values(?,?,?,0,true) on conflict(act) do update set current_act=true",currentAct,"Current act","Current");
+    for(var act:acts){order++;db.update("insert into historical_act_catalog(act,label,episode,act_order,current_act,threshold_profile) values(?,?,?,?,false,?) on conflict(act) do update set label=excluded.label,episode=excluded.episode,act_order=excluded.act_order",act.get("id"),act.get("label"),act.get("episode"),order,HistoricalRankPolicy.forArchiveOrder(order).name());}
+    db.update("insert into historical_act_catalog(act,label,episode,act_order,current_act,threshold_profile) values(?,?,?,0,true,?) on conflict(act) do update set current_act=true",currentAct,"Current act","Current",HistoricalRankPolicy.V26_ACT_II_PLUS.name());
     for(var act:db.queryForList("select act from historical_act_catalog where current_act=false"))for(String source:SOURCES)
       db.update("insert into historical_act_sources(act,source_region) values(?,?) on conflict do nothing",act.get("act"),source);
   }
@@ -145,7 +145,7 @@ public class HistoricalActArchiveService {
   public boolean isCurrent(String act){return currentAct.equals(act);}
   public boolean isKnown(String act){return Boolean.TRUE.equals(db.queryForObject("select exists(select 1 from historical_act_catalog where act=?)",Boolean.class,act));}
   public List<Map<String,Object>> acts(){return db.queryForList("""
-    select c.act,c.label,c.episode,c.act_order,c.current_act,
+    select c.act,c.label,c.episode,c.act_order,c.current_act,c.threshold_profile,
       (select count(*) from historical_act_sources s where s.act=c.act and s.status='COMPLETE') completed_sources,
       (select count(*) from historical_act_sources s where s.act=c.act) total_sources,
       coalesce((select sum(s.pages) from historical_act_sources s where s.act=c.act),0) pages,
@@ -181,11 +181,11 @@ public class HistoricalActArchiveService {
        count(*) filter(where p.tier in ('Immortal','Immortal 1','Immortal 2','Immortal 3')) immortal_all,
        count(*) filter(where p.tier='Immortal 3') immortal3,
        count(*) filter(where p.tier='Immortal 2') immortal2,count(*) filter(where p.tier='Immortal 1') immortal1,
-       count(*) filter(where p.tier='Immortal 3' or (p.tier='Immortal' and p.rr>=case when c.act_order>=32 then case when p.player_region in ('latam','kr') then 150 else 200 end else case when p.player_region='br' then 230 when p.player_region in ('latam','kr') then 150 else 200 end end)) estimated_immortal3,
-       count(*) filter(where p.tier='Immortal 2' or (p.tier='Immortal' and p.rr>=case when c.act_order>=32 then case when p.player_region in ('latam','kr') then 90 else 100 end else case p.player_region when 'ap' then 80 when 'eu' then 100 when 'br' then 100 else 90 end end and p.rr<case when c.act_order>=32 then case when p.player_region in ('latam','kr') then 150 else 200 end else case when p.player_region='br' then 230 when p.player_region in ('latam','kr') then 150 else 200 end end)) estimated_immortal2,
-       count(*) filter(where p.tier='Immortal 1' or (p.tier='Immortal' and p.rr<case when c.act_order>=32 then case when p.player_region in ('latam','kr') then 90 else 100 end else case p.player_region when 'ap' then 80 when 'eu' then 100 when 'br' then 100 else 90 end end)) estimated_immortal1,
+       count(*) filter(where p.tier='Immortal 3' or (p.tier='Immortal' and p.rr>=case when c.threshold_profile='V26_ACT_II_PLUS' then case when p.player_region in ('latam','kr') then 150 else 200 end else case when p.player_region='br' then 230 when p.player_region in ('latam','kr') then 150 else 200 end end)) estimated_immortal3,
+       count(*) filter(where p.tier='Immortal 2' or (p.tier='Immortal' and p.rr>=case when c.threshold_profile='V26_ACT_II_PLUS' then case when p.player_region in ('latam','kr') then 90 else 100 end else case p.player_region when 'ap' then 80 when 'eu' then 100 when 'br' then 100 else 90 end end and p.rr<case when c.threshold_profile='V26_ACT_II_PLUS' then case when p.player_region in ('latam','kr') then 150 else 200 end else case when p.player_region='br' then 230 when p.player_region in ('latam','kr') then 150 else 200 end end)) estimated_immortal2,
+       count(*) filter(where p.tier='Immortal 1' or (p.tier='Immortal' and p.rr<case when c.threshold_profile='V26_ACT_II_PLUS' then case when p.player_region in ('latam','kr') then 90 else 100 end else case p.player_region when 'ap' then 80 when 'eu' then 100 when 'br' then 100 else 90 end end)) estimated_immortal1,
        percentile_cont(0.5) within group(order by rr) median_rr,max(source_updated_at) source_updated_at,
-       max(case when c.act_order>=32 then 'V26_ACT_II_PLUS' else 'EPISODE_3_BACKCAST' end) threshold_profile,
+       max(c.threshold_profile) threshold_profile,
        case when count(*) filter(where p.tier='Immortal')>0 and count(*) filter(where p.tier in ('Immortal 1','Immortal 2','Immortal 3'))>0 then 'MIXED'
          when count(*) filter(where p.tier='Immortal')>0 then 'COMBINED_ONLY'
          when count(*) filter(where p.tier in ('Immortal 1','Immortal 2','Immortal 3'))>0 then 'SPLIT'
@@ -205,12 +205,12 @@ public class HistoricalActArchiveService {
        count(*) filter(where p.tier in ('Immortal','Immortal 1','Immortal 2','Immortal 3')) immortal_all,
        count(*) filter(where p.tier='Immortal 3') immortal3,count(*) filter(where p.tier='Immortal 2') immortal2,
        count(*) filter(where p.tier='Immortal 1') immortal1,
-       max(case when c.act_order>=32 then 'V26_ACT_II_PLUS' else 'EPISODE_3_BACKCAST' end) threshold_profile,
-       max(case when c.act_order>=32 then case when p.player_region in ('latam','kr') then 90 else 100 end else case p.player_region when 'ap' then 80 when 'eu' then 100 when 'br' then 100 else 90 end end) immortal2_threshold_rr,
-       max(case when c.act_order>=32 then case when p.player_region in ('latam','kr') then 150 else 200 end else case when p.player_region='br' then 230 when p.player_region in ('latam','kr') then 150 else 200 end end) immortal3_threshold_rr,
-       count(*) filter(where p.tier='Immortal 3' or (p.tier='Immortal' and p.rr>=case when c.act_order>=32 then case when p.player_region in ('latam','kr') then 150 else 200 end else case when p.player_region='br' then 230 when p.player_region in ('latam','kr') then 150 else 200 end end)) estimated_immortal3,
-       count(*) filter(where p.tier='Immortal 2' or (p.tier='Immortal' and p.rr>=case when c.act_order>=32 then case when p.player_region in ('latam','kr') then 90 else 100 end else case p.player_region when 'ap' then 80 when 'eu' then 100 when 'br' then 100 else 90 end end and p.rr<case when c.act_order>=32 then case when p.player_region in ('latam','kr') then 150 else 200 end else case when p.player_region='br' then 230 when p.player_region in ('latam','kr') then 150 else 200 end end)) estimated_immortal2,
-       count(*) filter(where p.tier='Immortal 1' or (p.tier='Immortal' and p.rr<case when c.act_order>=32 then case when p.player_region in ('latam','kr') then 90 else 100 end else case p.player_region when 'ap' then 80 when 'eu' then 100 when 'br' then 100 else 90 end end)) estimated_immortal1,
+       max(c.threshold_profile) threshold_profile,
+       max(case when c.threshold_profile='V26_ACT_II_PLUS' then case when p.player_region in ('latam','kr') then 90 else 100 end else case p.player_region when 'ap' then 80 when 'eu' then 100 when 'br' then 100 else 90 end end) immortal2_threshold_rr,
+       max(case when c.threshold_profile='V26_ACT_II_PLUS' then case when p.player_region in ('latam','kr') then 150 else 200 end else case when p.player_region='br' then 230 when p.player_region in ('latam','kr') then 150 else 200 end end) immortal3_threshold_rr,
+       count(*) filter(where p.tier='Immortal 3' or (p.tier='Immortal' and p.rr>=case when c.threshold_profile='V26_ACT_II_PLUS' then case when p.player_region in ('latam','kr') then 150 else 200 end else case when p.player_region='br' then 230 when p.player_region in ('latam','kr') then 150 else 200 end end)) estimated_immortal3,
+       count(*) filter(where p.tier='Immortal 2' or (p.tier='Immortal' and p.rr>=case when c.threshold_profile='V26_ACT_II_PLUS' then case when p.player_region in ('latam','kr') then 90 else 100 end else case p.player_region when 'ap' then 80 when 'eu' then 100 when 'br' then 100 else 90 end end and p.rr<case when c.threshold_profile='V26_ACT_II_PLUS' then case when p.player_region in ('latam','kr') then 150 else 200 end else case when p.player_region='br' then 230 when p.player_region in ('latam','kr') then 150 else 200 end end)) estimated_immortal2,
+       count(*) filter(where p.tier='Immortal 1' or (p.tier='Immortal' and p.rr<case when c.threshold_profile='V26_ACT_II_PLUS' then case when p.player_region in ('latam','kr') then 90 else 100 end else case p.player_region when 'ap' then 80 when 'eu' then 100 when 'br' then 100 else 90 end end)) estimated_immortal1,
        count(*) filter(where p.country is null) unknown_country,
        case when count(*) filter(where p.tier='Immortal')>0 and count(*) filter(where p.tier in ('Immortal 1','Immortal 2','Immortal 3'))>0 then 'MIXED'
          when count(*) filter(where p.tier='Immortal')>0 then 'COMBINED_ONLY'
@@ -219,7 +219,7 @@ public class HistoricalActArchiveService {
       from historical_act_players p join historical_act_catalog c on c.act=p.act
       join historical_act_sources s on s.act=p.act and s.source_region=p.source_region and s.status='COMPLETE'
       where p.act=? and p.source_region=p.player_region and (?='all' or coalesce(p.country,'unknown')=?)
-      group by p.player_region,c.act_order
+      group by p.player_region,c.act_order,c.threshold_profile
     ), leaders as(
       select region,top_player,top_rank,top_rr from (
         select p.player_region region,p.player_key top_player,p.source_rank top_rank,p.rr top_rr,

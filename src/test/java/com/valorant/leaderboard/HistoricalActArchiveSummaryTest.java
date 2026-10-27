@@ -17,10 +17,10 @@ class HistoricalActArchiveSummaryTest {
   @Test void regionalSummaryUsesCanonicalLadderAndSeparatesImmortalSourceLabels(){
     var source=new DriverManagerDataSource("jdbc:h2:mem:archive-summary;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DB_CLOSE_DELAY=-1","sa","");
     var db=new JdbcTemplate(source);
-    db.execute("create table historical_act_catalog(act varchar primary key,act_order integer not null)");
+    db.execute("create table historical_act_catalog(act varchar primary key,act_order integer not null,threshold_profile varchar(40) not null)");
     db.execute("create table historical_act_sources(act varchar,source_region varchar,status varchar,primary key(act,source_region))");
     db.execute("create table historical_act_players(act varchar,source_region varchar,player_region varchar,country varchar,player_key varchar,display_name varchar,source_rank integer,rr integer,tier varchar,wins integer,source_updated_at timestamp with time zone)");
-    db.update("insert into historical_act_catalog(act,act_order) values('fixture-act',20)");
+    db.update("insert into historical_act_catalog(act,act_order,threshold_profile) values('fixture-act',20,'EPISODE_3_BACKCAST')");
     db.update("insert into historical_act_sources(act,source_region,status) values('fixture-act','global','COMPLETE'),('fixture-act','ap','COMPLETE'),('fixture-act','eu','COMPLETE'),('fixture-act','na','RUNNING')");
     insert(db,"global","ap","global-ap","in",1,250,"Radiant");
     insert(db,"global","ap","global-ap2","in",2,200,"Immortal 3");

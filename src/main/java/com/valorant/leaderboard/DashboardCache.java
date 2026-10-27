@@ -16,16 +16,18 @@ import org.springframework.jdbc.core.JdbcTemplate;
 @Configuration
 @EnableCaching
 public class DashboardCache {
-  record ReadKey(String act,Long snapshot,String method,List<Object> arguments,String archiveAct,Long archivePages) {}
+  record ReadKey(String act,Long snapshot,Long currentRevision,Long archiveRevision,String method,List<Object> arguments,String archiveAct,Long archivePages) {}
 
   @Bean KeyGenerator snapshotKeyGenerator(JdbcTemplate db,CacheManager manager,
       @Value("${leaderboard.act:d816f426-48ea-f052-117f-9697a155b319}")String act) {
-    Object guard=new Object();Long[] observed={null};
+    Object guard=new Object();Long[] observed={null,null};
     return (target,method,args)->{
       Long snapshot=db.queryForObject("select max(id) from global_leaderboard_runs where act=? and status='COMPLETE'",Long.class,act);
+      Long currentRevision=db.queryForObject("select revision from leaderboard_publication_revision where scope='current'",Long.class);
+      Long archiveRevision=db.queryForObject("select revision from leaderboard_publication_revision where scope='archive'",Long.class);
       synchronized(guard){
-        if(snapshot!=null&&(observed[0]==null||snapshot>observed[0])){
-          manager.getCache("dashboardReads").clear();observed[0]=snapshot;
+        if(!Objects.equals(currentRevision,observed[0])||!Objects.equals(archiveRevision,observed[1])){
+          manager.getCache("dashboardReads").clear();observed[0]=currentRevision;observed[1]=archiveRevision;
         }
       }
       String archiveAct=Arrays.stream(args).filter(String.class::isInstance).map(String.class::cast)
@@ -33,7 +35,7 @@ public class DashboardCache {
           .filter(value->Boolean.FALSE.equals(db.queryForObject("select coalesce((select current_act from historical_act_catalog where act=?),true)",Boolean.class,value)))
           .findFirst().orElse(null);
       Long archivePages=archiveAct==null?null:db.queryForObject("select coalesce(sum(pages),0) from historical_act_sources where act=?",Long.class,archiveAct);
-      return new ReadKey(act,snapshot,method.getDeclaringClass().getName()+"."+method.getName(),Arrays.asList(args.clone()),archiveAct,archivePages);
+      return new ReadKey(act,snapshot,currentRevision,archiveRevision,method.getDeclaringClass().getName()+"."+method.getName(),Arrays.asList(args.clone()),archiveAct,archivePages);
     };
   }
 

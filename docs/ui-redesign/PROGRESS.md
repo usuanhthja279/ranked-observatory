@@ -453,3 +453,29 @@ Phase 7B is complete. Continue to Phase 8; keep all data extraction paused.
 The signed-in preference form is covered by Spring integration tests but was not exercised through an authenticated browser session. The in-app browser has no screenshot export or viewport resize in this session, so no PNG/mobile visual acceptance is claimed; those remain for Phase 10.
 
 Phase 8 is complete. Continue to Phase 9A; keep all extraction paused.
+
+## Phase 9A — Publication revisions and explicit rank policy
+
+### Changes
+
+- Added additive Flyway V10 with per-scope current/archive publication revision counters. PostgreSQL statement triggers increment the relevant revision when published leaderboard or archive tables change, including corrections that leave archive page totals unchanged.
+- Dashboard cache keys now include both publication revisions and the latest complete current snapshot. A revision change clears stale dashboard reads; the policy capability endpoint now uses the same revision-aware key generator.
+- Exposed current and archive revision numbers in the cache-status endpoint.
+- Added a persisted, constrained `threshold_profile` to archived Act metadata. Runtime tier estimates now use this explicit policy field; the historical boundary is backfilled and seeded as Episode 3 backcast for Act order 31 and V26 Act II onward for order 32+. Existing rank thresholds are preserved.
+- Left extraction paused; no collection run was requested or started.
+
+### Verification
+
+- `JAVA_HOME=C:\Users\usuan\.jdks\dragonwell-21.0.12 .\gradlew.bat test --tests com.valorant.leaderboard.DashboardCacheRevisionTest --tests com.valorant.leaderboard.HistoricalRankPolicyTest --tests com.valorant.leaderboard.HistoricalActArchiveSummaryTest --tests com.valorant.leaderboard.HistoricalTrendsQueryServiceTest --tests com.valorant.leaderboard.HistoricalActArchiveServiceTest bootJar` — **PASS**.
+- `git diff --check` — **PASS** (Git reports expected LF-to-CRLF conversion warnings on edited Java files).
+- Native PostgreSQL 17.11 — **PASS**: V10 validated and applied; subsequent startup reports schema v10 up to date.
+- ChatGPT in-app browser — **PASS**: archive summaries, country comparison and six-region trend charts rendered. The live `/api/leaderboard/trends/catalog` response showed order 31 with `EPISODE_3_BACKCAST`, order 32 with `V26_ACT_II_PLUS`, and the current Act with `V26_ACT_II_PLUS`.
+- Cache status — **PASS**: current publication revision 2, archive revision 636; revision-aware cache enabled.
+- Post-restart status — **PASS**: `enabled:false`, `paused:true`, `running:false`, latest complete snapshot 400.
+
+### Limits
+
+- Cache invalidation for same-page corrections is covered by the focused H2 regression using unchanged archive page totals and changed publication revisions. The running local UI was read-only; no live archive rows were modified to simulate a correction.
+- No extraction was resumed. Historical policy is explicit and versioned in persisted Act metadata; introducing a new policy family will require adding it to the constrained policy set and assigning it deliberately.
+
+Phase 9A is complete. Continue to Phase 9B; keep all extraction paused.

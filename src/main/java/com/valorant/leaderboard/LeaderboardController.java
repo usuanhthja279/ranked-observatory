@@ -21,7 +21,7 @@ public class LeaderboardController {
     return historicalTrends.playerJourney(player,region(region));
   }
   /** Read-only source tier coverage so unavailable Immortal subdivisions are named explicitly. */
-  @org.springframework.cache.annotation.Cacheable(cacheNames="dashboardReads",key="'historical-tier-capabilities:' + @historicalTrendsQueryService.catalog().size()",sync=true)
+  @org.springframework.cache.annotation.Cacheable(cacheNames="dashboardReads",keyGenerator="snapshotKeyGenerator",sync=true)
   @GetMapping("/trends/capabilities") public Map<String,Object> historicalTrendCapabilities(){return historicalTrends.capabilities();}
   @org.springframework.cache.annotation.Cacheable(cacheNames="dashboardReads",keyGenerator="snapshotKeyGenerator",sync=true)
   @GetMapping("/trends/series") public Map<String,Object> historicalTrendSeries(@RequestParam String fromAct,@RequestParam String toAct,@RequestParam(defaultValue="all")String region,@RequestParam(defaultValue="all")String country,@RequestParam(defaultValue="all")String cohort){
