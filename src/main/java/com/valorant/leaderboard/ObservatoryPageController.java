@@ -91,6 +91,14 @@ public class ObservatoryPageController {
     return "forward:/leaderboard.html";
   }
 
+  @GetMapping("/archive")
+  public String archive(@RequestParam(required = false) String act) {
+    validateAct(act);
+    var target = UriComponentsBuilder.fromPath("/leaderboard.html").queryParam("view", "archive");
+    if (act != null && !act.isBlank()) target.queryParam("act", act);
+    return "forward:" + target.build().encode().toUriString();
+  }
+
   @GetMapping("/trends")
   public String historicalTrends(@RequestParam(required = false) String region,
                                  @RequestParam(required = false) String country) {

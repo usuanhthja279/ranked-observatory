@@ -55,6 +55,23 @@ class HistoricalActArchiveSummaryTest {
     }finally{service.close();}
   }
 
+  @Test void archivedGlobalPlayersApplyValidatedOrderingAndPagination(){
+    var source=new DriverManagerDataSource("jdbc:h2:mem:archive-player-page;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DB_CLOSE_DELAY=-1","sa","");
+    var db=new JdbcTemplate(source);
+    db.execute("create table historical_act_players(act varchar,source_region varchar,player_region varchar,country varchar,player_key varchar,display_name varchar,source_rank integer,rr integer,tier varchar,wins integer,source_updated_at timestamp with time zone)");
+    db.update("insert into historical_act_players values('fixture-act','global','ap','in','z-player','Zed#1',2,200,'Immortal 2',10,current_timestamp)");
+    db.update("insert into historical_act_players values('fixture-act','global','ap','in','a-player','Alpha#1',1,250,'Radiant',12,current_timestamp)");
+    var service=new HistoricalActArchiveService(db,null,null,new ObjectMapper(),mock(PlatformTransactionManager.class),"current-act");
+    try{
+      var response=service.players("fixture-act","all","all","",1,1,"globalRank","asc");
+      assertEquals(2,((Number)response.get("total")).intValue());
+      var items=(List<Map<String,Object>>)response.get("items");
+      assertEquals(1,items.size());
+      assertEquals("Alpha#1",items.get(0).get("display_name"));
+      assertEquals(1,((Number)items.get(0).get("global_rank")).intValue());
+    }finally{service.close();}
+  }
+
   private static void insert(JdbcTemplate db,String source,String region,String key,String country,int rank,int rr,String tier){
     db.update("insert into historical_act_players(act,source_region,player_region,country,player_key,display_name,source_rank,rr,tier,wins,source_updated_at) values('fixture-act',?,?,?,?,?,?,?, ?,0,current_timestamp)",source,region,country,key,key,rank,rr,tier);
   }

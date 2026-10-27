@@ -94,6 +94,14 @@ class StandaloneApplicationTest {
         .andExpect(status().isBadRequest());
   }
 
+  @Test void canonicalArchiveRoutePreservesActAndRejectsMalformedAct() throws Exception {
+    String act="01234567-89ab-cdef-0123-456789abcdef";
+    mvc.perform(get("/archive")).andExpect(status().isOk()).andExpect(forwardedUrl("/leaderboard.html?view=archive"));
+    mvc.perform(get("/archive").param("act",act)).andExpect(status().isOk())
+        .andExpect(forwardedUrl("/leaderboard.html?view=archive&act="+act));
+    mvc.perform(get("/archive").param("act","invalid")).andExpect(status().isBadRequest());
+  }
+
   @Test void canonicalTrendsRoutePreservesValidatedScope() throws Exception {
     mvc.perform(get("/trends").param("region", "ap").param("country", "in"))
         .andExpect(status().isOk()).andExpect(forwardedUrl("/leaderboard.html?view=trends&region=ap&country=in"));

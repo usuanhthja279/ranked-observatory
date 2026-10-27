@@ -251,8 +251,8 @@ public class HistoricalActArchiveService {
       left join historical_act_players r on r.act=p.act and r.source_region=p.player_region and r.player_region=p.player_region and r.player_key=p.player_key
       where p.act=? and p.source_region=? and (?='all' or p.player_region=?)
        and (?='all' or coalesce(p.country,'unknown')=?) and lower(p.player_key) like ?
-      order by "+order+" limit ? offset ?
-      """,params);
+      order by %s limit ? offset ?
+      """.formatted(order),params);
     Long total=db.queryForObject("select count(*) from historical_act_players p where p.act=? and p.source_region=? and (?='all' or p.player_region=?) and (?='all' or coalesce(p.country,'unknown')=?) and lower(p.player_key) like ?",Long.class,act,source,region,region,country,country,"%"+search.toLowerCase(Locale.ROOT)+"%");
     return Map.of("items",items,"total",total,"page",page,"size",size,"archiveOnly",true);
   }

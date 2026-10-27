@@ -343,3 +343,33 @@ Phase 5 is implemented and focused verification passed. Continue to Phase 6A. Ke
 - Screenshots were inspected. The responsive table retains an internal horizontal scroller for its full set of columns. The browser download event did not complete during the earlier UI attempt, so CSV file delivery remains unverified in the browser; the CSV generation tests pass.
 
 Phase 6A is complete. Continue to Phase 6B (archive explorer); keep all data extraction paused until every redesign phase is complete.
+## Phase 6B — Archive explorer
+
+### Changes
+
+- Added canonical `/archive` navigation and route handling while preserving the existing archive query view.
+- Replaced the archive action buttons with an Archive Explorer that provides Summary, Countries, Players, and Source coverage sections.
+- Summary reports source rows, source-ladder completion, fetched pages, regional source-reported rows, and the saved publication timestamp. It distinguishes a sum of regional source rows from unique players and explains snapshot limitations.
+- Countries can be compared against global or regional source rows. Players supports region/country filtering, search, pagination, archived source ranks, and links to the existing player profile. Source coverage shows each ladder's saved state, page count, row count, and timestamps without exposing backend error details.
+- Kept the explorer read-only. It uses existing archive APIs; no extraction or database mutation endpoint is invoked.
+- Corrected archived player ordering SQL to interpolate only an allowlisted order expression. The prior query passed the literal `+order+` text to PostgreSQL; the focused archive query regression now exercises that path.
+- Added canonical route tests for query preservation and malformed Act values, plus archive player ordering/pagination coverage.
+
+### Verification
+
+- `node --check src/main/resources/static/leaderboard.js` — **PASS**.
+- `node --check src/main/resources/static/observatory-shell.js` — **PASS**.
+- `node --test src/test/js/act-trends-export.test.cjs src/test/js/countries-directory.test.cjs` — **PASS**, 6 tests, 0 failures.
+- `JAVA_HOME=C:\Users\usuan\.jdks\dragonwell-21.0.12 .\gradlew.bat test --tests com.valorant.leaderboard.StandaloneApplicationTest --tests com.valorant.leaderboard.HistoricalActArchiveSummaryTest --console=plain bootJar` — **PASS**, 14 focused Java tests, 0 failures/errors/skips; packaged jar successful.
+- `git diff --check` — **PASS** (Git reports LF-to-CRLF working-copy conversion warnings for modified text files).
+- ChatGPT in-app browser against the local PostgreSQL snapshot — **PASS**: `/archive` rendered Summary, Countries, Players, and Source coverage. Players showed 53,775 archived rows with 25 rows on page 1 and functional page controls; the Source coverage table showed all 7 source ladders complete. Country/source labels and source-rank labels were visible. Browser console error list was empty.
+- Live status endpoint checked in the ChatGPT in-app browser — **PASS for pause invariant**: `enabled:false`, `paused:true`, `running:false`; latest published snapshot remains 400. Status history also contains run 401 as **FAILED**, so no successful snapshot newer than 400 is claimed. No collection request was issued in this phase.
+- Application was rebuilt and restarted on port 8090 after the archive SQL correction; the browser loaded the updated route afterward.
+
+### Visual evidence and limitations
+
+- The actual in-app browser Summary and Source coverage captures were visually inspected during this turn. The browser's capture is displayed in the task transcript; a PNG copy was not saved under `docs/ui-redesign/evidence/` because the in-app browser capture interface did not expose a local file-save operation in this session.
+- The current ChatGPT in-app browser does not expose a viewport-resize method, so a 390 × 844 mobile capture was not produced in this pass. Mobile styles exist, but mobile visual acceptance remains unverified for this phase.
+- The inspected browser data is the persisted local snapshot, not synthetic data. Source status rows are recorded source evidence, not a claim that the currently disabled collector is running.
+
+Phase 6B implementation and focused checks are complete; mobile visual evidence remains a known verification gap. Continue to Phase 7 only after capturing the remaining mobile evidence if the in-app browser supports a mobile viewport; keep extraction paused until the redesign phases are complete.
