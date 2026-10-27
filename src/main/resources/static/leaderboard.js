@@ -3,7 +3,7 @@ const $=id=>document.getElementById(id);
 const esc=value=>String(value??'—').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const time=v=>v?new Date(v).toLocaleString():'—';
 const fmt=v=>v==null?'—':Number(v).toLocaleString();
-const params=new URLSearchParams(location.search),view=params.get('view')||(location.pathname==='/leaderboard'?'global':location.pathname==='/players'?'profile':location.pathname==='/trends'?'trends':location.pathname==='/archive'?'archive':location.pathname==='/compare'?'compare':'world');
+const params=new URLSearchParams(location.search),view=params.get('view')||(location.pathname==='/leaderboard'?'global':location.pathname==='/players'?'profile':location.pathname==='/trends'?'trends':location.pathname==='/archive'?'archive':location.pathname==='/compare'?'compare':location.pathname==='/watchlist'?'watchlist':'world');
 let selectedAct=params.get('act')||'';let currentAct='';
 const playerPageSize=view==='country'||view==='global'?10:20;
 const playerSorts=new Set(['globalRank','regionalRank','name','country','tier','rr','rrChange','updated']);
@@ -269,6 +269,11 @@ function setCompareScope(){
  $('comparePageIntro').classList.remove('hidden');$('comparePage').classList.remove('hidden');
  $('pageTitle').textContent='Compare fairly';document.title='Compare fairly · Valorant Ranked Observatory';$('subtitle').textContent='Same Act, labeled source scope, evidence-backed differences.';
  $('masthead').classList.remove('region-masthead','country-masthead','overview-masthead');$('regionScenery').classList.add('hidden');
+}function setWatchlistScope(){
+ for(const id of ['countriesDirectory','regionExperienceTabs','regionTabHint','regionOverviewPanel','regionDistributionPanel','regionSection','regionTableSection','overviewActivitySection','currentSection','countryMovementSection','playerSection','trendLayout','timelineSection','scopeSection','selectedPlayerSection','countrySection','regionPage','countryPreview','historySection','historicalTrendDisclosure','playerProfileIntro','playerProfileWorkspace','trendsPageIntro','trendsPageWorkspace','comparePageIntro','comparePage','archivePageIntro','archivePageWorkspace','globalPlayerCards','overviewPlayerSection','previewPlayerSection','dataFreshness'])$(id).classList.add('hidden');
+ $('watchlistPageIntro').classList.remove('hidden');$('watchlistPageWorkspace').classList.remove('hidden');$('dataFreshness').classList.add('hidden');
+ $('pageTitle').textContent='Your watchlist';document.title='Your watchlist · Valorant Ranked Observatory';$('subtitle').textContent='Save players, countries, regions and Acts to find them again.';
+ $('masthead').classList.remove('region-masthead','country-masthead','overview-masthead');$('regionScenery').classList.add('hidden');
 }function setTrendsScope(){
  for(const id of ['countriesDirectory','regionExperienceTabs','regionTabHint','regionOverviewPanel','regionDistributionPanel','regionSection','regionTableSection','overviewActivitySection','currentSection','countryMovementSection','playerSection','trendLayout','countrySection','countryPreview','historySection','timelineSection','scopeSection','playerProfileIntro','playerProfileWorkspace','selectedPlayerSection'])$(id).classList.add('hidden');
  $('dataConfidence').classList.remove('hidden');$('dataFreshness').classList.add('hidden');$('masthead').classList.remove('region-masthead','country-masthead','overview-masthead');$('regionScenery').classList.add('hidden');
@@ -280,6 +285,7 @@ function setScope(){
  if(view==='profile'){setProfileScope();return;}
  if(view==='trends'){setTrendsScope();return;}
  if(view==='compare'){setCompareScope();return;}
+ if(view==='watchlist'){setWatchlistScope();return;}
  const historical=Boolean(data?.status?.archiveOnly),hasRegion=region!=='all',hasCountry=hasRegion&&country!=='all',detail=view==='region'||view==='country';
  $('overviewActivitySection').classList.toggle('hidden',view!=='world'||historical);$('masthead').classList.toggle('overview-masthead',view==='world');
  $('regionSection').classList.toggle('hidden',detail);$('regionTableSection').classList.toggle('hidden',detail);
@@ -354,6 +360,7 @@ async function refresh(){const version=++generation;try{
  if(view==='profile'){await refreshPlayerProfilePage(version);return;}
  if(view==='trends'){await refreshTrendsPage(version);return;}
  if(view==='compare'){setCompareScope();await globalThis.refreshComparePage?.();return;}
+ if(view==='watchlist'){setWatchlistScope();await globalThis.refreshWatchlistPage?.();return;}
  if(view==='archive'){await refreshArchiveExplorer(version);return;}
  if(selectedAct&&selectedAct!==currentAct){await refreshArchived(version);return;}
  if(view==='global'){await refreshGlobalPage(version);return;}

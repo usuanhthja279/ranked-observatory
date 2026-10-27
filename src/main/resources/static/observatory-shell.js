@@ -1,6 +1,6 @@
 'use strict';
 (()=>{
- const params=new URLSearchParams(location.search),currentView=params.get('view')||(location.pathname==='/trends'?'trends':location.pathname==='/archive'?'archive':location.pathname==='/compare'?'compare':['/leaderboard','/players'].includes(location.pathname)?'global':'world');
+ const params=new URLSearchParams(location.search),currentView=params.get('view')||(location.pathname==='/trends'?'trends':location.pathname==='/archive'?'archive':location.pathname==='/compare'?'compare':location.pathname==='/watchlist'?'watchlist':['/leaderboard','/players'].includes(location.pathname)?'global':'world');
  const currentRegion=params.get('region')||'ap';let selectedAct=params.get('act')||'',currentAct='';
  const validRegions=new Set(['ap','eu','na','latam','br','kr']);
  function shellHref(view){
@@ -10,6 +10,7 @@
   if(view==='trends')return '/trends';
   if(view==='archive')return '/archive';
   if(view==='compare')return '/compare'+(selectedAct&&selectedAct!==currentAct?'?act='+encodeURIComponent(selectedAct):'');
+  if(view==='watchlist')return '/watchlist';
   return (view==='world'?'/overview':view==='region'?'/regions/'+encodeURIComponent(validRegions.has(currentRegion)?currentRegion:'ap'):view==='countries'?'/countries':'/leaderboard.html')+(p.has('act')?'?act='+encodeURIComponent(p.get('act')):'');
  }
  function syncShellNavigation(latestCurrentAct=currentAct,activeAct=selectedAct){

@@ -15,7 +15,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
     "spring.datasource.url=jdbc:h2:mem:standalone;MODE=PostgreSQL;DB_CLOSE_DELAY=-1",
     "spring.datasource.username=sa", "spring.datasource.password=", "spring.datasource.driver-class-name=org.h2.Driver",
     "spring.datasource.hikari.schema=PUBLIC", "spring.flyway.enabled=false",
-    "spring.sql.init.mode=always", "spring.sql.init.schema-locations=classpath:db/migration/V1__ranked_leaderboard_history.sql,classpath:db/migration/V2__duplicate_observation_diagnostics.sql,classpath:db/migration/V3__global_leaderboard_snapshots.sql,classpath:db/migration/V4__hourly_regional_observation_cache.sql,classpath:db/migration/V5__observatory_accounts.sql",
+    "spring.sql.init.mode=always", "spring.sql.init.schema-locations=classpath:db/migration/V1__ranked_leaderboard_history.sql,classpath:db/migration/V2__duplicate_observation_diagnostics.sql,classpath:db/migration/V3__global_leaderboard_snapshots.sql,classpath:db/migration/V4__hourly_regional_observation_cache.sql,classpath:db/migration/V5__observatory_accounts.sql,classpath:db/migration/V8__observatory_watchlist.sql",
     "spring.security.user.password=test-admin-only", "leaderboard.enabled=false"
 })
 @AutoConfigureMockMvc
@@ -168,6 +168,38 @@ class StandaloneApplicationTest {
     for(int n=0;n<2;n++)mvc.perform(get("/api/account/me").with(httpBasic("admin","test-admin-only"))).andExpect(status().isOk()).andExpect(jsonPath("$.administrator").value(true));
     mvc.perform(post("/login").with(csrf()).param("username","admin").param("password","test-admin-only")).andExpect(redirectedUrl("/leaderboard.html"));
     mvc.perform(get("/api/account/me").with(httpBasic("admin","test-admin-only"))).andExpect(status().isOk()).andExpect(jsonPath("$.administrator").value(true));
+  }
+
+  @Test void watchlistPersistsAllTypesAndIsolatedByAccount()throws Exception {
+    db.update("insert into observatory_accounts(username,display_name,email,password_hash) values(?,?,?,?)","watch_a","Watch A","watch-a@example.test","hash-a");
+    db.update("insert into observatory_accounts(username,display_name,email,password_hash) values(?,?,?,?)","watch_b","Watch B","watch-b@example.test","hash-b");
+    var owner=user("watch_a").roles("USER");var other=user("watch_b").roles("USER");
+    mvc.perform(get("/api/account/watchlist")).andExpect(status().isUnauthorized());
+    mvc.perform(post("/api/account/watchlist").with(owner).contentType("application/json").content("{\"type\":\"REGION\",\"key\":\"eu\",\"scope\":\"all\",\"label\":\"Europe\"}"))
+        .andExpect(status().isForbidden());
+    mvc.perform(post("/api/account/watchlist").with(owner).with(csrf()).contentType("application/json").content("{\"type\":\"PLAYER\",\"key\":\"Example#123\",\"scope\":\"invalid\",\"label\":\"Example\"}"))
+        .andExpect(status().isBadRequest());
+    mvc.perform(post("/api/account/watchlist").with(owner).with(csrf()).contentType("application/json").content("{\"type\":\"PLAYER\",\"key\":\"Example#123\",\"scope\":\"ap\",\"label\":\"Example · AP\"}"))
+        .andExpect(status().isOk()).andExpect(jsonPath("$.type").value("PLAYER"));
+    mvc.perform(post("/api/account/watchlist").with(owner).with(csrf()).contentType("application/json").content("{\"type\":\"COUNTRY\",\"key\":\"in\",\"scope\":\"ap\",\"label\":\"India · AP\"}"))
+        .andExpect(status().isOk());
+    mvc.perform(post("/api/account/watchlist").with(owner).with(csrf()).contentType("application/json").content("{\"type\":\"REGION\",\"key\":\"eu\",\"scope\":\"all\",\"label\":\"Europe\"}"))
+        .andExpect(status().isOk());
+    mvc.perform(post("/api/account/watchlist").with(owner).with(csrf()).contentType("application/json").content("{\"type\":\"ACT\",\"key\":\"ce2783e8-44fc-dd48-3da3-33b5ba6c4a22\",\"scope\":\"all\",\"label\":\"V26 Act III\"}"))
+        .andExpect(status().isOk());
+    mvc.perform(post("/api/account/watchlist").with(owner).with(csrf()).contentType("application/json").content("{\"type\":\"PLAYER\",\"key\":\"Example#123\",\"scope\":\"ap\",\"label\":\"Updated label\"}"))
+        .andExpect(status().isOk()).andExpect(jsonPath("$.label").value("Updated label"));
+    var listing=mvc.perform(get("/api/account/watchlist").with(owner)).andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
+    assertEquals(4,com.fasterxml.jackson.databind.json.JsonMapper.builder().build().readTree(listing).size());
+    mvc.perform(get("/api/account/watchlist").with(other)).andExpect(status().isOk()).andExpect(jsonPath("$",org.hamcrest.Matchers.hasSize(0)));
+    Long itemId=db.queryForObject("select id from observatory_watchlist where account_id=(select id from observatory_accounts where username='watch_a') and entity_type='ACT'",Long.class);
+    mvc.perform(delete("/api/account/watchlist/"+itemId).with(other).with(csrf())).andExpect(status().isNotFound());
+    mvc.perform(delete("/api/account/watchlist/"+itemId).with(owner).with(csrf())).andExpect(status().isNoContent());
+    mvc.perform(get("/api/account/watchlist").with(owner)).andExpect(status().isOk()).andExpect(jsonPath("$",org.hamcrest.Matchers.hasSize(3)));
+  }
+
+  @Test void watchlistPageUsesCanonicalRoute()throws Exception {
+    mvc.perform(get("/watchlist")).andExpect(status().isOk()).andExpect(forwardedUrl("/leaderboard.html?view=watchlist"));
   }
 
 }

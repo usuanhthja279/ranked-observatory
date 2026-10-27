@@ -402,3 +402,28 @@ Phase 6B implementation and focused checks are complete; mobile visual evidence 
 The ChatGPT in-app browser was used for the actual local UI check. This session's in-app browser exposed the rendered accessibility tree but not a screenshot-save or viewport-resize operation, so no PNG evidence or 390 × 844 mobile capture is claimed. Responsive CSS is present but mobile visual fit remains unverified.
 
 Phase 7A is complete. Continue to Phase 7B (persistent watchlist); keep all extraction paused.
+
+## Phase 7B — Persistent account watchlist
+
+### Changes
+
+- Added Flyway V8 `observatory_watchlist` with account ownership, type/key/scope uniqueness, creation order, and cascading cleanup when an account is removed.
+- Added authenticated list, idempotent save/update, and owner-scoped delete endpoints for PLAYER, COUNTRY, REGION and ACT items. Ownership is derived from the authenticated account username; callers cannot submit an owner ID. Non-account administrator identities cannot use customer watchlists.
+- Kept CSRF enforcement for writes and return not-found for an item owned by another account.
+- Added the `/watchlist` page to desktop and mobile navigation. It explains the four supported identifier forms, shows saved links and provides remove controls. Anonymous visitors are prompted to sign in; admin-only accounts are told that customer accounts own watchlists.
+- Uses existing page routes for reopening each saved item. The view does not invoke any collection endpoint.
+
+### Verification
+
+- `node --check src/main/resources/static/watchlist-page.js` — **PASS**.
+- `node --test src/test/js/compare-analysis.test.cjs` — **PASS**, 5 tests, 0 failures.
+- `JAVA_HOME=C:\Users\usuan\.jdks\dragonwell-21.0.12 .\gradlew.bat test --tests com.valorant.leaderboard.StandaloneApplicationTest.watchlist* --tests com.valorant.leaderboard.StandaloneApplicationTest.canonicalCompareRouteValidatesModeAndPreservesSelections bootJar` — **PASS**. Watchlist tests cover anonymous denial, CSRF, validation, all four item types, idempotent duplicate save, database-backed listing, two-account isolation, cross-account delete denial, owner delete and canonical page route.
+- `git diff --check` — **PASS** (working-copy line-ending warnings only).
+- Restarted the packaged service on port 8090. PostgreSQL 17.11 validated nine migrations and successfully applied **V8**. Status endpoint reports `enabled:false`, `paused:true`, `running:false`, latest successful snapshot 400.
+- ChatGPT in-app browser — **PASS** for the `/watchlist` route and signed-out view; desktop navigation includes Watchlist and the page directs anonymous users to sign in. Authenticated UI form submission was not exercised in the browser; persistence and owner isolation were verified through the focused Spring integration test.
+
+### Remaining visual limits
+
+The in-app browser was used for the page check, but this session still exposes no screenshot export or viewport resizing. No PNG or mobile visual acceptance is claimed here; responsive CSS is included. Full desktop/mobile evidence remains part of the integrated Phase 10 review.
+
+Phase 7B is complete. Continue to Phase 8; keep all data extraction paused.

@@ -113,6 +113,9 @@ public class ObservatoryPageController {
     target.queryParam("window", window);
     return "forward:" + target.build().encode().toUriString();
   }
+
+  @GetMapping("/watchlist")
+  public String watchlist(){return "forward:/leaderboard.html?view=watchlist";}
   @GetMapping("/archive")
   public String archive(@RequestParam(required = false) String act) {
     validateAct(act);
