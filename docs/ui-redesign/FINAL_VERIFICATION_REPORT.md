@@ -67,3 +67,12 @@ The app was stopped and restarted through `scripts/Stop-LeaderboardService.ps1` 
 - Saved a synthetic watchlist player, signed out, verified the anonymous watchlist gate, signed in again and verified the saved item returned.
 - Stopped the temporary port-8091 process after the checks. The main service remained on port 8090 and the all-extraction pause marker remained present.
 - This was a real browser-to-Spring-to-PostgreSQL flow against the isolated test database. The synthetic account remains only in that dedicated test database. No external profile lookup, account email, or collection request was made.
+
+## Supplemental mobile archive acceptance — 27 October 2026
+
+- In ChatGPT's built-in browser at 390 × 844, the saved V26: ACT V archive opened with 53,775 global source rows and 7/7 completed source ladders.
+- The Countries section filtered for `India` and returned India plus British Indian Ocean Territory (2 labels, 320 observed entries, 3 confirmed Radiant entries). Opening India's Asia-Pacific view retained the selected Act and showed the regional archived standings.
+- The Players section loaded Asia-Pacific standings and advanced from page 1 to page 2 of 600. The Source coverage section displayed the 7/7 publication matrix.
+- Visual inspection confirmed the narrow archive tab strip and wide tables use their own horizontal scrollers. At a 390 px viewport, document and body widths were 380 px; no page-level horizontal overflow was present.
+- Screenshots were captured and inspected inline in the built-in browser. They were not saved as repository PNGs: the browser has no supported filesystem export for the screenshot bytes, and a data-URL export attempt was refused by browser URL policy. No alternate export path was attempted.
+- All reads used the persisted archived snapshot. No player profile was opened and no provider request or collection was triggered. The extraction pause remained enabled.
