@@ -15,7 +15,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
     "spring.datasource.url=jdbc:h2:mem:standalone;MODE=PostgreSQL;DB_CLOSE_DELAY=-1",
     "spring.datasource.username=sa", "spring.datasource.password=", "spring.datasource.driver-class-name=org.h2.Driver",
     "spring.datasource.hikari.schema=PUBLIC", "spring.flyway.enabled=false",
-    "spring.sql.init.mode=always", "spring.sql.init.schema-locations=classpath:db/migration/V1__ranked_leaderboard_history.sql,classpath:db/migration/V2__duplicate_observation_diagnostics.sql,classpath:db/migration/V3__global_leaderboard_snapshots.sql,classpath:db/migration/V4__hourly_regional_observation_cache.sql,classpath:db/migration/V5__observatory_accounts.sql,classpath:db/migration/V8__observatory_watchlist.sql",
+    "spring.sql.init.mode=always", "spring.sql.init.schema-locations=classpath:db/migration/V1__ranked_leaderboard_history.sql,classpath:db/migration/V2__duplicate_observation_diagnostics.sql,classpath:db/migration/V3__global_leaderboard_snapshots.sql,classpath:db/migration/V4__hourly_regional_observation_cache.sql,classpath:db/migration/V5__observatory_accounts.sql,classpath:db/migration/V8__observatory_watchlist.sql,classpath:db/migration/V9__observatory_ui_preferences.sql",
     "spring.security.user.password=test-admin-only", "leaderboard.enabled=false"
 })
 @AutoConfigureMockMvc
@@ -200,6 +200,28 @@ class StandaloneApplicationTest {
 
   @Test void watchlistPageUsesCanonicalRoute()throws Exception {
     mvc.perform(get("/watchlist")).andExpect(status().isOk()).andExpect(forwardedUrl("/leaderboard.html?view=watchlist"));
+  }
+
+  @Test void displayPreferencesPersistPrivatelyAndRequireCsrf()throws Exception {
+    db.update("insert into observatory_accounts(username,display_name,email,password_hash) values(?,?,?,?)","prefs_a","Prefs A","prefs-a@example.test","hash-a");
+    db.update("insert into observatory_accounts(username,display_name,email,password_hash) values(?,?,?,?)","prefs_b","Prefs B","prefs-b@example.test","hash-b");
+    var owner=user("prefs_a").roles("USER");var other=user("prefs_b").roles("USER");
+    mvc.perform(get("/api/account/preferences")).andExpect(status().isUnauthorized());
+    mvc.perform(get("/api/account/preferences").with(owner)).andExpect(status().isOk()).andExpect(jsonPath("$.compactTables").value(false)).andExpect(jsonPath("$.reduceMotion").value(false));
+    mvc.perform(put("/api/account/preferences").with(owner).contentType("application/json").content("{\"compactTables\":true,\"reduceMotion\":true}"))
+        .andExpect(status().isForbidden());
+    mvc.perform(put("/api/account/preferences").with(owner).with(csrf()).contentType("application/json").content("{\"compactTables\":true,\"reduceMotion\":false}"))
+        .andExpect(status().isOk()).andExpect(jsonPath("$.compactTables").value(true));
+    mvc.perform(get("/api/account/preferences").with(owner)).andExpect(status().isOk()).andExpect(jsonPath("$.compactTables").value(true)).andExpect(jsonPath("$.reduceMotion").value(false));
+    mvc.perform(get("/api/account/preferences").with(other)).andExpect(status().isOk()).andExpect(jsonPath("$.compactTables").value(false));
+    mvc.perform(put("/api/account/preferences").with(owner).with(csrf()).contentType("application/json").content("{\"compactTables\":true}"))
+        .andExpect(status().isBadRequest());
+  }
+
+  @Test void settingsMethodologyAndRoadmapPagesHaveCanonicalTargets()throws Exception {
+    mvc.perform(get("/settings")).andExpect(status().isOk()).andExpect(forwardedUrl("/leaderboard.html?view=settings"));
+    mvc.perform(get("/methodology")).andExpect(status().isOk()).andExpect(forwardedUrl("/methodology.html"));
+    mvc.perform(get("/roadmap")).andExpect(status().isOk()).andExpect(forwardedUrl("/roadmap.html"));
   }
 
 }

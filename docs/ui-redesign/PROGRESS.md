@@ -427,3 +427,29 @@ Phase 7A is complete. Continue to Phase 7B (persistent watchlist); keep all extr
 The in-app browser was used for the page check, but this session still exposes no screenshot export or viewport resizing. No PNG or mobile visual acceptance is claimed here; responsive CSS is included. Full desktop/mobile evidence remains part of the integrated Phase 10 review.
 
 Phase 7B is complete. Continue to Phase 8; keep all data extraction paused.
+
+## Phase 8 — Account experience, methodology and roadmap
+
+### Changes
+
+- Added account-scoped compact-table and reduced-motion preferences, saved through a CSRF-protected endpoint and applied to the shared UI. Preferences are isolated by authenticated account and persist across page loads.
+- Added `/settings`; signed-out visitors receive a sign-in prompt. Signed-in customers can update the two real preferences. The account header links to Settings.
+- Sign-in and signup preserve a validated same-origin return path for supported Observatory pages. External URLs and unsupported destinations fall back to the leaderboard.
+- Added `/methodology` to explain source rows, archive limitations, rank/tier semantics, uncertainty and estimates in plain language.
+- Added `/roadmap` with the accepted sequence and no target dates. Linked both pages from the main footer.
+- Added additive Flyway V9 for account-owned UI preferences; no collector or ranking calculation was changed.
+
+### Verification
+
+- `node --check src/main/resources/static/account.js`, `settings-page.js`, `leaderboard.js`, and `observatory-shell.js` — **PASS**.
+- `JAVA_HOME=C:\Users\usuan\.jdks\dragonwell-21.0.12 .\gradlew.bat test --tests com.valorant.leaderboard.StandaloneApplicationTest.displayPreferencesPersistPrivatelyAndRequireCsrf --tests com.valorant.leaderboard.StandaloneApplicationTest.settingsMethodologyAndRoadmapPagesHaveCanonicalTargets --tests com.valorant.leaderboard.StandaloneApplicationTest.createsHashedIndependentAccountsAndSignsInWithoutGrantingAdminPrivileges bootJar` — **PASS**. Coverage includes preference defaults/persistence, second-account isolation, CSRF, malformed requests, account registration/login security and page forwarding.
+- `git diff --check` — **PASS** (line-ending warnings only).
+- PostgreSQL 17.11 validated 10 migrations and applied **V9** on restart.
+- ChatGPT in-app browser — **PASS**: Settings route and signed-out sign-in guidance rendered after correction; Methodology and Roadmap routes rendered with their explanatory content.
+- Post-restart status — **PASS**: `enabled:false`, `paused:true`, `running:false`, latest successful snapshot 400. The app remains running on port 8090; no collection request was issued.
+
+### Limits
+
+The signed-in preference form is covered by Spring integration tests but was not exercised through an authenticated browser session. The in-app browser has no screenshot export or viewport resize in this session, so no PNG/mobile visual acceptance is claimed; those remain for Phase 10.
+
+Phase 8 is complete. Continue to Phase 9A; keep all extraction paused.

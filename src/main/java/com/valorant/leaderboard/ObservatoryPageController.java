@@ -116,6 +116,12 @@ public class ObservatoryPageController {
 
   @GetMapping("/watchlist")
   public String watchlist(){return "forward:/leaderboard.html?view=watchlist";}
+  @GetMapping("/settings")
+  public String settings(){return "forward:/leaderboard.html?view=settings";}
+  @GetMapping("/methodology")
+  public String methodology(){return "forward:/methodology.html";}
+  @GetMapping("/roadmap")
+  public String roadmap(){return "forward:/roadmap.html";}
   @GetMapping("/archive")
   public String archive(@RequestParam(required = false) String act) {
     validateAct(act);

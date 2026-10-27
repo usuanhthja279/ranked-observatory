@@ -3,7 +3,7 @@ const $=id=>document.getElementById(id);
 const esc=value=>String(value??'—').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const time=v=>v?new Date(v).toLocaleString():'—';
 const fmt=v=>v==null?'—':Number(v).toLocaleString();
-const params=new URLSearchParams(location.search),view=params.get('view')||(location.pathname==='/leaderboard'?'global':location.pathname==='/players'?'profile':location.pathname==='/trends'?'trends':location.pathname==='/archive'?'archive':location.pathname==='/compare'?'compare':location.pathname==='/watchlist'?'watchlist':'world');
+const params=new URLSearchParams(location.search),view=params.get('view')||(location.pathname==='/leaderboard'?'global':location.pathname==='/players'?'profile':location.pathname==='/trends'?'trends':location.pathname==='/archive'?'archive':location.pathname==='/compare'?'compare':location.pathname==='/watchlist'?'watchlist':location.pathname==='/settings'?'settings':'world');
 let selectedAct=params.get('act')||'';let currentAct='';
 const playerPageSize=view==='country'||view==='global'?10:20;
 const playerSorts=new Set(['globalRank','regionalRank','name','country','tier','rr','rrChange','updated']);
@@ -274,6 +274,11 @@ function setCompareScope(){
  $('watchlistPageIntro').classList.remove('hidden');$('watchlistPageWorkspace').classList.remove('hidden');$('dataFreshness').classList.add('hidden');
  $('pageTitle').textContent='Your watchlist';document.title='Your watchlist · Valorant Ranked Observatory';$('subtitle').textContent='Save players, countries, regions and Acts to find them again.';
  $('masthead').classList.remove('region-masthead','country-masthead','overview-masthead');$('regionScenery').classList.add('hidden');
+}function setSettingsScope(){
+ for(const id of ['countriesDirectory','regionExperienceTabs','regionTabHint','regionOverviewPanel','regionDistributionPanel','regionSection','regionTableSection','overviewActivitySection','currentSection','countryMovementSection','playerSection','trendLayout','timelineSection','scopeSection','selectedPlayerSection','countrySection','regionPage','countryPreview','historySection','historicalTrendDisclosure','playerProfileIntro','playerProfileWorkspace','trendsPageIntro','trendsPageWorkspace','comparePageIntro','comparePage','archivePageIntro','archivePageWorkspace','watchlistPageIntro','watchlistPageWorkspace','globalPlayerCards','overviewPlayerSection','previewPlayerSection','dataFreshness','dataConfidence'])$(id)?.classList.add('hidden');
+ $('settingsPageIntro').classList.remove('hidden');$('settingsPageWorkspace').classList.remove('hidden');
+ $('pageTitle').textContent='Display settings';document.title='Display settings · Valorant Ranked Observatory';$('subtitle').textContent='Choose saved display preferences for your account.';
+ $('masthead').classList.remove('region-masthead','country-masthead','overview-masthead');$('regionScenery').classList.add('hidden');
 }function setTrendsScope(){
  for(const id of ['countriesDirectory','regionExperienceTabs','regionTabHint','regionOverviewPanel','regionDistributionPanel','regionSection','regionTableSection','overviewActivitySection','currentSection','countryMovementSection','playerSection','trendLayout','countrySection','countryPreview','historySection','timelineSection','scopeSection','playerProfileIntro','playerProfileWorkspace','selectedPlayerSection'])$(id).classList.add('hidden');
  $('dataConfidence').classList.remove('hidden');$('dataFreshness').classList.add('hidden');$('masthead').classList.remove('region-masthead','country-masthead','overview-masthead');$('regionScenery').classList.add('hidden');
@@ -286,6 +291,7 @@ function setScope(){
  if(view==='trends'){setTrendsScope();return;}
  if(view==='compare'){setCompareScope();return;}
  if(view==='watchlist'){setWatchlistScope();return;}
+ if(view==='settings'){setSettingsScope();return;}
  const historical=Boolean(data?.status?.archiveOnly),hasRegion=region!=='all',hasCountry=hasRegion&&country!=='all',detail=view==='region'||view==='country';
  $('overviewActivitySection').classList.toggle('hidden',view!=='world'||historical);$('masthead').classList.toggle('overview-masthead',view==='world');
  $('regionSection').classList.toggle('hidden',detail);$('regionTableSection').classList.toggle('hidden',detail);
@@ -361,6 +367,7 @@ async function refresh(){const version=++generation;try{
  if(view==='trends'){await refreshTrendsPage(version);return;}
  if(view==='compare'){setCompareScope();await globalThis.refreshComparePage?.();return;}
  if(view==='watchlist'){setWatchlistScope();await globalThis.refreshWatchlistPage?.();return;}
+ if(view==='settings'){setSettingsScope();await globalThis.refreshSettingsPage?.();return;}
  if(view==='archive'){await refreshArchiveExplorer(version);return;}
  if(selectedAct&&selectedAct!==currentAct){await refreshArchived(version);return;}
  if(view==='global'){await refreshGlobalPage(version);return;}
@@ -556,7 +563,7 @@ $('authForm').onsubmit=async e=>{e.preventDefault();$('authSubmit').disabled=tru
  await accountHeader();$('authDialog').close();
  }}catch(error){$('authMessage').textContent=error.message;}finally{$('authSubmit').disabled=false;}
 };
-async function accountHeader(){try{const r=await fetch('/api/account/me');if(!r.ok)return;const user=await r.json();if(!user.authenticated)return;$('accountControls').innerHTML=`<span class="account-avatar" aria-hidden="true">${esc(Array.from(user.name||user.username)[0].toUpperCase())}</span><span class="viewer-name" title="${esc(user.name)}">${esc(user.name)}</span><button id="signOut">Sign out</button>`;$('signOut').onclick=async()=>{try{const csrf=await api('csrf');const result=await fetch('/logout',{method:'POST',headers:{[csrf.header]:csrf.token}});if(!result.ok)throw new Error('Unable to sign out. Refresh and try again.');location.href='/leaderboard.html';}catch(error){$('message').textContent=error.message;}};}catch(ignored){}}
+async function accountHeader(){try{const r=await fetch('/api/account/me');if(!r.ok)return;const user=await r.json();if(!user.authenticated)return;$('accountControls').innerHTML=`<span class="account-avatar" aria-hidden="true">${esc(Array.from(user.name||user.username)[0].toUpperCase())}</span><span class="viewer-name" title="${esc(user.name)}">${esc(user.name)}</span><a href="/settings" class="account-settings-link">Settings</a><button id="signOut">Sign out</button>`;$('signOut').onclick=async()=>{try{const csrf=await api('csrf');const result=await fetch('/logout',{method:'POST',headers:{[csrf.header]:csrf.token}});if(!result.ok)throw new Error('Unable to sign out. Refresh and try again.');location.href='/leaderboard.html';}catch(error){$('message').textContent=error.message;}};}catch(ignored){}}
 $('subregionFilter').onchange=()=>{subregion=$('subregionFilter').value;countryPage=1;previewCountry=null;$('countryPreview').classList.add('hidden');renderTables();};
 const standingsDialog=$('standingsDialog');
 if(view==='world')standingsDialog.appendChild($('regionTableSection'));
