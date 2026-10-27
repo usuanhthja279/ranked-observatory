@@ -1,0 +1,49 @@
+.match-analyzer { min-width: 0; margin: 16px 0 28px; padding: clamp(18px, 3vw, 28px); border: 1px solid #2b4054; border-radius: 14px; background: linear-gradient(145deg, #15283c, #101d2c); color: #e2eaf3; }
+.match-analyzer-heading, .match-analyzer-match-header, .match-analyzer-table-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
+.match-analyzer-kicker { margin: 0 0 7px; color: #73d5c6; font-size: 10px; font-weight: 800; letter-spacing: .15em; }
+.match-analyzer h2 { margin: 0 0 7px; font-size: clamp(20px, 2.4vw, 27px); }
+.match-analyzer h3 { margin: 0 0 7px; font-size: 19px; }
+.match-analyzer h4 { margin: 0; font-size: 15px; }
+.match-analyzer-note, .match-analyzer p, .match-analyzer small { color: #9db2c8; }
+.match-analyzer-import { display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; margin: 18px 0; padding: 14px; border: 1px dashed #45627b; border-radius: 10px; background: #0d1a28; }
+.match-analyzer-import label, .match-analyzer-table-heading label { color: #c9d8e7; font-size: 13px; font-weight: 700; }
+.match-analyzer-import input { width: 100%; max-width: 520px; min-height: 38px; color: #c9d8e7; }
+.match-analyzer-import p { margin: 0; font-size: 13px; }
+.match-analyzer-match-header { align-items: center; padding: 16px 0; border-bottom: 1px solid #2b4054; }
+.match-analyzer-match-header p { margin: 5px 0 0; }
+.match-analyzer-source { font-size: 12px; }
+.match-analyzer a { color: #73d5c6; }
+.match-analyzer-final-score { flex: 0 0 auto; color: #f3f7fb; font-size: 23px; text-align: right; }
+.match-analyzer-final-score small { display: block; margin-top: 4px; font-size: 11px; font-weight: 500; }
+.match-analyzer-metrics { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin: 14px 0; }
+.match-analyzer-metrics > div, .match-analyzer-unknown { display: grid; gap: 6px; min-width: 0; padding: 12px; border: 1px solid #2b4054; border-radius: 10px; background: #102235; }
+.match-analyzer-metrics span, .match-analyzer-unknown span { color: #9db2c8; font-size: 12px; }
+.match-analyzer-metrics strong { font-size: 18px; overflow-wrap: anywhere; }
+.match-analyzer-pistols { display: grid; grid-template-columns: minmax(0, 1fr) minmax(220px, .7fr); align-items: center; gap: 12px; margin: 14px 0; padding: 14px; border: 1px solid #2b4054; border-radius: 10px; background: #102235; }
+.match-analyzer-pistols p { margin: 7px 0 0; }
+.match-analyzer-unknown strong { color: #f3c37a; font-size: 12px; }
+.match-analyzer-table-heading { align-items: center; margin: 20px 0 10px; }
+.match-analyzer-table-heading label { display: flex; align-items: center; gap: 8px; }
+.match-analyzer-table-heading select { min-width: 150px; min-height: 36px; padding: 6px 28px 6px 9px; border: 1px solid #35506a; border-radius: 8px; background: #112238; color: #e2eaf3; }
+.match-analyzer-table-wrap { max-width: 100%; overflow-x: auto; border: 1px solid #2b4054; border-radius: 9px; }
+.match-analyzer table { width: 100%; min-width: 600px; border-collapse: collapse; }
+.match-analyzer th, .match-analyzer td { padding: 10px 12px; border-bottom: 1px solid #25394d; text-align: left; white-space: nowrap; }
+.match-analyzer th { background: #182e43; color: #b7cbe0; font-size: 11px; text-transform: uppercase; letter-spacing: .05em; }
+.match-analyzer tbody tr:last-child td { border-bottom: 0; }
+.match-analyzer tbody tr.is-selected { background: #15374a; }
+.match-analyzer-round { padding: 4px 0; border: 0; background: none; color: #73d5c6; font: inherit; font-weight: 700; cursor: pointer; }
+.match-analyzer-result { display: inline-block; min-width: 42px; font-weight: 800; }
+.match-analyzer-result.is-win { color: #79d6ae; }
+.match-analyzer-result.is-loss { color: #f3a39a; }
+.match-analyzer td small { display: block; margin-top: 2px; font-size: 11px; text-transform: capitalize; }
+.match-analyzer-selected-round { margin: 12px 0 0; padding: 11px 13px; border-left: 3px solid #73d5c6; background: #102235; color: #d2dfeb !important; }
+.match-analyzer-provenance { margin: 16px 0 0; font-size: 12px; }
+@media (max-width: 760px) {
+  .match-analyzer { margin: 12px 0 22px; padding: 15px; }
+  .match-analyzer-match-header { align-items: flex-start; }
+  .match-analyzer-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .match-analyzer-pistols { grid-template-columns: minmax(0, 1fr); }
+  .match-analyzer-table-heading { align-items: flex-start; flex-direction: column; }
+  .match-analyzer-table-heading label { width: 100%; justify-content: space-between; }
+  .match-analyzer-table-heading select { flex: 1; }
+}
