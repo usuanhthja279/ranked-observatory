@@ -31,8 +31,9 @@
       const values=new Map();
       for(const row of Array.isArray(item.rows)?item.rows:[]){
         const stamp=row.completed_at||row.source_updated_at||row.observed_at,time=stamp?Date.parse(stamp):NaN,value=Number(row.players);
-        if(!Number.isFinite(time)||!Number.isFinite(value)||row.stats_ambiguous===true||row.carried_forward===true||Number(row.stats_ambiguous||0)>0||Number(row.carried_forward||0)>0)continue;
-        values.set(time,{time,value});timeSet.add(time);
+        if(!Number.isFinite(time)||!Number.isFinite(value))continue;
+        const explicitlyInvalid=row.stats_ambiguous===true||row.carried_forward===true;
+        values.set(time,{time,value:explicitlyInvalid?null:value});timeSet.add(time);
       }
       byLabel.set(String(item.label),values);
     }

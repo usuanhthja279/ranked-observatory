@@ -45,7 +45,7 @@
  function paintCountryPicker(){
   if((!isRegion()&&!isTrendCountries())||!$('actTrendCountryMulti'))return;
   $('actTrendCountryChips').innerHTML=state.selectedCountries.map(code=>`<button class="country-chip" type="button" data-remove-country="${esc(code)}" aria-label="Remove ${esc(countryDisplay(code))}">${esc(countryDisplay(code))}<span aria-hidden="true">×</span></button>`).join('');
-  $('actTrendCountryLimit').textContent=state.selectedCountries.length?`${state.selectedCountries.length} of 10 selected · leave empty to compare the leading countries.`:'';paintCountryOptions();
+  $('actTrendCountryLimit').textContent=state.selectedCountries.length?`${state.selectedCountries.length} of 10 selected · leave empty to compare the leading countries.`:'Showing the 6 leading countries by default. Select up to 10 to customize the chart.';paintCountryOptions();
  }
  function setCountryOptions(rows){
   const countries=[...new Set(rows.map(r=>r.country).filter(c=>c&&c!=='all'&&c!=='unknown'))].sort((a,b)=>countryDisplay(a).localeCompare(countryDisplay(b)));
@@ -57,7 +57,7 @@
  function visibleSeries(limit=6){
   const by=new Map();for(const row of selectedRows()){const name=label(row);if(!by.has(name))by.set(name,new Map());by.get(name).set(row.act,value(row,metricKey()))}
   let series=[...by].map(([name,points])=>({name,values:state.selectedActs.map(a=>points.get(a.act)??null)})).filter(item=>item.values.some(v=>v!=null));
-  series.sort((a,b)=>(b.values.filter(v=>v!=null).at(-1)||0)-(a.values.filter(v=>v!=null).at(-1)||0));return series.slice(0,isRegion()||isTrendCountries()?10:limit);
+  series.sort((a,b)=>(b.values.filter(v=>v!=null).at(-1)||0)-(a.values.filter(v=>v!=null).at(-1)||0));return series.slice(0,(isRegion()||isTrendCountries())&&state.selectedCountries.length?10:limit);
  }
  function paintChart(){
   const canvas=$('actTrendChart'),ctx=canvas.getContext('2d'),width=Math.max(280,canvas.clientWidth||700),height=canvas.clientHeight||270,ratio=window.devicePixelRatio||1;
@@ -145,7 +145,7 @@
    $('actTrendRegion').parentElement.style.display=countryFocus?'':'none';$('actTrendCountry').parentElement.style.display='none';
    if(countryFocus){ensureCountryPicker();$('actTrendCountryMulti').hidden=false;controls.querySelector('.act-trend-scope-row')?.append($('actTrendCountryMulti'))}else if($('actTrendCountryMulti'))$('actTrendCountryMulti').hidden=true;
    controls.querySelector('.act-trend-range-row').hidden=playerFocus;controls.querySelector('.act-trend-scope-row').hidden=playerFocus;
-   section.querySelector('#actTrendTierCoverage').hidden=playerFocus;section.querySelector('.act-trends-grid').hidden=playerFocus;$('actTrendPlayers').hidden=isRegion()||playerFocus;
+   section.querySelector('#actTrendTierCoverage').hidden=playerFocus;section.querySelector('.act-trends-grid').hidden=playerFocus;$('actTrendPlayers').hidden=isRegion()||playerFocus||view==='trends';
    $('actTrendPlayerWorkspace').hidden=!playerFocus;
    if(!playerFocus){paintCountryPicker();paintChart();paintTable()}
   };
@@ -159,10 +159,10 @@
   try{
    organizeControls();ensureTrendFocusControls();const[catalog,coverage]=await Promise.all([get('catalog'),get('capabilities')]);state.acts=catalog;state.capabilities=coverage.rows||[];
    if(!state.acts.length){$('actTrendCoverage').textContent='No complete historical acts yet';$('actTrendQuality').textContent='This panel will populate automatically after all six regional ladders for an act have reached a verified terminal page.';$('actTrendFrom').disabled=true;$('actTrendTo').disabled=true;return}
-   const opts=state.acts.map(a=>`<option value="${esc(a.act)}">${esc(a.label)}</option>`).join('');$('actTrendFrom').innerHTML=opts;$('actTrendTo').innerHTML=opts;$('actTrendCoverage').textContent=`${state.acts.filter(a=>!a.current_act).length} completed historical acts${state.acts.some(a=>a.current_act)?' · current snapshot available':''}`;$('actTrendTo').value=state.acts.at(-1).act;$('actTrendFrom').value=state.acts[Math.max(0,state.acts.length-6)].act;
+   const opts=state.acts.map(a=>`<option value="${esc(a.act)}">${esc(a.label)}</option>`).join('');$('actTrendFrom').innerHTML=opts;$('actTrendTo').innerHTML=opts;$('actTrendCoverage').textContent=`${state.acts.filter(a=>!a.current_act).length} completed historical acts${state.acts.some(a=>a.current_act)?' · current snapshot available':''}`;$('actTrendTo').value=state.acts.at(-1).act;const requestedActIndex=state.acts.findIndex(a=>a.act===query.get('act')),recentStart=Math.max(0,state.acts.length-6),fromIndex=isRegion()&&requestedActIndex>=0&&requestedActIndex<recentStart?requestedActIndex:recentStart;$('actTrendFrom').value=state.acts[fromIndex].act;
    state.region=regions[initialRegion]?initialRegion:'all';if(isRegion()||isCountry())state.region=initialRegion;if(isCountry()||view==='trends'&&initialCountry!=='all')state.country=initialCountry;if(isRegion()&&initialCountry!=='all')state.selectedCountries=[initialCountry];
    $('actTrendRegion').value=state.region;$('actTrendsSection').classList.toggle('country-act-trends',isCountry());
-   $('actTrendRegion').parentElement.style.display=isRegion()||isCountry()?'none':'';$('actTrendCountry').parentElement.style.display=isRegion()||isCountry()||isTrendCountries()?'none':'';$('actTrendCohort').parentElement.style.display=isCountry()?'none':'';$('actTrendMetric').parentElement.style.display=isCountry()?'none':'';$('actTrendMetricHelp').style.display=isCountry()?'none':'';$('actTrendPlayers').hidden=isRegion()||isTrendPlayer();
+   $('actTrendRegion').parentElement.style.display=isRegion()||isCountry()?'none':'';$('actTrendCountry').parentElement.style.display=isRegion()||isCountry()||isTrendCountries()?'none':'';$('actTrendCohort').parentElement.style.display=isCountry()?'none':'';$('actTrendMetric').parentElement.style.display=isCountry()?'none':'';$('actTrendMetricHelp').style.display=isCountry()?'none':'';$('actTrendPlayers').hidden=isRegion()||isTrendPlayer()||view==='trends';
    if(isRegion()){ensureCountryPicker();$('actTrendCohort').parentElement.before($('actTrendCountryMulti'));$('actTrendsSection').classList.add('region-act-trends')};if(isCountry())$('actTrendMetric').value='count';
    $('actTrendRegion').onchange=()=>{state.region=$('actTrendRegion').value;state.country='all';state.page=1;loadSeries();if($('actTrendPlayers').open)loadPlayers()};$('actTrendCountry').onchange=()=>{state.country=$('actTrendCountry').value;state.page=1;loadSeries();if($('actTrendPlayers').open)loadPlayers()};
    $('actTrendFrom').onchange=onRange;$('actTrendTo').onchange=onRange;

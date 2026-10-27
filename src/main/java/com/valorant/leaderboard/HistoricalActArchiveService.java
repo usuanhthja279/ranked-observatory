@@ -40,7 +40,7 @@ public class HistoricalActArchiveService {
   private volatile Connection workerLockConnection;
   private volatile boolean workerOwner;
   private static final int PAGE_CONCURRENCY=5;
-  @Value("${leaderboard.pause-all-extraction:false}") private boolean pauseAllExtraction;
+  @Value("${leaderboard.pause-archive-extraction:${leaderboard.pause-all-extraction:false}}") private boolean pauseAllExtraction;
   @Value("${leaderboard.historical.max-pages:10000}") private int maxPages=10000;
 
   public HistoricalActArchiveService(JdbcTemplate db,TrackerLeaderboardClient client,GlobalLeaderboardService liveLeaderboard,ObjectMapper mapper,PlatformTransactionManager tm,

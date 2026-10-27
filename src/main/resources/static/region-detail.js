@@ -55,7 +55,7 @@
     setVisible('countrySection', key === 'countries');
     setVisible('countryPreview', key === 'countries' && Boolean($('previewTitle')?.textContent.trim()));
     setVisible('scopeSection', key === 'movement');
-    setVisible('timelineSection', key === 'historical-trends');
+    setVisible('timelineSection', key === 'historical-trends' && !isArchiveView);
     setVisible('trendLayout', key === 'movement' || key === 'historical-trends');
     if (historicalDisclosure) {
       historicalDisclosure.hidden = isRegionView && key !== 'historical-trends';
