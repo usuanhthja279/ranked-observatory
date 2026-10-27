@@ -101,3 +101,27 @@ $env:Path="$env:JAVA_HOME\bin;$env:Path"
 ```
 
 Result: **BUILD SUCCESSFUL**. The analysis endpoint regression verifies selected-player opening kills are calculated from the authenticated import perspective after canonical shared data has had that perspective stripped. A different owner remains unable to read the match. Shared stored canonical JSON is unchanged.
+
+## M6 benchmark cohort verification
+
+Command:
+
+```powershell
+$env:JAVA_HOME='C:\Users\usuan\.jdks\dragonwell-21.0.12'
+$env:Path="$env:JAVA_HOME\bin;$env:Path"
+$env:LEADERBOARD_TEST_DB_URL='jdbc:postgresql://127.0.0.1:5435/ranked_observatory_redesign_test'
+# Credentials were loaded for the test process from the ignored, ACL-restricted local pgpass file.
+.\gradlew.bat test --tests com.valorant.leaderboard.matchintelligence.PostgresMatchIntelligenceIntegrationTest --tests com.valorant.leaderboard.StandaloneApplicationTest --no-daemon
+```
+
+Result: **BUILD SUCCESSFUL**. The Spring suite reported 19 passing tests. The native PostgreSQL suite reported 2 passing tests and 1 skipped optional local-export case. Its uniquely named schema migrated through V12 and verified cohort insert/read, permission-status caveat, import-derived identity/match coverage, owner isolation, and updated coverage after import deletion. The environment-variable values and password were not written to project documentation or output.
+
+Additional focused checks:
+
+```powershell
+node --check src/main/resources/static/match-intelligence-workspace.js
+node --test src/test/js/match-analyzer.test.cjs src/test/js/match-intelligence-client.test.cjs src/test/js/match-intelligence-workspace.test.cjs src/test/js/tracker-network-analysis.test.cjs
+git diff --check
+```
+
+Results: JavaScript syntax passed, 17 focused Node tests passed, and diff check passed. ChatGPT in-app browser inspection used a synthetic fixture: desktop and 390px mobile benchmark panels rendered; with 1 eligible reference player and 5 unique matches, the interface displayed `Insufficient Evidence` and suppressed reference medians/quartiles. This is synthetic visual verification, not a real authenticated backend journey. The active Observatory process was not restarted.

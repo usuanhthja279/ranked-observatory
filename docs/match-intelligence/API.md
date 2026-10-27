@@ -47,3 +47,21 @@ Returns the round, participant round records, damage interactions, events, and d
 Controller validation, missing/unauthorized match links, bad identifiers, oversized requests and busy imports return an HTTP error with a concise JSON `message`. Unauthorized reads return 401; CSRF failures return 403; a resource owned by another account is indistinguishable from a missing resource (404). Error responses never include raw exports.
 
 These APIs have H2-backed Spring acceptance coverage. The native PostgreSQL migration/API acceptance test is opt-in and requires `LEADERBOARD_TEST_DB_URL`, `LEADERBOARD_TEST_DB_USERNAME`, and `LEADERBOARD_TEST_DB_PASSWORD` configured for the dedicated `ranked_observatory_redesign_test` database; it creates and drops only a unique schema there.
+
+## Benchmarks — M6
+
+### `GET /benchmarks`
+
+Lists the authenticated owner's reference cohorts, including member-level import counts, unique match counts, identity availability and source-coverage counts. Cohort selection ranks and access-status statements are owner-entered, not independently verified.
+
+### `POST /benchmarks`
+
+Creates a private ten-member cohort. Requires a CSRF token. Body fields: `name`, supported `region` (`ap`, `eu`, `na`, `br`, `kr`, `latam`), `actId`, `leaderboardSnapshotDate`, `dataAccessStatus` (`UNCONFIRMED` or `OWNER_REPORTED_PERMISSION`), and exactly ten `members`. Each member has a unique `selectionRank` 1–10, `riotId`, optional `displayName`, and `matchesRequested` 1–20 (default 20). The latter status is only an owner statement; the API does not verify external permission or leaderboard rank.
+
+### `GET /benchmarks/{cohortId}`
+
+Returns one owner-private cohort and derived import/source-coverage metadata. Another account receives 404.
+
+### `GET /players/{playerId}/benchmark-comparison?cohortId={id}&map={map}&mode={mode}&agent={agent}`
+
+Returns comparison of the authenticated owner's imported player records against the specified owner-owned cohort. The cohort Act and ranked Competitive mode are required context; optional filters narrow by map, exact mode name and agent. The subject is omitted from the cohort distribution when their Riot ID matches a member. The response reports per-player reference median and quartiles, subject values, metric-specific player/match counts, and limitations. Reference distribution values are withheld until at least ten eligible reference players and twenty unique reference matches remain in the scenario. Quartiles are between-player spread, not confidence intervals. Unsupported context is not guessed.

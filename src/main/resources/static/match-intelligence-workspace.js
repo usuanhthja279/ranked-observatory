@@ -49,7 +49,7 @@
   const api = { summarize, filterRounds };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   if (typeof window === 'undefined' || typeof document === 'undefined') return;
-  const style = document.createElement('link'); style.rel='stylesheet'; style.href='/match-analyzer.css?v=5'; document.head.append(style);
+  const style = document.createElement('link'); style.rel='stylesheet'; style.href='/match-analyzer.css?v=6'; document.head.append(style);
   const params = new URLSearchParams(location.search), profilePlayer = params.get('player');
   const host = profilePlayer ? document.getElementById('playerProfileWorkspace') : document.getElementById('matchAnalysisPageWorkspace');
   if (!host) return;
@@ -58,6 +58,7 @@
   host.append(root);
   const status = root.querySelector('.mi-status'), content = root.querySelector('[data-mi-content]');
   let pageRows = [], selected = null, detailCache = new Map(), analysisCache = new Map(), activeTab = 'overview', roundMode = 'all', selectedRound = null, generation = 0;
+  let benchmarkCohorts=[], benchmarkSelectedId='', benchmarkResult=null, benchmarkMessage='', benchmarkLoading=false;
   const esc = value => String(value ?? '—').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const val = value => value === null || value === undefined ? 'Not reported' : esc(value);
   const duration = ms => Number.isFinite(ms) ? Math.floor(ms/60000) + 'm ' + Math.floor(ms%60000/1000) + 's' : 'Not reported';
@@ -69,13 +70,25 @@
     const type = response.headers.get('content-type') || ''; if (!type.includes('application/json')) throw new Error('The match API returned an unexpected response.');
     return response.json();
   }
+  async function postJson(url, body) {
+    const csrf=await getJson('/csrf');
+    const response=await fetch(url,{method:'POST',credentials:'same-origin',headers:{Accept:'application/json','Content-Type':'application/json',[csrf.header]:csrf.token},body:JSON.stringify(body)});
+    if(response.status===401||response.status===403)throw new Error('Sign in is required to manage private reference cohorts.');
+    if(!response.ok){let message='The benchmark request could not be saved.';try{message=(await response.json()).message||message;}catch{}throw new Error(message);}
+    return response.json();
+  }
+  async function loadBenchmarks() {
+    if(!profilePlayer)return;
+    try { benchmarkCohorts=await getJson('/api/match-intelligence/benchmarks'); if(!benchmarkCohorts.some(c=>c.cohortId===benchmarkSelectedId))benchmarkSelectedId=benchmarkCohorts[0]?.cohortId||''; }
+    catch(error){benchmarkMessage=String(error.message||error);}
+  }
   async function load() {
     const current = ++generation; status.textContent = 'Loading saved matches…'; content.hidden = true;
     try {
       const path = profilePlayer ? '/api/match-intelligence/players/' + encodeURIComponent(profilePlayer) + '/matches?size=20' : '/api/match-intelligence/matches?size=20';
       const page = await getJson(path); if (current !== generation) return;
       pageRows = Array.isArray(page.matches) ? page.matches : [];
-      if (!pageRows.length) { status.textContent = 'No saved match imports are available for this account and player yet.'; return; }
+      if (!pageRows.length) { await loadBenchmarks(); if(current!==generation)return; renderList(); status.textContent = 'No saved match imports are available for this account and player yet.'; content.hidden=false; return; }
       status.textContent = 'Loading verified match summaries…';
       const queue = [...pageRows];
       await Promise.all(Array.from({length:Math.min(4,queue.length)}, async () => {
@@ -86,6 +99,7 @@
         }
       }));
       if (current !== generation) return;
+      await loadBenchmarks(); if(current!==generation)return;
       renderList(); status.textContent = page.total + ' authorized match(es) · latest ' + pageRows.length + ' shown. Summary figures use stored source records.'; content.hidden=false;
       if (selected && detailCache.has(selected.providerMatchId)) renderDetail(detailCache.get(selected.providerMatchId));
     } catch (error) { if (current === generation) { status.textContent=String(error.message||error); content.hidden=true; } }
@@ -93,8 +107,42 @@
   function renderList() {
     const s=summarize(pageRows,detailCache), sampleNote=s.sample<5?'Small sample · fewer than 5 matches are available.':'Based on '+s.sample+' saved matches.';
     const rows=pageRows.map(row=>`<button type="button" class="mi-match${selected?.providerMatchId===row.providerMatchId?' is-selected':''}" data-mi-match="${esc(row.providerMatchId)}"><strong>${esc(row.summary?.map||'Map not reported')} · ${esc(row.summary?.mode||'Mode not reported')}</strong><span>${esc(row.selectedPlayer)} · ${esc(row.summary?.startedAt?new Date(row.summary.startedAt).toLocaleString():'Date not reported')} · ${esc(row.quality)}</span><span>Team ${esc(row.selectedTeam||'unknown')} · ${esc(Object.entries(row.summary?.teamScores||{}).map(([team,score])=>team+': '+score).join(' / ')||'score unavailable')}</span></button>`).join('');
-    content.innerHTML=`<div class="mi-overview-grid"><article><span>Saved sample</span><strong>${s.sample}</strong><small>${sampleNote}</small></article><article><span>Win / loss</span><strong>${s.wins} / ${s.losses}</strong><small>From selected-team final scores · ${s.unknownOutcomes} unknown</small></article><article><span>Aggregate K / D / A</span><strong>${s.kills??'—'} / ${s.deaths??'—'} / ${s.assists??'—'}</strong><small>Missing source stats are excluded</small></article><article><span>Average ACS · ADR</span><strong>${s.averageAcs===null?'Not reported':s.averageAcs.toFixed(1)} · ${s.averageAdr===null?'Not reported':s.averageAdr.toFixed(1)}</strong><small>Mean of matches reporting each measure</small></article><article><span>Opening K / D</span><strong>${s.firstKills===null?'Not reported':s.firstKills+' / '+(s.firstDeaths??'Not reported')}</strong><small>Source summary only; not yet contextualized</small></article><article><span>Regulation pistol rounds</span><strong>${s.pistolRounds ? `${s.pistolWins} / ${s.pistolRounds} wins` : 'Not reported'}</strong><small>Only rounds 1 and 13 where captured</small></article><article><span>Recorded economy rows</span><strong>${s.economyRows || 'Not reported'}</strong><small>${s.averageSpend===null ? 'Spend not reported' : 'Average recorded spend '+s.averageSpend.toFixed(0)} · buy categories not inferred</small></article><article><span>Maps · agents</span><strong>${[...s.maps.slice(0,2).map(x=>x[0]),...s.agents.slice(0,2).map(x=>x[0])].map(esc).join(' · ') || 'Not reported'}</strong><small>Observed sample usage</small></article></div><div class="mi-split"><section class="mi-match-list" aria-label="Saved matches"><h3>Recent analyzed matches</h3>${rows}</section><section class="mi-detail" data-mi-detail><p class="mi-empty">Choose a match to inspect verified rounds, events, economy fields and coverage.</p></section></div>`;
+    content.innerHTML=`<div class="mi-overview-grid"><article><span>Saved sample</span><strong>${s.sample}</strong><small>${sampleNote}</small></article><article><span>Win / loss</span><strong>${s.wins} / ${s.losses}</strong><small>From selected-team final scores · ${s.unknownOutcomes} unknown</small></article><article><span>Aggregate K / D / A</span><strong>${s.kills??'—'} / ${s.deaths??'—'} / ${s.assists??'—'}</strong><small>Missing source stats are excluded</small></article><article><span>Average ACS · ADR</span><strong>${s.averageAcs===null?'Not reported':s.averageAcs.toFixed(1)} · ${s.averageAdr===null?'Not reported':s.averageAdr.toFixed(1)}</strong><small>Mean of matches reporting each measure</small></article><article><span>Opening K / D</span><strong>${s.firstKills===null?'Not reported':s.firstKills+' / '+(s.firstDeaths??'Not reported')}</strong><small>Source summary only; not yet contextualized</small></article><article><span>Regulation pistol rounds</span><strong>${s.pistolRounds ? `${s.pistolWins} / ${s.pistolRounds} wins` : 'Not reported'}</strong><small>Only rounds 1 and 13 where captured</small></article><article><span>Recorded economy rows</span><strong>${s.economyRows || 'Not reported'}</strong><small>${s.averageSpend===null ? 'Spend not reported' : 'Average recorded spend '+s.averageSpend.toFixed(0)} · buy categories not inferred</small></article><article><span>Maps · agents</span><strong>${[...s.maps.slice(0,2).map(x=>x[0]),...s.agents.slice(0,2).map(x=>x[0])].map(esc).join(' · ') || 'Not reported'}</strong><small>Observed sample usage</small></article></div>${profilePlayer?benchmarkPanel():''}<div class="mi-split"><section class="mi-match-list" aria-label="Saved matches"><h3>Recent analyzed matches</h3>${rows||'<p class="mi-empty">No saved matches are available for this player yet.</p>'}</section><section class="mi-detail" data-mi-detail><p class="mi-empty">Choose a match to inspect verified rounds, events, economy fields and coverage.</p></section></div>`;
     content.querySelectorAll('[data-mi-match]').forEach(button=>button.addEventListener('click',()=>{selected=pageRows.find(r=>r.providerMatchId===button.dataset.miMatch)||null;activeTab='overview';roundMode='all';selectedRound=null;renderList();const view=detailCache.get(selected.providerMatchId);if(view)renderDetail(view);}));
+    if(profilePlayer)wireBenchmarkPanel();
+  }
+  function benchmarkPanel() {
+    const options=benchmarkCohorts.map(c=>`<option value="${esc(c.cohortId)}"${c.cohortId===benchmarkSelectedId?' selected':''}>${esc(c.name)} · ${esc(c.region.toUpperCase())} · ${esc(c.actId)}</option>`).join('');
+    let result='<p class="mi-empty">Choose a saved cohort to compare this player.</p>';
+    if(benchmarkMessage)result=`<p class="mi-empty" role="alert">${esc(benchmarkMessage)}</p>`;
+    if(benchmarkLoading)result='<p class="mi-empty" role="status">Calculating an owner-scoped comparison…</p>';
+    if(benchmarkResult){
+      const c=benchmarkResult;
+      const metricRows=(c.metrics||[]).map(m=>`<article><span>${esc(m.label)}</span><strong>${m.subjectValue===null?'Not available':Number(m.subjectValue).toFixed(3)} vs ${m.referenceMedian===null?'Insufficient evidence':Number(m.referenceMedian).toFixed(3)}</strong><small>Subject sample: ${m.subjectMatches} matches · reference: ${m.playersWithMetric} players, ${m.uniqueReferenceMatches} unique matches · IQR ${m.referenceP25===null?'not available':Number(m.referenceP25).toFixed(3)+'–'+Number(m.referenceP75).toFixed(3)}</small>${m.difference===null?'':`<small>Observed difference from median: ${Number(m.difference).toFixed(3)} ${esc(m.unit)}</small>`}</article>`).join('');
+      const cohort=benchmarkCohorts.find(x=>x.cohortId===c.cohortId);
+      result=`<div class="mi-benchmark-summary"><strong>${c.status==='OBSERVED'?'Reference comparison available':'Insufficient Evidence'}</strong><span>${esc(c.scenario)}</span><small>${c.eligibleReferencePlayers} reference players · ${c.uniqueReferenceMatches} unique reference matches · ${c.subjectUniqueMatches} subject matches${c.excludedSubjectMatches?` · excluded ${c.excludedSubjectMatches} subject match(es)`:''}</small></div>${c.status==='INSUFFICIENT_EVIDENCE'?'<p>Reference results stay hidden until at least 10 eligible players and 20 unique reference matches are available.</p>':''}<div class="mi-overview-grid">${metricRows}</div><details class="mi-benchmark-coverage"><summary>Members and source coverage</summary>${cohort?`<div class="mi-table-wrap"><table><thead><tr><th>Selection rank</th><th>Player</th><th>Selection rank vs match rank</th><th>Imported / unique</th><th>Coverage</th></tr></thead><tbody>${cohort.members.map(m=>`<tr><td>${m.selectionRank}</td><td>${esc(m.displayName||m.riotId)}</td><td>Selected #${m.selectionRank} · match ranks ${esc(m.rankAtMatch.join(', ')||'not reported')}</td><td>${m.matchesSuccessfullyImported} / ${m.uniqueMatches} of ${m.matchesRequested} requested</td><td>${esc(Object.entries(m.sourceCoverage).map(([k,v])=>k+': '+v).join(' · ')||'No analyzable source coverage')}</td></tr>`).join('')}</tbody></table></div>`:''}</details><ul class="mi-benchmark-limits">${c.limitations.map(x=>`<li>${esc(x)}</li>`).join('')}</ul>`;
+    }
+    return `<section class="mi-benchmark" aria-labelledby="miBenchmarkTitle"><p class="mi-kicker">CONTEXTUAL REFERENCE</p><h3 id="miBenchmarkTitle">Benchmark comparison</h3><p>Compare this imported player with a private, owner-entered reference cohort. Selected leaderboard rank and rank reported in match data are shown separately.</p><div class="mi-benchmark-controls"><label>Reference cohort<select data-mi-benchmark-cohort><option value="">${benchmarkCohorts.length?'Choose a cohort':'No cohorts saved yet'}</option>${options}</select></label><label>Map filter<input data-mi-benchmark-map maxlength="100" placeholder="Any map"></label><label>Mode filter<input data-mi-benchmark-mode maxlength="80" placeholder="Competitive"></label><label>Agent filter<input data-mi-benchmark-agent maxlength="80" placeholder="Any agent"></label><button type="button" data-mi-benchmark-compare${benchmarkCohorts.length?'':' disabled'}>Compare selected player</button></div><p class="mi-benchmark-note" role="status" aria-live="polite">${benchmarkLoading?'Loading…':''}</p>${result}<details class="mi-benchmark-create"><summary>Create a 10-player reference cohort</summary><p>Enter ten Riot IDs, one per line, in selection-rank order. Optional display name can follow a vertical bar. Matches and evidence coverage are derived only from imports in this account. Rank/date and permission status are owner-entered and not independently verified.</p><form data-mi-benchmark-form><label>Cohort name<input name="name" required maxlength="160" value="Radiant reference · ${new Date().toISOString().slice(0,10)}"></label><div class="mi-benchmark-controls"><label>Region<select name="region"><option value="ap">Asia-Pacific</option><option value="na">North America</option><option value="eu">Europe</option><option value="br">Brazil</option><option value="kr">Korea</option><option value="latam">Latin America</option></select></label><label>Act identifier<input name="actId" required maxlength="160" placeholder="Act identifier"></label><label>Leaderboard snapshot date<input name="snapshotDate" type="date" required value="${new Date().toISOString().slice(0,10)}"></label></div><label>Ten selected players<textarea name="members" rows="6" required placeholder="PlayerOne#TAG\nPlayerTwo#TAG\n…\nPlayerTen#TAG"></textarea></label><label class="mi-benchmark-consent"><input type="checkbox" name="permission"> I report that I have permission to use the listed match data (stored as an owner statement only; not verified by the service).</label><button type="submit">Save reference cohort</button></form></details></section>`;
+  }
+  function wireBenchmarkPanel() {
+    const select=content.querySelector('[data-mi-benchmark-cohort]');
+    select?.addEventListener('change',()=>{benchmarkSelectedId=select.value;benchmarkResult=null;benchmarkMessage='';renderList();});
+    content.querySelector('[data-mi-benchmark-compare]')?.addEventListener('click',async()=>{
+      if(!benchmarkSelectedId)return;
+      const button=content.querySelector('[data-mi-benchmark-compare]');button.disabled=true;benchmarkLoading=true;benchmarkMessage='';benchmarkResult=null;renderList();
+      const q=new URLSearchParams({cohortId:benchmarkSelectedId});
+      for(const [key,selector] of [['map','[data-mi-benchmark-map]'],['mode','[data-mi-benchmark-mode]'],['agent','[data-mi-benchmark-agent]']]){const value=content.querySelector(selector)?.value.trim();if(value)q.set(key,value);}
+      try{benchmarkResult=await getJson('/api/match-intelligence/players/'+encodeURIComponent(profilePlayer)+'/benchmark-comparison?'+q.toString());}
+      catch(error){benchmarkMessage=String(error.message||error);}
+      finally{benchmarkLoading=false;renderList();}
+    });
+    content.querySelector('[data-mi-benchmark-form]')?.addEventListener('submit',async event=>{
+      event.preventDefault();const form=event.currentTarget,button=form.querySelector('button[type=submit]');button.disabled=true;benchmarkMessage='Saving the cohort…';renderList();
+      const data=new FormData(form), lines=String(data.get('members')||'').split(/\r?\n/).map(line=>line.trim()).filter(Boolean);
+      const members=lines.map((line,index)=>{const [riotId,...label]=line.split('|');return{selectionRank:index+1,riotId:riotId.trim(),displayName:label.join('|').trim()||null,matchesRequested:20};});
+      try{const created=await postJson('/api/match-intelligence/benchmarks',{name:data.get('name'),region:data.get('region'),actId:data.get('actId'),leaderboardSnapshotDate:data.get('snapshotDate'),dataAccessStatus:form.elements.permission.checked?'OWNER_REPORTED_PERMISSION':'UNCONFIRMED',members});benchmarkSelectedId=created.cohortId;benchmarkResult=null;benchmarkMessage='Cohort saved. Import coverage is derived from this account’s stored matches.';await loadBenchmarks();renderList();}
+      catch(error){benchmarkMessage=String(error.message||error);renderList();}
+    });
   }
   function renderDetail(view) {
     const pane=content.querySelector('[data-mi-detail]'); if(!pane)return;

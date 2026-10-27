@@ -96,3 +96,26 @@ M5 is complete. M6 contextual benchmarks and cohort/sample adequacy are next; M7
 A post-phase review found that canonical match versions intentionally strip selected-player identity so shared match records do not retain an importing account's perspective. The analysis route now restores the requesting owner's selected-player perspective in memory from that owner's import link before calculating player metrics. It does not alter the shared canonical record or widen owner-scoped access.
 
 Focused verification: the Spring endpoint regression asserts that the selected player's opening-kill metric is computed as 1/1 for the owner and that another account still receives not found. `StandaloneApplicationTest` passed with the focused M5 analyzer suite. This correction was found before beginning M6.
+
+## Phase M6 — Contextual benchmark cohorts
+
+**Complete.** Added Flyway V12 owner-private cohort and membership storage. Owners can record a ten-player selection with rank at selection, region, Act, snapshot date, up to twenty requested matches per member, and an explicit access-status statement. The API does not verify rank or consent. Member imports, distinct match IDs, identity availability, match-time rank labels, and source coverage are computed from that account's stored imports. Cohort rows cascade-delete with the cohort; canonical shared match data is not modified.
+
+The comparison endpoint is owner-scoped and uses only ranked Competitive matches in the cohort Act. Optional map, exact mode-name, and agent filters narrow the scenario. It aggregates each eligible player's deterministic M5 metric across that player's matches first, then calculates the reference median and interquartile spread across players. The subject is excluded by Riot ID. Shared IDs count once in unique-match coverage. At least ten reference players and twenty unique reference matches are required before reference median/quartiles are shown; metric-level coverage is also reported. The interquartile range is labeled as between-player spread, not a confidence interval. Unsupported categories and equal opponent difficulty are not inferred.
+
+### Verification
+
+- `JAVA_HOME=C:\Users\usuan\.jdks\dragonwell-21.0.12 .\gradlew.bat test --tests com.valorant.leaderboard.matchintelligence.PostgresMatchIntelligenceIntegrationTest --tests com.valorant.leaderboard.StandaloneApplicationTest --no-daemon` — **BUILD SUCCESSFUL**. `StandaloneApplicationTest`: 19 passed. Native PostgreSQL test suite: 2 passed, 1 opt-in local-export test skipped. The PG tests applied Flyway V1–V12 in unique schemas on the isolated 5435 database, verified cohort persistence/import-derived coverage/owner isolation, and confirmed import deletion removes the cohort's derived match coverage. No live 5434 database was used.
+- `node --check src/main/resources/static/match-intelligence-workspace.js` — passed.
+- `node --test src/test/js/match-analyzer.test.cjs src/test/js/match-intelligence-client.test.cjs src/test/js/match-intelligence-workspace.test.cjs src/test/js/tracker-network-analysis.test.cjs` — 17 passed.
+- `git diff --check` — passed.
+- ChatGPT in-app browser inspected the actual M6 workspace source with synthetic API fixtures. Desktop showed the cohort selector, scenario filters, comparison and evidence limit. Mobile stacked the filter fields and withheld reference statistics for a synthetic cohort with 1 eligible player and 5 unique matches. This confirms the insufficient-evidence UI behavior only; it is not authenticated backend/browser verification. The screenshot inspection found and fixed filter-field overflow and spacing.
+- The Observatory on port 8090 was not restarted, and live/archive extraction settings were not changed. The temporary 8092 preview used only synthetic data.
+
+### Limitations
+
+No high-rank cohort was collected or verified. `OWNER_REPORTED_PERMISSION` and rank selection are unverified owner statements. Match-time rank labels are source-reported observations. No bootJar/production workflow or authenticated browser-backed benchmark run is claimed in this phase. Within-match clustering is not estimated; quartiles are descriptive spread only. Economy buy labels, role equivalence and lobby strength are unavailable and excluded.
+
+### Phase boundary
+
+M6 is complete. M7 model evaluation/AI explanations and M8 end-to-end release-readiness audit remain unstarted.

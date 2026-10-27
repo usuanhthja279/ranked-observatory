@@ -20,10 +20,11 @@ import jakarta.servlet.http.HttpServletRequest;
 public class MatchIntelligenceController {
   private final MatchIntelligenceStore store;
   private final DeterministicMatchAnalyzer analyzer;
+  private final MatchBenchmarkService benchmarks;
   private final Semaphore importPermit = new Semaphore(1);
-  public MatchIntelligenceController(MatchIntelligenceStore store, DeterministicMatchAnalyzer analyzer) {
-    this.store = store;
-    this.analyzer = analyzer;
+  public MatchIntelligenceController(MatchIntelligenceStore store, DeterministicMatchAnalyzer analyzer,
+      MatchBenchmarkService benchmarks) {
+    this.store = store; this.analyzer = analyzer; this.benchmarks = benchmarks;
   }
 
   @PostMapping(value="/imports", consumes=MediaType.APPLICATION_JSON_VALUE)
@@ -94,6 +95,32 @@ public class MatchIntelligenceController {
   public DeterministicMatchAnalyzer.Report analysis(Authentication authentication, @PathVariable String matchId) {
     // Reuse the owner-scoped lookup so the analyzer cannot expose another account's match.
     return analyzer.analyze(store.getMatch(authentication.getName(), matchId).withSelectedPerspective());
+  }
+
+  @GetMapping("/benchmarks")
+  public java.util.List<MatchBenchmarkService.Cohort> benchmarks(Authentication authentication) {
+    return benchmarks.list(authentication.getName());
+  }
+
+  @PostMapping(value="/benchmarks", consumes=MediaType.APPLICATION_JSON_VALUE)
+  public ResponseEntity<MatchBenchmarkService.Cohort> createBenchmark(Authentication authentication,
+      @RequestBody MatchBenchmarkService.CreateInput input) {
+    return ResponseEntity.status(HttpStatus.CREATED).body(benchmarks.create(authentication.getName(), input));
+  }
+
+  @GetMapping("/benchmarks/{cohortId}")
+  public MatchBenchmarkService.Cohort benchmark(Authentication authentication, @PathVariable String cohortId) {
+    if (cohortId == null || !cohortId.matches("[0-9a-fA-F-]{36}")) throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Benchmark cohort was not found for this account.");
+    return benchmarks.get(authentication.getName(), cohortId);
+  }
+
+  @GetMapping("/players/{playerId}/benchmark-comparison")
+  public MatchBenchmarkService.Comparison benchmarkComparison(Authentication authentication,
+      @PathVariable String playerId, @RequestParam String cohortId,
+      @RequestParam(required=false) String map, @RequestParam(required=false) String mode,
+      @RequestParam(required=false) String agent) {
+    if (cohortId == null || !cohortId.matches("[0-9a-fA-F-]{36}")) throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Benchmark cohort was not found for this account.");
+    return benchmarks.compare(authentication.getName(), cohortId, playerId, map, mode, agent);
   }
 
   @GetMapping("/matches/{matchId}/rounds/{roundNumber}")

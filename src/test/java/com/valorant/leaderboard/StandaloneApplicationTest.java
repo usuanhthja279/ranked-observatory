@@ -273,6 +273,34 @@ class StandaloneApplicationTest {
         .andExpect(jsonPath("$.findings[0].matchId").value(MatchIntelligenceFixtures.MATCH_ID));
     mvc.perform(get("/api/match-intelligence/matches/"+MatchIntelligenceFixtures.MATCH_ID+"/analysis").with(other))
         .andExpect(status().isNotFound());
+    mvc.perform(get("/api/match-intelligence/benchmarks")).andExpect(status().isUnauthorized());
+    mvc.perform(get("/api/match-intelligence/benchmarks").with(owner)).andExpect(status().isOk())
+        .andExpect(jsonPath("$",org.hamcrest.Matchers.hasSize(0)));
+    String members = java.util.stream.IntStream.rangeClosed(1,10).mapToObj(rank ->
+        "{\"selectionRank\":"+rank+",\"riotId\":\""+(rank==1?MatchIntelligenceFixtures.PLAYER:"Radiant "+rank+"#TAG")+"\",\"displayName\":\"Selected #"+rank+"\",\"matchesRequested\":20}")
+        .collect(java.util.stream.Collectors.joining(","));
+    String cohortRequest = "{\"name\":\"Synthetic top-rank reference\",\"region\":\"ap\",\"actId\":\"synthetic-act\",\"leaderboardSnapshotDate\":\"2026-10-27\",\"dataAccessStatus\":\"OWNER_REPORTED_PERMISSION\",\"members\":["+members+"]}";
+    mvc.perform(post("/api/match-intelligence/benchmarks").with(owner).contentType("application/json").content(cohortRequest))
+        .andExpect(status().isForbidden());
+    var cohortCreated=mvc.perform(post("/api/match-intelligence/benchmarks").with(owner).with(csrf()).contentType("application/json").content(cohortRequest))
+        .andExpect(status().isCreated()).andExpect(jsonPath("$.dataAccessStatusMeaning").value(org.hamcrest.Matchers.containsString("not independently verified")))
+        .andExpect(jsonPath("$.uniqueMatches").value(1)).andExpect(jsonPath("$.members",org.hamcrest.Matchers.hasSize(10)))
+        .andExpect(jsonPath("$.members[0].identityAvailable").value(true)).andExpect(jsonPath("$.members[0].matchesSuccessfullyImported").value(1))
+        .andExpect(jsonPath("$.members[1].identityAvailable").value(false)).andReturn();
+    String cohortId=com.fasterxml.jackson.databind.json.JsonMapper.builder().build().readTree(cohortCreated.getResponse().getContentAsString()).path("cohortId").asText();
+    mvc.perform(get("/api/match-intelligence/benchmarks/"+cohortId).with(other)).andExpect(status().isNotFound());
+    mvc.perform(get("/api/match-intelligence/players/{playerId}/benchmark-comparison","Player 0#TAG").with(owner).param("cohortId",cohortId))
+        .andExpect(status().isOk()).andExpect(jsonPath("$.status").value("INSUFFICIENT_EVIDENCE"))
+        .andExpect(jsonPath("$.eligibleReferencePlayers").value(0)).andExpect(jsonPath("$.excludedSubjectMatches").value(1))
+        .andExpect(jsonPath("$.metrics[0].referenceMedian").doesNotExist());
+    mvc.perform(get("/api/match-intelligence/players/{playerId}/benchmark-comparison","Unrelated#TAG").with(owner).param("cohortId",cohortId))
+        .andExpect(status().isOk()).andExpect(jsonPath("$.status").value("INSUFFICIENT_EVIDENCE"))
+        .andExpect(jsonPath("$.eligibleReferencePlayers").value(1)).andExpect(jsonPath("$.uniqueReferenceMatches").value(1))
+        .andExpect(jsonPath("$.metrics[0].playersWithMetric").value(1)).andExpect(jsonPath("$.metrics[0].uniqueReferenceMatches").value(1))
+        .andExpect(jsonPath("$.metrics[0].referenceMedian").doesNotExist());
+    String duplicateMemberRequest=cohortRequest.replace("Radiant 2#TAG","player 0#tag");
+    mvc.perform(post("/api/match-intelligence/benchmarks").with(owner).with(csrf()).contentType("application/json").content(duplicateMemberRequest))
+        .andExpect(status().isBadRequest());
     mvc.perform(get("/api/match-intelligence/matches/"+MatchIntelligenceFixtures.MATCH_ID+"/rounds/1").with(owner)).andExpect(status().isOk())
         .andExpect(jsonPath("$.roundNumber").value(1)).andExpect(jsonPath("$.playerRounds",org.hamcrest.Matchers.hasSize(10)));
     mvc.perform(get("/api/match-intelligence/matches/"+MatchIntelligenceFixtures.MATCH_ID).with(other)).andExpect(status().isNotFound());
