@@ -2,10 +2,11 @@
  * Paste into the Tracker page's developer console. It reads rendered UI only,
  * clicks the visible round selector, and downloads a local JSON file.
  */
-(async () => {
+async function captureTrackerMatch(playerInput, sourceUrl = location.href, isCancelled = () => false) {
   const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
   const readNumber = value => {
-    const parsed = Number(String(value || '').replace(/[,%+\s]/g, '').replace(/,/g, ''));
+    if (value === null || value === undefined || String(value).trim() === '') throw new Error('A required numeric value is missing.');
+    const parsed = Number(String(value).replace(/[,%+\s]/g, ''));
     if (!Number.isFinite(parsed)) throw new Error(`Could not read numeric value: ${value}`);
     return parsed;
   };
@@ -15,8 +16,11 @@
     if (!encoded) return '';
     try { return decodeURIComponent(encoded); } catch { return ''; }
   };
-  try {
-    const matchId = location.pathname.match(/^\/valorant\/match\/([0-9a-f-]{8,64})\/?$/i)?.[1];
+  {
+    const source = new URL(sourceUrl);
+    if (source.origin !== 'https://tracker.gg') throw new Error('Match source must be tracker.gg.');
+    sourceUrl = source.href;
+    const matchId = source.pathname.match(/^\/valorant\/match\/([0-9a-f-]{8,64})\/?$/i)?.[1];
     if (!matchId) throw new Error('Open a Tracker VALORANT match page before running this helper.');
     const mode = document.querySelector('.vm-header-info .trn-match-drawer__header-label')?.innerText?.trim();
     const map = document.querySelector('.vm-header-info .trn-match-drawer__header-value')?.innerText?.trim();
@@ -35,7 +39,6 @@
     if (!scoreboardTab || !roundsTab) throw new Error('Expected Scoreboard and Rounds tabs were not found.');
     scoreboardTab.click();
     await sleep(250);
-    const playerInput = window.prompt('Enter the exact Riot ID from the scoreboard (name#tag):');
     if (!playerInput) throw new Error('Capture cancelled.');
     const requestedId = playerInput.trim().toLocaleLowerCase();
     const scoreTable = [...document.querySelectorAll('.st-valorant-team-Red,.st-valorant-team-Blue')].find(table =>
@@ -61,6 +64,7 @@
     const rounds = [];
     const tables = () => [...document.querySelectorAll('.st-valorant-team-Red,.st-valorant-team-Blue')];
     for (let index = 0; index < roundButtons.length; index++) {
+      if (isCancelled()) throw new Error('Capture stopped.');
       roundButtons[index].click();
       let heading = '';
       for (let attempt = 0; attempt < 20; attempt++) {
@@ -68,6 +72,7 @@
         heading = document.querySelector('.vmr-header-left')?.innerText || '';
         if (heading.match(new RegExp(`ROUND\\s+${index + 1}\\b`, 'i'))) break;
       }
+      if (!heading.match(new RegExp(`ROUND\\s+${index + 1}\\b`, 'i'))) throw new Error(`Round ${index + 1} did not render.`);
       const outcome = heading.match(/TEAM\s+([AB])\s+(.+?)\s+WIN/i);
       if (!outcome) throw new Error(`Round ${index + 1} result did not render. Capture stopped without downloading a file.`);
       const teamStats = new Map();
@@ -102,7 +107,7 @@
     }
     const payload = {
       schemaVersion: 1,
-      source: { provider: 'tracker.gg', method: 'rendered-page', url: location.href, capturedAt: new Date().toISOString(), parserVersion: 'tracker-rendered-v1', roundsObserved: rounds.length },
+      source: { provider: 'tracker.gg', method: 'rendered-page', url: sourceUrl, capturedAt: new Date().toISOString(), parserVersion: 'tracker-rendered-v1', roundsObserved: rounds.length },
       match: { id: matchId, mode, map, displayedStartedAt, durationSeconds, teamAScore: scoreA, teamBScore: scoreB, overtime: rounds.length > 24 },
       player: {
         riotId, team: playerTeam, agent: playerAgent,
@@ -110,12 +115,23 @@
       },
       rounds
     };
-    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
-    const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = `tracker-match-${matchId}-${playerTeam}.json`; link.click();
-    setTimeout(() => URL.revokeObjectURL(link.href), 30000);
-    console.info(`Downloaded a local capture for ${riotId}. ${rounds.length} rounds were read from the rendered page; no match API was called.`);
-  } catch (error) {
-    console.error(error instanceof Error ? error.message : error);
-    window.alert(error instanceof Error ? error.message : 'Tracker capture failed.');
+    return payload;
   }
-})();
+}
+if (typeof module !== 'undefined' && module.exports) module.exports = { captureTrackerMatch };
+if (typeof window !== 'undefined') {
+  globalThis.TrackerMatchCapture = { capture: captureTrackerMatch };
+  if (!globalThis.__trackerCollectorMode) {
+    (async () => {
+      try {
+        const player = window.prompt('Enter the exact Riot ID from the scoreboard (name#tag):');
+        if (!player) return;
+        const payload = await captureTrackerMatch(player, location.href);
+        const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+        const link = document.createElement('a'); link.href = URL.createObjectURL(blob);
+        link.download = `tracker-match-${payload.match.id}-${payload.player.team}.json`; link.click();
+        setTimeout(() => URL.revokeObjectURL(link.href), 30000);
+      } catch (error) { window.alert(error instanceof Error ? error.message : 'Tracker capture failed.'); }
+    })();
+  }
+}

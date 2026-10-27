@@ -1,0 +1,37 @@
+<!doctype html><html><head><meta charset="utf-8"><title>Synthetic Tracker profile</title></head>
+<body><h1>Synthetic profile</h1><div id="matches"></div><div id="drawer"></div>
+<script>
+const player = 'the chosen one#mØØda';
+const badIndex = __BAD_INDEX__; const duplicateIndex = __DUPLICATE_INDEX__;
+const matchId = i => '00000000-0000-4000-8000-' + String((i === duplicateIndex ? 0 : i) + 1).padStart(12, '0');
+const playerHref = '/valorant/profile/riot/' + encodeURIComponent(player);
+const otherHref = '/valorant/profile/riot/' + encodeURIComponent('Opponent#TEST');
+const cell = value => '<div class="st-content__item-value"><span class="value">' + value + '</span></div>';
+const nameCell = (href, agent) => '<div class="st-content__item-value"><img alt="' + agent + '"><a class="info" href="' + href + '">player</a></div>';
+const team = (cls, label, headers, row) => '<div class="' + cls + '"><div class="st-header">' + headers.map(h => '<span>' + h + '</span>').join('') + '</div><div class="st-content__category"><div class="st-content__item">' + row + '</div></div></div>';
+function showSummary(i) {
+  const headers = ['Team A','ACS','K','D','A','ADR','HS%','KAST','FK','FD'];
+  const deaths = i === badIndex ? '' : '1';
+  const a = nameCell(playerHref,'Jett') + ['100','1',deaths,'0','100','10%','50%','0','0'].map(cell).join('');
+  const b = nameCell(otherHref,'Clove') + ['100','1','1','0','100','10%','50%','0','0'].map(cell).join('');
+  document.getElementById('board').innerHTML = team('st-valorant-team-Red','A',headers,i === 4 ? b : a) + team('st-valorant-team-Blue','B',['Team B',...headers.slice(1)],i === 4 ? a : b);
+}
+function showRound(n) {
+  document.querySelector('.vmr-header-left').innerHTML = 'ROUND ' + n + '<br>TEAM ' + (n === 1 ? (window.activeIndex === 4 ? 'B' : 'A') : (window.activeIndex === 4 ? 'A' : 'B')) + ' ELIMINATION WIN';
+  const headers = ['Team A','Score','K','D','A','Econ'];
+  const a = nameCell(playerHref,'Jett') + [n === 1 ? '100' : '0',n === 1 ? '1' : '0',n === 1 ? '0' : '1','0',''].map(cell).join('');
+  const b = nameCell(otherHref,'Clove') + [n === 1 ? '0' : '100',n === 1 ? '0' : '1',n === 1 ? '1' : '0','0',''].map(cell).join('');
+  document.getElementById('roundTables').innerHTML = team('st-valorant-team-Red','A',headers,window.activeIndex === 4 ? b : a) + team('st-valorant-team-Blue','B',['Team B',...headers.slice(1)],window.activeIndex === 4 ? a : b);
+}
+function showRounds() {
+  document.getElementById('board').innerHTML = '<div id="strip"><div onclick="showRound(1)">1</div><div onclick="showRound(2)">2</div></div><div class="vmr-header"><div class="vmr-header-left"></div></div><div id="roundTables"></div>';
+  showRound(1);
+}
+function openMatch(i) { window.activeIndex = i;
+  document.getElementById('drawer').innerHTML = '<div class="vm-header"><div class="vm-header-info"><span class="trn-match-drawer__header-label">Competitive</span><span class="trn-match-drawer__header-value">Mock Map ' + (i+1) + '</span></div><div class="vm-header-score"><div class="trn-match-drawer__header-block"><span class="trn-match-drawer__header-value">1</span></div><div class="trn-match-drawer__header-block"><span class="trn-match-drawer__header-value">:</span></div><div class="trn-match-drawer__header-block"><span class="trn-match-drawer__header-value">1</span></div></div><a href="/valorant/match/' + matchId(i) + '">Open in New Tab</a><div>10/26/26, 4:31 PM</div><div>1m 00s</div></div><button class="trn-match-drawer__tabs-tab" onclick="showSummary(' + i + ')">Scoreboard</button><button class="trn-match-drawer__tabs-tab" onclick="showRounds()">Rounds</button><div id="board"></div>';
+  showSummary(i);
+}
+for (let i=0; i<5; i++) {
+  const row = document.createElement('button'); row.className='v3-match-row'; row.textContent='Synthetic match ' + (i+1); row.onclick=() => openMatch(i); document.getElementById('matches').appendChild(row);
+}
+</script></body></html>

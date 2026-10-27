@@ -595,5 +595,5 @@ accountHeader();
 initializeActFilter().then(()=>refresh()).catch(error=>{$('message').textContent=error.message;});setInterval(()=>{if(selectedAct&&!document.hidden)refresh();},60000);
 
 if (location.pathname === '/players' && new URLSearchParams(location.search).has('player')) {
- const matchAnalyzerScript=document.createElement('script');matchAnalyzerScript.src='/match-analyzer.js?v=1';document.head.appendChild(matchAnalyzerScript);
+ const matchAnalyzerScript=document.createElement('script');matchAnalyzerScript.src='/match-analyzer.js?v=2';document.head.appendChild(matchAnalyzerScript);
 }

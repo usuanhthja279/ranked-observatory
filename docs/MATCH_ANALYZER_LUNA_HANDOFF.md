@@ -85,3 +85,5 @@ The local ignored fixture `data/match-analyzer/96d890bc-2361-4c12-a3e3-d0ab48795
 The native service at 8090 and its Cloudflare tunnel were left running. During final checks the service reported live extraction enabled and unpaused, and a live run was actively progressing; restarting Spring would have interrupted it. Consequently the newly built jar is not loaded on port 8090 yet. The tested source-tree preview was served read-only on 127.0.0.1:8091 and proxied GET API calls to 8090; it is only a local review harness, not a deployment. The existing Cloudflare URL still serves the currently running jar until a safe between-runs reload.
 
 This proves a one-match rendered-page workflow, not an automatic Tracker importer or a coaching system. Tracker DOM changes can break the helper. The user must run the helper on a normally accessible match page and import its downloaded file. Economy, side, event/utility and benchmark semantics need further page evidence before they can be analyzed honestly.
+
+The selected-player browser collector and its actual verification results are documented in docs/TRACKER_MATCH_COLLECTOR.md.

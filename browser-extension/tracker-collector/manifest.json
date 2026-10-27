@@ -1,0 +1,21 @@
+{
+  "manifest_version": 3,
+  "name": "Observatory Tracker Match Collector",
+  "version": "0.1.0",
+  "description": "Collect up to five selected-player matches from visible Tracker pages.",
+  "permissions": ["tabs", "storage", "webRequest"],
+  "host_permissions": ["https://tracker.gg/*", "https://api.tracker.gg/*"],
+  "background": {"service_worker": "background.js"},
+  "content_scripts": [
+    {
+      "matches": ["http://localhost/*", "http://127.0.0.1/*"],
+      "js": ["app-bridge.js"],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": ["https://tracker.gg/valorant/profile/riot/*"],
+      "js": ["collector-mode.js", "tracker-match-capture.js", "tracker-page.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}
