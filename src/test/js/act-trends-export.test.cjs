@@ -39,3 +39,10 @@ test('entering Trends scope does not override CSV availability owned by the tren
 
   assert.equal($('actTrendExport').disabled, false);
 });
+
+test('shared analysis helpers load before the Act Trends renderer',()=>{
+  const html=require('node:fs').readFileSync(require('node:path').join(__dirname,'../../main/resources/static/leaderboard.html'),'utf8');
+  const helpers=html.indexOf('/compare-analysis.js?v=4'),renderer=html.indexOf('/act-trends.js?v=14');
+  assert.ok(helpers>=0&&renderer>=0,'versioned scripts are present');
+  assert.ok(helpers<renderer,'trend renderer must not run before its shared model');
+});

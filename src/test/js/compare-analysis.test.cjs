@@ -87,3 +87,41 @@ test('country trend alignment preserves a single current snapshot for point-only
   assert.deepEqual(Array.from(aligned.series[0].values),[1041]);
   assert.deepEqual(Array.from(aligned.series[1].values),[906]);
 });
+
+test('country alignment preserves missing measurements as gaps and preserves genuine zero',()=>{
+  const aligned=context.compareAnalysis.alignCountryHistories([{label:'India',rows:[
+    {completed_at:'2026-10-01T00:00:00Z',players:0},
+    {completed_at:'2026-10-02T00:00:00Z',players:null},
+    {completed_at:'2026-10-03T00:00:00Z',players:''},
+    {completed_at:'2026-10-04T00:00:00Z',players:'not-a-number'}
+  ]}]);
+  assert.equal(aligned.times.length,4);
+  assert.deepEqual(Array.from(aligned.series[0].values),[0,null,null,null]);
+});
+
+test('trend segment model keeps all missing act positions as disconnected gaps',()=>{
+  const split=context.compareAnalysis.trendSegments;
+  assert.deepEqual(JSON.parse(JSON.stringify(split([null,2,3,null,5,null]))),[[{index:1,value:2},{index:2,value:3}],[{index:4,value:5}]]);
+  assert.deepEqual(JSON.parse(JSON.stringify(split([null,1,null]))),[[{index:1,value:1}]]);
+  assert.deepEqual(JSON.parse(JSON.stringify(split([1,null]))),[[{index:0,value:1}]]);
+});
+
+test('trend endpoint summary never substitutes a missing selected endpoint',()=>{
+  const summarize=context.compareAnalysis.endpointSummary;
+  assert.deepEqual(JSON.parse(JSON.stringify(summarize([null,20,30]))),{start:null,end:30,delta:null});
+  assert.deepEqual(JSON.parse(JSON.stringify(summarize([10,20,null]))),{start:10,end:null,delta:null});
+  assert.deepEqual(JSON.parse(JSON.stringify(summarize([10,20,30]))),{start:10,end:30,delta:20});
+});
+
+test('comparison metric semantics distinguish numeric and categorical values without NaN',()=>{
+  const compare=context.compareAnalysis.metricDifference;
+  assert.deepEqual(JSON.parse(JSON.stringify(compare({type:'category',a:'Radiant',b:'Immortal 3'}))),{text:'Different',value:null});
+  assert.deepEqual(JSON.parse(JSON.stringify(compare({type:'category',a:'India',b:'india'}))),{text:'Same',value:null});
+  assert.deepEqual(JSON.parse(JSON.stringify(compare({type:'category',a:'',b:'India'}))),{text:'Not comparable',value:null});
+  assert.deepEqual(JSON.parse(JSON.stringify(compare({type:'incomparable',a:3,b:7}))),{text:'Not comparable',value:null});
+  assert.deepEqual(JSON.parse(JSON.stringify(compare({a:3,b:7,lowerIsBetter:true}))),{text:'A better by 4',value:-4});
+  assert.deepEqual(JSON.parse(JSON.stringify(compare({a:null,b:0}))),{text:'Not comparable',value:null});
+  assert.deepEqual(JSON.parse(JSON.stringify(compare({a:'',b:0}))),{text:'Not comparable',value:null});
+  assert.deepEqual(JSON.parse(JSON.stringify(compare({a:0,b:0}))),{text:'Same',value:0});
+  assert.equal(context.compareAnalysis.seriesColors.length>=10,true);
+});

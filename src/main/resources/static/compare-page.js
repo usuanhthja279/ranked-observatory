@@ -4,16 +4,18 @@
   const root=document.getElementById('comparePage');
   if(!root)return;
   const esc=value=>String(value??'—').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-  const n=value=>value==null?'—':Number(value).toLocaleString();
+  const n=value=>globalThis.compareAnalysis.finiteValue(value)==null?'—':globalThis.compareAnalysis.finiteValue(value).toLocaleString();
   const date=value=>value?new Date(value).toLocaleString():'—';
   const params=new URLSearchParams(location.search);
   let mode=['country','region','player'].includes(params.get('mode'))?params.get('mode'):'country';
   let first=params.get('a')||'',second=params.get('b')||'',selectedCountries=(params.get('countries')||'').split(',').filter(Boolean),minutes=[60,360,1440].includes(Number(params.get('window')))?Number(params.get('window')):60;
-  let acts=[],selectedAct='',countriesByCode={},regionsByCode={},timer=0,lookup={a:[],b:[]};
-  const api=async path=>{
+  let acts=[],selectedAct='',countriesByCode={},regionsByCode={},timers={a:0,b:0},lookup={a:[],b:[]},refreshRequest=0,comparisonRequest=0,lookupRequest={a:0,b:0};
+  let refreshController=null,comparisonController=null,lookupControllers={a:null,b:null};
+  const invalidateRequests=()=>{refreshRequest++;comparisonRequest++;refreshController?.abort();comparisonController?.abort();for(const side of ['a','b']){lookupRequest[side]++;lookupControllers[side]?.abort()}};
+  const api=async (path,options={})=>{
     const url=new URLSearchParams(path.split('?')[1]||'');
     if(selectedAct&&!url.has('act'))url.set('act',selectedAct);
-    const response=await fetch('/api/leaderboard/'+path.split('?')[0]+'?'+url.toString());
+    const response=await fetch('/api/leaderboard/'+path.split('?')[0]+'?'+url.toString(),options);
     if(!response.ok)throw new Error('Could not load comparison data ('+response.status+').');
     return response.json();
   };
@@ -35,9 +37,9 @@
   const delta=value=>value==null?'—':(Number(value)>0?'+':'')+n(value);
   const metrics=(a,b,defs)=>'<div class="compare-table-wrap"><table><thead><tr><th>Measure</th><th>'+esc(a)+'</th><th>'+esc(b)+'</th><th>Difference</th></tr></thead><tbody>'+
     defs.map(item=>{
-      const av=item.a==null?null:Number(item.a),bv=item.b==null?null:Number(item.b);
-      const difference=av==null||bv==null?null:av-bv;
-      return '<tr><th scope="row">'+esc(item.label)+'</th><td>'+esc(item.format?item.format(item.a):n(item.a))+'</td><td>'+esc(item.format?item.format(item.b):n(item.b))+'</td><td>'+esc(difference==null?'Not comparable':(difference===0?'Same':(difference>0?'A +':'B +')+n(Math.abs(difference))))+'</td></tr>';
+      const comparison=globalThis.compareAnalysis.metricDifference(item);
+      const display=value=>item.type==='category'&&(value==null||!String(value).trim())?'—':item.format?item.format(value):n(value);
+      return '<tr><th scope="row">'+esc(item.label)+'</th><td>'+esc(display(item.a))+'</td><td>'+esc(display(item.b))+'</td><td>'+esc(comparison.text)+'</td></tr>';
     }).join('')+'</tbody></table></div>';
   const metricCard=(title,value,note)=>'<article class="compare-metric"><span>'+esc(title)+'</span><strong>'+esc(value)+'</strong><small>'+esc(note)+'</small></article>';
   const historyText=(label,result,field)=>{
@@ -47,23 +49,25 @@
   };
   const refresh=async()=>{
     if(!root.isConnected)return;
+    invalidateRequests();const request=refreshRequest,controller=new AbortController();refreshController=controller;
     selectedAct=document.getElementById('actFilter')?.value||params.get('act')||'';
     queryState();
     root.innerHTML='<section class="compare-panel"><p role="status">Loading source-matched comparisons…</p></section>';
     try{
-      const [status,actList]=await Promise.all([api('status'),api('acts')]);
+      const [status,actList]=await Promise.all([api('status',{signal:controller.signal}),api('acts',{signal:controller.signal})]);
+      if(request!==refreshRequest)return;
       acts=actList||[];countriesByCode=status.countries||{};regionsByCode=status.regions||{};
       if(mode==='country')await renderCountries();
       else if(mode==='region')await renderRegions();
       else await renderPlayers();
     }catch(error){
-      root.innerHTML='<section class="compare-panel compare-error" role="alert"><h2>Comparison unavailable</h2><p>'+esc(error.message)+'</p><button type="button" data-compare-retry>Retry</button></section>';
-    }
+      if(request===refreshRequest&&error.name!=='AbortError')root.innerHTML='<section class="compare-panel compare-error" role="alert"><h2>Comparison unavailable</h2><p>'+esc(error.message)+'</p><button type="button" data-compare-retry>Retry</button></section>';
+    }finally{if(request===refreshRequest)refreshController=null}
   };
   const finish=(scope,content)=>{
     root.innerHTML=tabMarkup()+scope+content;
     root.querySelectorAll('[data-compare-mode]').forEach(button=>button.addEventListener('click',()=>{
-      mode=button.dataset.compareMode;first='';second='';queryState();refresh();
+      mode=button.dataset.compareMode;first='';second='';invalidateRequests();queryState();refresh();
     }));
     root.querySelector('[data-compare-retry]')?.addEventListener('click',refresh);
   };
@@ -110,7 +114,7 @@
       }
       if(token!==renderToken||!target.isConnected)return;
       const tableRows=selected.map(row=>{
-        const history=histories.find(item=>item.label===title(row))?.rows||[],valid=history.filter(item=>Number.isFinite(Date.parse(item.completed_at||item.source_updated_at||item.observed_at))&&Number.isFinite(Number(item.players))).sort((a,b)=>Date.parse(a.completed_at||a.source_updated_at||a.observed_at)-Date.parse(b.completed_at||b.source_updated_at||b.observed_at)),firstPoint=valid[0],lastPoint=valid.at(-1),delta=firstPoint&&lastPoint?Number(lastPoint.players)-Number(firstPoint.players):null;
+        const history=histories.find(item=>item.label===title(row))?.rows||[],valid=history.filter(item=>Number.isFinite(Date.parse(item.completed_at||item.source_updated_at||item.observed_at))&&globalThis.compareAnalysis.finiteValue(item.players)!=null).sort((a,b)=>Date.parse(a.completed_at||a.source_updated_at||a.observed_at)-Date.parse(b.completed_at||b.source_updated_at||b.observed_at)),firstPoint=valid[0],lastPoint=valid.at(-1),delta=firstPoint&&lastPoint?globalThis.compareAnalysis.finiteValue(lastPoint.players)-globalThis.compareAnalysis.finiteValue(firstPoint.players):null;
         return `<tr><th scope="row">${esc(title(row))}</th><td>${n(row.players)}</td><td>${n(row.radiant_confirmed??row.radiant)}</td><td>${n(row.immortal_all??row.immortal)}</td><td>${n(row.median_rr)}</td><td>${delta==null?'—':`${delta>0?'+':''}${n(delta)}`}</td></tr>`;
       }).join('');
       const selectedActInfo=acts.find(item=>item.act===selectedAct),trend=currentAct?'<section class="compare-country-trend"><h3>Country trends</h3>'+chartMarkup(histories)+'<p class="compare-muted">Observed rows by saved snapshot. The change reflects source labels and coverage; it does not prove player movement.</p></section>':'<p class="compare-muted">Archived Acts contain one published snapshot, so a within-Act trend is unavailable.</p>';
@@ -169,43 +173,51 @@
     for(const side of ['a','b']){
       const input=root.querySelector('#player'+side.toUpperCase());
       input.addEventListener('input',()=>{
+        comparisonRequest++;comparisonController?.abort();lookupRequest[side]++;lookupControllers[side]?.abort();lookup[side]=[];
         if(side==='a')first=input.value;else second=input.value;
-        clearTimeout(timer);timer=setTimeout(()=>lookupPlayer(side,input.value),350);
+        const results=root.querySelector('#playerCompareResults');if(results)results.innerHTML='<p class="compare-muted">Choose an exact Riot ID from the suggestions to load source-matched details.</p>';
+        clearTimeout(timers[side]);timers[side]=setTimeout(()=>lookupPlayer(side,input.value),350);
       });
-      input.addEventListener('change',()=>{if(side==='a')first=input.value;else second=input.value;queryState();lookupPlayer(side,input.value);});
+      input.addEventListener('change',()=>{clearTimeout(timers[side]);comparisonRequest++;comparisonController?.abort();if(side==='a')first=input.value;else second=input.value;queryState();lookupPlayer(side,input.value);});
     }
     if(first)await lookupPlayer('a',first);
     if(second)await lookupPlayer('b',second);
   };
   const lookupPlayer=async(side,value)=>{
     const target=root.querySelector('#playerCompareResults');
-    if(!value.trim()){lookup[side]=[];return;}
+    const request=++lookupRequest[side];lookupControllers[side]?.abort();const controller=new AbortController();lookupControllers[side]=controller;
+    if(!value.trim()){lookup[side]=[];lookupControllers[side]=null;return;}
     try{
-      const rows=await api('players?region=all&country=all&search='+encodeURIComponent(value.trim())+'&page=1&size=50&sort=globalRank&direction=asc');
+      const rows=await api('players?region=all&country=all&search='+encodeURIComponent(value.trim())+'&page=1&size=50&sort=globalRank&direction=asc',{signal:controller.signal});
+      if(request!==lookupRequest[side])return;
       lookup[side]=rows.items||[];
       const list=root.querySelector('#playerOptions'+side.toUpperCase());
       if(list)list.innerHTML=lookup[side].map(row=>'<option value="'+esc(row.display_name)+'"></option>').join('');
       const match=exactPlayer(lookup[side],value);
-      if(match&&lookup.a.length&&lookup.b.length)await showPlayerComparison(exactPlayer(lookup.a,first),exactPlayer(lookup.b,second));
+      if(match&&lookup.a.length&&lookup.b.length&&exactPlayer(lookup.a,first)&&exactPlayer(lookup.b,second))await showPlayerComparison(exactPlayer(lookup.a,first),exactPlayer(lookup.b,second));
       else if(target)target.innerHTML='<p class="compare-muted">Choose an exact Riot ID from the suggestions to load source-matched details.</p>';
-    }catch(error){if(target)target.innerHTML='<p class="compare-error" role="alert">'+esc(error.message)+'</p>';}
+    }catch(error){if(request===lookupRequest[side]&&error.name!=='AbortError'&&target)target.innerHTML='<p class="compare-error" role="alert">'+esc(error.message)+'</p>';}finally{if(request===lookupRequest[side])lookupControllers[side]=null}
   };
   const showPlayerComparison=async(a,b)=>{
     const target=root.querySelector('#playerCompareResults');
     if(!target||!a||!b)return;
-    const ha=await api('history?player='+encodeURIComponent(a.display_name)+'&region='+encodeURIComponent(a.region));
-    const hb=await api('history?player='+encodeURIComponent(b.display_name)+'&region='+encodeURIComponent(b.region));
-    const windowA=globalThis.compareAnalysis.summarizeWindow(ha.filter(row=>!String(row.source||'').toLowerCase().includes('legacy')),minutes,['rr','global_rank','regional_rank']);
-    const windowB=globalThis.compareAnalysis.summarizeWindow(hb.filter(row=>!String(row.source||'').toLowerCase().includes('legacy')),minutes,['rr','global_rank','regional_rank']);
+    const request=++comparisonRequest;comparisonController?.abort();const controller=new AbortController();comparisonController=controller;
+    const histories=await Promise.allSettled([api('history?player='+encodeURIComponent(a.display_name)+'&region='+encodeURIComponent(a.region),{signal:controller.signal}),api('history?player='+encodeURIComponent(b.display_name)+'&region='+encodeURIComponent(b.region),{signal:controller.signal})]);
+    if(request!==comparisonRequest||!target.isConnected)return;
+    const rowsA=histories[0].status==='fulfilled'?histories[0].value:[],rowsB=histories[1].status==='fulfilled'?histories[1].value:[];
+    const windowA=globalThis.compareAnalysis.summarizeWindow(rowsA.filter(row=>!String(row.source||'').toLowerCase().includes('legacy')),minutes,['rr','global_rank','regional_rank']);
+    const windowB=globalThis.compareAnalysis.summarizeWindow(rowsB.filter(row=>!String(row.source||'').toLowerCase().includes('legacy')),minutes,['rr','global_rank','regional_rank']);
+    const selected=acts.find(item=>item.act===selectedAct),historyErrors=histories.map((entry,index)=>entry.status==='rejected'?`Player ${index?'B':'A'} history unavailable: ${entry.reason?.message||'request failed'}`:null).filter(Boolean);
     const definitions=[
       {label:'RR',a:a.rr,b:b.rr},
-      {label:'Global rank · lower is better',a:a.global_rank,b:b.global_rank},
-      {label:'Regional rank · separate regional scopes',a:a.regional_rank,b:b.regional_rank},
-      {label:'Reported tier',a:a.tier,b:b.tier,format:value=>String(value??'—')},
+      {label:'Global rank · lower is better',a:a.global_rank,b:b.global_rank,lowerIsBetter:true},
+      {label:'Regional rank · separate regional scopes',a:a.regional_rank,b:b.regional_rank,type:'incomparable'},
+      {label:'Reported tier',a:a.tier,b:b.tier,type:'category',format:value=>String(value??'—')},
       {label:'Wins',a:a.wins,b:b.wins},
-      {label:'Country label',a:countriesByCode[a.country]||a.country,b:countriesByCode[b.country]||b.country,format:value=>String(value??'Unknown')}
+      {label:'Country label',a:countriesByCode[a.country]||a.country,b:countriesByCode[b.country]||b.country,type:'category',format:value=>String(value??'Unknown')}
     ];
     let trend='<section class="compare-panel"><h3>Change within selected window</h3><label class="compare-window">Time window<select id="compareWindow"><option value="60" '+(minutes===60?'selected':'')+'>1 hour</option><option value="360" '+(minutes===360?'selected':'')+'>6 hours</option><option value="1440" '+(minutes===1440?'selected':'')+'>24 hours</option></select></label>';
+    trend+=historyErrors.length?'<p class="compare-error" role="status">'+esc(historyErrors.join(' '))+'</p>':'';
     trend+=historyText(a.display_name,windowA,'rr')+historyText(b.display_name,windowB,'rr');
     trend+='<p class="compare-muted">Only exact Riot ID matches, non-carried-forward rows and unambiguous observations are used. This shows observed RR change, not why it changed. Rank movement is based on complete stored snapshots only.</p></section>';
     target.innerHTML='<div class="compare-metrics">'+metricCard('Player A · '+a.display_name,n(a.rr)+' RR',regionsByCode[a.region]||a.region)+metricCard('Player B · '+b.display_name,n(b.rr)+' RR',regionsByCode[b.region]||b.region)+metricCard('Act',selected?.label||'Current Act','Same selected Act')+metricCard('Source updated',date(a.source_updated_at)+' / '+date(b.source_updated_at),'A / B')+'</div>'+metrics(a.display_name,b.display_name,definitions)+trend;
