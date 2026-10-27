@@ -10,12 +10,13 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import com.valorant.leaderboard.matchintelligence.MatchIntelligenceFixtures;
 
 @SpringBootTest(properties={
     "spring.datasource.url=jdbc:h2:mem:standalone;MODE=PostgreSQL;DB_CLOSE_DELAY=-1",
     "spring.datasource.username=sa", "spring.datasource.password=", "spring.datasource.driver-class-name=org.h2.Driver",
     "spring.datasource.hikari.schema=PUBLIC", "spring.flyway.enabled=false",
-    "spring.sql.init.mode=always", "spring.sql.init.schema-locations=classpath:db/migration/V1__ranked_leaderboard_history.sql,classpath:db/migration/V2__duplicate_observation_diagnostics.sql,classpath:db/migration/V3__global_leaderboard_snapshots.sql,classpath:db/migration/V4__hourly_regional_observation_cache.sql,classpath:db/migration/V5__observatory_accounts.sql,classpath:db/migration/V8__observatory_watchlist.sql,classpath:db/migration/V9__observatory_ui_preferences.sql,classpath:db/test-publication-revision.sql",
+    "spring.sql.init.mode=always", "spring.sql.init.schema-locations=classpath:db/migration/V1__ranked_leaderboard_history.sql,classpath:db/migration/V2__duplicate_observation_diagnostics.sql,classpath:db/migration/V3__global_leaderboard_snapshots.sql,classpath:db/migration/V4__hourly_regional_observation_cache.sql,classpath:db/migration/V5__observatory_accounts.sql,classpath:db/migration/V8__observatory_watchlist.sql,classpath:db/migration/V9__observatory_ui_preferences.sql,classpath:db/test-publication-revision.sql,classpath:db/test-match-intelligence.sql",
     "spring.security.user.password=test-admin-only", "leaderboard.enabled=false"
 })
 @AutoConfigureMockMvc
@@ -222,6 +223,54 @@ class StandaloneApplicationTest {
     mvc.perform(get("/settings")).andExpect(status().isOk()).andExpect(forwardedUrl("/leaderboard.html?view=settings"));
     mvc.perform(get("/methodology")).andExpect(status().isOk()).andExpect(forwardedUrl("/methodology.html"));
     mvc.perform(get("/roadmap")).andExpect(status().isOk()).andExpect(forwardedUrl("/roadmap.html"));
+  }
+
+  @Test void matchIntelligenceImportsAreCsrfProtectedDeduplicatedAndOwnerScoped() throws Exception {
+    String json=MatchIntelligenceFixtures.JSON.writeValueAsString(MatchIntelligenceFixtures.export(2,2));
+    var owner=user("mi-owner").roles("USER");var other=user("mi-other").roles("USER");
+    mvc.perform(post("/api/match-intelligence/imports").with(csrf()).contentType("application/json").content(json)).andExpect(status().isUnauthorized());
+    mvc.perform(post("/api/match-intelligence/imports").with(owner).contentType("application/json").content(json)).andExpect(status().isForbidden());
+    var imported=mvc.perform(post("/api/match-intelligence/imports").with(owner).with(csrf()).contentType("application/json").content(json))
+        .andExpect(status().isCreated()).andExpect(jsonPath("$.status").value("COMPLETE"))
+        .andExpect(jsonPath("$.acceptedMatches").value(1)).andExpect(jsonPath("$.rejectedMatches").value(0)).andReturn();
+    String body=imported.getResponse().getContentAsString();
+    String jobId=com.fasterxml.jackson.databind.json.JsonMapper.builder().build().readTree(body).path("jobId").asText();
+    assertEquals(1,db.queryForObject("select count(*) from mi_matches",Integer.class));
+    assertEquals(1,db.queryForObject("select count(*) from mi_match_versions",Integer.class));
+    assertEquals(1,db.queryForObject("select count(*) from mi_import_job_matches",Integer.class));
+    assertEquals(1,db.queryForObject("select count(*) from mi_raw_imports",Integer.class));
+    assertEquals(2,db.queryForObject("select count(*) from mi_match_rounds",Integer.class));
+    assertEquals(20,db.queryForObject("select count(*) from mi_player_round_stats",Integer.class));
+    int persistedEvents=db.queryForObject("select count(*) from mi_match_events",Integer.class);
+    assertTrue(persistedEvents>0);
+    assertTrue(db.queryForObject("select count(*) from mi_event_positions",Integer.class)>0);
+    var duplicateImport=mvc.perform(post("/api/match-intelligence/imports").with(owner).with(csrf()).contentType("application/json").content(json))
+        .andExpect(status().isCreated()).andReturn();
+    String secondJobId=com.fasterxml.jackson.databind.json.JsonMapper.builder().build().readTree(duplicateImport.getResponse().getContentAsString()).path("jobId").asText();
+    assertEquals(1,db.queryForObject("select count(*) from mi_matches",Integer.class));
+    assertEquals(1,db.queryForObject("select count(*) from mi_match_versions",Integer.class));
+    assertEquals(persistedEvents,db.queryForObject("select count(*) from mi_match_events",Integer.class));
+    assertEquals(2,db.queryForObject("select count(*) from mi_import_jobs",Integer.class));
+    mvc.perform(get("/api/match-intelligence/imports/"+jobId).with(owner)).andExpect(status().isOk())
+        .andExpect(jsonPath("$.matches",org.hamcrest.Matchers.hasSize(1)));
+    mvc.perform(get("/api/match-intelligence/matches").with(owner)).andExpect(status().isOk())
+        .andExpect(jsonPath("$.total").value(1)).andExpect(jsonPath("$.matches[0].providerMatchId").value(MatchIntelligenceFixtures.MATCH_ID));
+    mvc.perform(get("/api/match-intelligence/matches/"+MatchIntelligenceFixtures.MATCH_ID).with(owner)).andExpect(status().isOk())
+        .andExpect(jsonPath("$.perspective.riotId").value(MatchIntelligenceFixtures.PLAYER))
+        .andExpect(jsonPath("$.match.rounds",org.hamcrest.Matchers.hasSize(2)));
+    mvc.perform(get("/api/match-intelligence/matches/"+MatchIntelligenceFixtures.MATCH_ID+"/rounds/1").with(owner)).andExpect(status().isOk())
+        .andExpect(jsonPath("$.roundNumber").value(1)).andExpect(jsonPath("$.playerRounds",org.hamcrest.Matchers.hasSize(10)));
+    mvc.perform(get("/api/match-intelligence/matches/"+MatchIntelligenceFixtures.MATCH_ID).with(other)).andExpect(status().isNotFound());
+    mvc.perform(delete("/api/match-intelligence/imports/"+jobId+"/raw").with(other).with(csrf())).andExpect(status().isNotFound());
+    mvc.perform(delete("/api/match-intelligence/imports/"+jobId+"/raw").with(owner)).andExpect(status().isForbidden());
+    mvc.perform(delete("/api/match-intelligence/imports/"+jobId+"/raw").with(owner).with(csrf())).andExpect(status().isNoContent());
+    mvc.perform(delete("/api/match-intelligence/imports/"+jobId).with(other).with(csrf())).andExpect(status().isNotFound());
+    mvc.perform(delete("/api/match-intelligence/imports/"+jobId).with(owner).with(csrf())).andExpect(status().isNoContent());
+    mvc.perform(get("/api/match-intelligence/matches/"+MatchIntelligenceFixtures.MATCH_ID).with(owner)).andExpect(status().isOk());
+    mvc.perform(delete("/api/match-intelligence/imports/"+secondJobId).with(owner).with(csrf())).andExpect(status().isNoContent());
+    mvc.perform(get("/api/match-intelligence/matches/"+MatchIntelligenceFixtures.MATCH_ID).with(owner)).andExpect(status().isNotFound());
+    assertEquals(0,db.queryForObject("select count(*) from mi_match_versions",Integer.class));
+    assertEquals(0,db.queryForObject("select count(*) from mi_matches",Integer.class));
   }
 
 }

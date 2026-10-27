@@ -6,6 +6,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.*;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /** Parses the bounded browser collector export. It performs no network, database, or file writes. */
@@ -20,6 +21,7 @@ public class MatchExportParser {
   private final MatchNormalizer normalizer;
   private final MatchProvenanceService provenance;
 
+  @Autowired
   public MatchExportParser(ObjectMapper mapper) {
     this(mapper, new MatchIdentityResolver());
   }

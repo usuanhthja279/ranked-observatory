@@ -4,14 +4,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.*;
 
 /** Anonymized, source-shaped fixture; values are synthetic and contain no raw player records. */
-final class MatchIntelligenceFixtures {
-  static final ObjectMapper JSON = new ObjectMapper();
-  static final String MATCH_ID = "11111111-2222-4333-8444-555555555555";
-  static final String PLAYER = "Player 0#TAG";
+public final class MatchIntelligenceFixtures {
+  public static final ObjectMapper JSON = new ObjectMapper();
+  public static final String MATCH_ID = "11111111-2222-4333-8444-555555555555";
+  public static final String PLAYER = "Player 0#TAG";
 
   private MatchIntelligenceFixtures() { }
 
-  static ObjectNode export(int roundCount, int blueWins) {
+  public static ObjectNode export(int roundCount, int blueWins) {
     ObjectNode root = JSON.createObjectNode();
     root.put("schemaVersion", 1); root.put("source", "tracker.gg"); root.put("player", PLAYER);
     root.put("exportedAt", "2026-10-27T14:52:55.450Z"); root.put("requestedMatches", 1);

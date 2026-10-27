@@ -24,7 +24,8 @@ public class LeaderboardSecurity {
   };
  }
  @Bean SecurityFilterChain leaderboardFilterChain(HttpSecurity http)throws Exception {
-  return http.authorizeHttpRequests(auth->auth.requestMatchers(HttpMethod.POST,"/api/leaderboard/collect").hasRole("ADMIN").anyRequest().permitAll())
+  return http.authorizeHttpRequests(auth->auth.requestMatchers(HttpMethod.POST,"/api/leaderboard/collect").hasRole("ADMIN")
+   .requestMatchers("/api/match-intelligence/**").authenticated().anyRequest().permitAll())
    .formLogin(form->form.loginPage("/signin.html").loginProcessingUrl("/login").failureUrl("/signin.html?error=1").defaultSuccessUrl("/leaderboard.html",true).permitAll())
    .logout(logout->logout.logoutSuccessUrl("/signin.html?logout=1"))
    .httpBasic(Customizer.withDefaults())
