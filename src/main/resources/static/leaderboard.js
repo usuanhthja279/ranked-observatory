@@ -609,7 +609,7 @@ accountHeader();
 initializeActFilter().then(()=>refresh()).catch(error=>{$('message').textContent=error.message;});setInterval(()=>{if(selectedAct&&!document.hidden)refresh();},60000);
 
 if (new URLSearchParams(location.search).has('player')) {
- const importClientScript=document.createElement('script');importClientScript.src='/match-intelligence-client.js?v=1';importClientScript.onload=()=>{const matchAnalyzerScript=document.createElement('script');matchAnalyzerScript.src='/match-analyzer.js?v=4';matchAnalyzerScript.onload=()=>{const workspaceScript=document.createElement('script');workspaceScript.src='/match-intelligence-workspace.js?v=1';document.head.appendChild(workspaceScript);};document.head.appendChild(matchAnalyzerScript);};document.head.appendChild(importClientScript);
+ const importClientScript=document.createElement('script');importClientScript.src='/match-intelligence-client.js?v=1';importClientScript.onload=()=>{const matchAnalyzerScript=document.createElement('script');matchAnalyzerScript.src='/match-analyzer.js?v=4';matchAnalyzerScript.onload=()=>{const workspaceScript=document.createElement('script');workspaceScript.src='/match-intelligence-workspace.js?v=2';document.head.appendChild(workspaceScript);};document.head.appendChild(matchAnalyzerScript);};document.head.appendChild(importClientScript);
 }
 
-if(view==='match-analysis'){const workspaceScript=document.createElement('script');workspaceScript.src='/match-intelligence-workspace.js?v=1';document.head.appendChild(workspaceScript);}
+if(view==='match-analysis'){const workspaceScript=document.createElement('script');workspaceScript.src='/match-intelligence-workspace.js?v=2';document.head.appendChild(workspaceScript);}

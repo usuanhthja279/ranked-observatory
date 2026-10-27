@@ -49,7 +49,7 @@
   const api = { summarize, filterRounds };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   if (typeof window === 'undefined' || typeof document === 'undefined') return;
-  const style = document.createElement('link'); style.rel='stylesheet'; style.href='/match-analyzer.css?v=4'; document.head.append(style);
+  const style = document.createElement('link'); style.rel='stylesheet'; style.href='/match-analyzer.css?v=5'; document.head.append(style);
   const params = new URLSearchParams(location.search), profilePlayer = params.get('player');
   const host = profilePlayer ? document.getElementById('playerProfileWorkspace') : document.getElementById('matchAnalysisPageWorkspace');
   if (!host) return;
@@ -57,7 +57,7 @@
   root.innerHTML = `<div class="mi-head"><div><p class="mi-kicker">SAVED MATCH INTELLIGENCE</p><h2 id="miTitle">${profilePlayer ? 'Player match intelligence' : 'Saved matches'}</h2><p class="subtle">Owner-private match imports. Observed source data and calculated summaries are labeled separately.</p></div><button type="button" data-mi-refresh>Refresh matches</button></div><p class="mi-status" role="status" aria-live="polite">Loading your saved matches…</p><div data-mi-content hidden></div>`;
   host.append(root);
   const status = root.querySelector('.mi-status'), content = root.querySelector('[data-mi-content]');
-  let pageRows = [], selected = null, detailCache = new Map(), activeTab = 'overview', roundMode = 'all', selectedRound = null, generation = 0;
+  let pageRows = [], selected = null, detailCache = new Map(), analysisCache = new Map(), activeTab = 'overview', roundMode = 'all', selectedRound = null, generation = 0;
   const esc = value => String(value ?? '—').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const val = value => value === null || value === undefined ? 'Not reported' : esc(value);
   const duration = ms => Number.isFinite(ms) ? Math.floor(ms/60000) + 'm ' + Math.floor(ms%60000/1000) + 's' : 'Not reported';
@@ -124,9 +124,18 @@
     } else if(activeTab==='team') {
       const teamRounds=(m.rounds||[]), ownWins=teamRounds.filter(r=>r.winningTeamId===view.perspective.teamId).length;
       const attack=(m.playerRounds||[]).filter(r=>r.identity?.stableKey===view.perspective.identity&&String(r.side||'').toUpperCase()==='ATTACK'),defense=(m.playerRounds||[]).filter(r=>r.identity?.stableKey===view.perspective.identity&&String(r.side||'').toUpperCase()==='DEFENSE');const wonRound=new Map(teamRounds.map(r=>[r.roundNumber,r.winningTeamId===view.perspective.teamId]));
-      body=`<div class="mi-overview-grid"><article><span>Team round results</span><strong>${ownWins} / ${teamRounds.length}</strong><small>Observed wins / rounds</small></article><article><span>Player on attack</span><strong>${attack.length||'Not reported'}</strong><small>${attack.length?attack.filter(r=>r.teamId===view.perspective.teamId).length+' rows':'Side coverage unavailable'}</small></article><article><span>Player on defense</span><strong>${defense.length||'Not reported'}</strong><small>${defense.length?defense.filter(r=>r.teamId===view.perspective.teamId).length+' rows':'Side coverage unavailable'}</small></article><article><span>Opening conversion</span><strong>Not analyzed</strong><small>Deterministic event analysis arrives in M5</small></article></div><p>Teamwork is not scored from aggregate K/D. Trade timing, opening conversion, objective context and economy-aware coordination are not yet analyzed.</p>`;
+      body=`<div class="mi-overview-grid"><article><span>Team round results</span><strong>${ownWins} / ${teamRounds.length}</strong><small>Observed wins / rounds</small></article><article><span>Player on attack</span><strong>${attack.length||'Not reported'}</strong><small>${attack.length?attack.filter(r=>r.teamId===view.perspective.teamId).length+' rows':'Side coverage unavailable'}</small></article><article><span>Player on defense</span><strong>${defense.length||'Not reported'}</strong><small>${defense.length?defense.filter(r=>r.teamId===view.perspective.teamId).length+' rows':'Side coverage unavailable'}</small></article><article><span>Opening conversion</span><strong>See Coaching</strong><small>Evidence-linked match report</small></article></div><p>Teamwork is not scored from aggregate K/D. The Coaching tab links supported opening, reciprocal trade-like and objective findings to their source events.</p>`;
     } else {
-      body=`<div class="mi-empty"><h4>No coaching claims yet</h4><p>The deterministic, evidence-linked analysis engine is the next phase. This view will only show findings that link to captured rounds and source events.</p><p>Current quality: ${esc(view.quality)} · ${rounds.length} rounds · ${m.events?.length||0} captured events.</p></div>`;
+      const report=analysisCache.get(m.providerMatchId);
+      if(!report) {
+        body=`<div class="mi-empty" role="status"><h4>Loading evidence-linked analysis…</h4><p>Only deterministic findings tied to captured events and round data are shown. Unavailable evidence stays unknown.</p></div>`;
+        getJson('/api/match-intelligence/matches/'+encodeURIComponent(m.providerMatchId)+'/analysis').then(data=>{analysisCache.set(m.providerMatchId,data);if(selected?.providerMatchId===m.providerMatchId&&activeTab==='coaching')renderDetail(view);}).catch(error=>{analysisCache.set(m.providerMatchId,{loadError:String(error.message||error)});if(selected?.providerMatchId===m.providerMatchId&&activeTab==='coaching')renderDetail(view);});
+      } else if(report.loadError) { body=`<div class="mi-empty" role="alert">${esc(report.loadError)}</div>`; }
+      else {
+        const metrics=(report.metrics||[]).map(x=>`<article><span>${esc(x.label)}</span><strong>${x.value===null?'Not available':esc(Number(x.value).toFixed(2))}</strong><small>${esc(x.numerator??'—')} / ${esc(x.denominator??'—')} ${esc(x.unit||'')} · ${esc(x.availability||'')}</small></article>`).join('');
+        const findings=(report.findings||[]).map(x=>`<article class="mi-finding"><div><span class="mi-finding-category">${esc(x.category)}</span>${x.roundNumber?`<span>Round ${esc(x.roundNumber)}</span>`:''}</div><h4>${esc(x.title)}</h4><p>${esc(x.whatHappened)}</p><p>${esc(x.whyItMayMatter)}</p><small>${esc(x.confidence)} confidence · ${esc(x.evidenceType)} · events ${esc((x.sourceEventIds||[]).join(', ')||'none')}</small>${x.reviewQuestion?`<p><strong>Review:</strong> ${esc(x.reviewQuestion)}</p>`:''}</article>`).join('');
+        body=`<p class="mi-analysis-version">${esc(report.analysisVersion)} · economy rules ${esc(report.economyRulesetVersion)} · deterministic evidence-linked rules, not a skill score.</p><div class="mi-overview-grid">${metrics}</div><h4>Round findings</h4><div class="mi-findings">${findings||'<p class="mi-empty">No qualifying findings.</p>'}</div><h4>Unavailable analyses</h4><ul>${(report.unavailableAnalyses||[]).map(x=>`<li>${esc(x)}</li>`).join('')}</ul>`;
+      }
     }
     const source=view.provenance||{};
     pane.innerHTML=`<header class="mi-detail-heading"><div><p class="mi-kicker">${esc(view.quality)} · ${esc(m.providerMatchId)}</p><h3>${esc(m.mapName||'Match')} · ${esc(m.modeName||'Mode')}</h3></div><p>Captured ${esc(source.capturedAt?new Date(source.capturedAt).toLocaleString():'time unavailable')}</p></header><nav class="mi-tabs" role="tablist" aria-label="Match detail">${tabs.map(([id,label])=>`<button type="button" role="tab" id="miTab-${id}" aria-controls="miPanel" aria-selected="${id===activeTab}" tabindex="${id===activeTab?0:-1}" data-mi-tab="${id}">${label}</button>`).join('')}</nav><section class="mi-tab-panel" id="miPanel" role="tabpanel" aria-labelledby="miTab-${activeTab}" tabindex="0">${body}</section>`;
@@ -134,6 +143,6 @@
     pane.querySelectorAll('[data-mi-round]').forEach(b=>b.addEventListener('click',()=>{selectedRound=Number(b.dataset.miRound);renderDetail(view);}));
     pane.querySelector('[data-mi-round-filter]')?.addEventListener('change',e=>{roundMode=e.target.value;selectedRound=null;renderDetail(view);});
   }
-  root.querySelector('[data-mi-refresh]').addEventListener('click',()=>{selected=null;detailCache=new Map();load();});
+  root.querySelector('[data-mi-refresh]').addEventListener('click',()=>{selected=null;detailCache=new Map();analysisCache=new Map();load();});
   load();
 })();

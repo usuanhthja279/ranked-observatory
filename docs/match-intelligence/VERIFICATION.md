@@ -66,3 +66,26 @@ The native PostgreSQL acceptance run on the dedicated port-5435 test cluster ran
 - The built-in browser inspected the source preview route and a separate synthetic-response preview. Synthetic saved match overview, detail tabs, selected round, event list and economy were exercised. Mobile viewport was constrained to a 390-pixel iframe; rendered document width was 375 CSS px due to its vertical scrollbar and equaled document scroll width. No horizontal page overflow was observed.
 - The source preview is static-only, so its API request correctly showed an unavailable state. Browser UI data was synthetic and did not constitute authenticated live-backend acceptance. Existing backend auth and persistence are covered by M2 Spring/PostgreSQL tests.
 - Port 8090 was not restarted; live extraction remained untouched. Temporary synthetic preview was run separately on 8092 and will be stopped after use.
+
+## M5 deterministic analysis verification
+
+Focused command:
+
+```powershell
+$env:JAVA_HOME='C:\Users\usuan\.jdks\dragonwell-21.0.12'
+$env:Path="$env:JAVA_HOME\bin;$env:Path"
+.\gradlew.bat test --tests com.valorant.leaderboard.matchintelligence.DeterministicMatchAnalyzerTest --tests com.valorant.leaderboard.StandaloneApplicationTest --no-daemon
+```
+
+Result: **BUILD SUCCESSFUL**. Deterministic tests validate unique versus tied/missing opening timestamps, selected-team conversion including teammate openings, timed reciprocal trade relationships, versioned loadout bands, recorded damage averages and evidence-linked report metadata. The Spring regression verifies unauthenticated access is rejected, the importing owner receives a report, and another account receives not-found.
+
+Frontend checks:
+
+```powershell
+node --check src/main/resources/static/match-intelligence-workspace.js
+node --test src/test/js/match-analyzer.test.cjs src/test/js/match-intelligence-client.test.cjs src/test/js/match-intelligence-workspace.test.cjs src/test/js/tracker-network-analysis.test.cjs
+```
+
+Result: syntax check passed; 17 Node tests passed. PostgreSQL was not rerun because no schema or persistence code changed in M5. No live Tracker requests, collection/admin API calls, or restarts of the active 8090 application occurred. Browser backend verification of the Coaching report remains pending because 8091 is static-only; synthetic browser evidence must be separately identified if used.
+
+ChatGPT in-app browser verification used the ignored synthetic-only preview on port 8092. The Coaching tab displayed a synthetic report on desktop and in a 390-pixel mobile iframe. The measured mobile document width was 375 CSS px with a 390px viewport and the horizontal tab overflow was confined to the tab strip. The finding category and round labels were visually inspected; their spacing was corrected. This does not verify the new endpoint against a live authenticated browser session, because the port-8091 preview is static-only and port 8090 was intentionally left running without a restart.

@@ -19,8 +19,12 @@ import jakarta.servlet.http.HttpServletRequest;
 @RequestMapping("/api/match-intelligence")
 public class MatchIntelligenceController {
   private final MatchIntelligenceStore store;
+  private final DeterministicMatchAnalyzer analyzer;
   private final Semaphore importPermit = new Semaphore(1);
-  public MatchIntelligenceController(MatchIntelligenceStore store) { this.store = store; }
+  public MatchIntelligenceController(MatchIntelligenceStore store, DeterministicMatchAnalyzer analyzer) {
+    this.store = store;
+    this.analyzer = analyzer;
+  }
 
   @PostMapping(value="/imports", consumes=MediaType.APPLICATION_JSON_VALUE)
   public ResponseEntity<MatchIntelligenceStore.ImportReceipt> importMatches(
@@ -84,6 +88,12 @@ public class MatchIntelligenceController {
   @GetMapping("/matches/{matchId}/rounds")
   public java.util.List<CanonicalMatch.Round> rounds(Authentication authentication, @PathVariable String matchId) {
     return store.getRounds(authentication.getName(), matchId);
+  }
+
+  @GetMapping("/matches/{matchId}/analysis")
+  public DeterministicMatchAnalyzer.Report analysis(Authentication authentication, @PathVariable String matchId) {
+    // Reuse the owner-scoped lookup so the analyzer cannot expose another account's match.
+    return analyzer.analyze(store.getMatch(authentication.getName(), matchId).match());
   }
 
   @GetMapping("/matches/{matchId}/rounds/{roundNumber}")

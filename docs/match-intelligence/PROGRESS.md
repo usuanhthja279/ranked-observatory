@@ -32,10 +32,6 @@ M2 was not started during the original M1 task. The user has now authorized cont
 
 The dedicated PostgreSQL test checks V1–V11 migration, five-match sample ingestion, duplicate import/event deduplication, and owner deletion cleanup. Explicit forced SQL failure rollback and concurrent import behavior remain for M8. The application on port 8090 and its extraction state were not restarted or changed. No Tracker collection or admin API was called. See [ARCHITECTURE.md](ARCHITECTURE.md), [API.md](API.md), and [VERIFICATION.md](VERIFICATION.md).
 
-## Phases M3–M8
-
-Not started. M3 requires the M2 schema/API to pass the dedicated PostgreSQL acceptance test before collector integration. Subsequent phases remain gated on completing and verifying each preceding phase.
-
 ## Phase M3 — Bounded collector import
 
 **Complete.** The Tracker extension now supports an explicit selected-player target of 5, 10, or 20 matches in one dedicated collector window. It observes only successful JSON match responses that Tracker itself requested after a user opens each match through the UI. Match IDs are deduplicated, progress and partial failures are preserved, and raw response JSON is offered as a local download. For an authenticated Observatory page, validated response records are sent in sequential batches of at most five through the existing authenticated, CSRF-protected import API. An API failure leaves the local JSON export available. Network response records and rendered DOM fallback captures remain distinct; DOM-only captures are not misrepresented as raw JSON or uploaded through this path.
@@ -56,7 +52,7 @@ The browser bridge accepts requests only from the local Observatory origin and a
 - Target values indicate maximum attempts, not guaranteed access. Partial count is shown honestly and failures are retained.
 - The latest packaged extension must be reloaded from `build/tracker-collector-extension`; the running Observatory on 8090 has intentionally not been restarted to preserve its active extraction.
 
-M4 is the next phase; M5–M8 remain unstarted.
+M4 followed in sequence; M6–M8 remain unstarted after the M5 completion recorded below.
 
 ## Phase M4 — Backend-backed Match Analysis workspace
 
@@ -74,4 +70,23 @@ No map plot is shown: the source data may contain coordinates, but a matching ma
 
 ### Limitations
 
-M4 has not been authenticated against a running Spring backend in a browser session. Existing H2 Spring and native PostgreSQL API tests cover authorization and persisted values, while the browser’s connected-record UI was exercised with synthetic responses. The production-like map plot, event-coordinate visualization and M5 deterministic coaching findings are not yet available.
+M4 has not been authenticated against a running Spring backend in a browser session. Existing H2 Spring and native PostgreSQL API tests cover authorization and persisted values, while the browser’s connected-record UI was exercised with synthetic responses. The production-like map plot and event-coordinate visualization are not available.
+
+## Phase M5 — Deterministic tactical analysis
+
+**Complete.** Added a versioned Java analysis service, authenticated owner-scoped per-match analysis endpoint, and on-demand Coaching tab report. Metrics cover uniquely timed opening engagements, team conversion after any selected-team opening advantage, reciprocal trade-like kill sequences, per-team recorded loadout comparisons and versioned own-team loadout bands, explicit objective events, multi-kill rounds, no-death rounds, and mean reported damage. Findings link to canonical event IDs/source references and identify the rule/evidence version, confidence, completeness, uncertainty and review question. Missing values stay unavailable. Team loadout bands are explicitly described as heuristic ranges, not source eco/full-buy classifications. Early deaths are descriptive review moments; they are not automatically errors. No aggregate player score is produced.
+
+Clutches, exact trade opportunity, visibility, movement paths, utility value, voice communication, intention and expert judgments remain unavailable. The report explicitly marks these limits and never claims a top-Radiant benchmark; that belongs to a later phase and requires a defensible cohort.
+
+### Verification
+
+- `JAVA_HOME=C:\Users\usuan\.jdks\dragonwell-21.0.12 .\gradlew.bat test --tests com.valorant.leaderboard.matchintelligence.DeterministicMatchAnalyzerTest --tests com.valorant.leaderboard.StandaloneApplicationTest --no-daemon` — **BUILD SUCCESSFUL**. Focused deterministic-rule cases cover selected-player and teammate opening conversion, tied/missing opening timestamps, reciprocal timed trade relationships, economy bands, damage averaging, report version/evidence links, and unauthenticated/owner/other-account API access.
+- `node --check src/main/resources/static/match-intelligence-workspace.js` — passed.
+- `node --test src/test/js/match-analyzer.test.cjs src/test/js/match-intelligence-client.test.cjs src/test/js/match-intelligence-workspace.test.cjs src/test/js/tracker-network-analysis.test.cjs` — 17 passed.
+- No schema change or database migration was required. Existing PostgreSQL M2 tests were not rerun for this phase because M5 only analyzes an already owner-authorized canonical record and does not change persistence; the new route is covered by the focused Spring/H2 authorization regression.
+- The running port-8090 service was not restarted to preserve live extraction. Browser-backed authenticated data for the new coaching report was not available from the static-only source preview; the report renderer is wired to the endpoint but remains pending live application acceptance.
+- ChatGPT in-app browser synthetic fixture verified the M5 Coaching report on desktop and mobile. The report version, loadout caveat, source-linked finding and unavailable-analysis list rendered. At a 390px mobile frame, the document remained 375 CSS px wide (viewport 390px including vertical scrollbar), with tabs contained in their own horizontal scroller. The screenshot inspection exposed touching category/round labels; the spacing was fixed and rechecked. This is synthetic UI verification, not authenticated backend browser acceptance.
+
+### Phase boundary
+
+M5 is complete. M6 contextual benchmarks and cohort/sample adequacy are next; M7 ML and M8 integrated release verification remain unstarted.

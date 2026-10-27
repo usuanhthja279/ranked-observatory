@@ -262,6 +262,14 @@ class StandaloneApplicationTest {
     mvc.perform(get("/api/match-intelligence/matches/"+MatchIntelligenceFixtures.MATCH_ID).with(owner)).andExpect(status().isOk())
         .andExpect(jsonPath("$.perspective.riotId").value(MatchIntelligenceFixtures.PLAYER))
         .andExpect(jsonPath("$.match.rounds",org.hamcrest.Matchers.hasSize(2)));
+    mvc.perform(get("/api/match-intelligence/matches/"+MatchIntelligenceFixtures.MATCH_ID+"/analysis"))
+        .andExpect(status().isUnauthorized());
+    mvc.perform(get("/api/match-intelligence/matches/"+MatchIntelligenceFixtures.MATCH_ID+"/analysis").with(owner))
+        .andExpect(status().isOk()).andExpect(jsonPath("$.analysisVersion").value("deterministic-tactics-v1"))
+        .andExpect(jsonPath("$.metrics",org.hamcrest.Matchers.hasSize(13)))
+        .andExpect(jsonPath("$.findings[0].matchId").value(MatchIntelligenceFixtures.MATCH_ID));
+    mvc.perform(get("/api/match-intelligence/matches/"+MatchIntelligenceFixtures.MATCH_ID+"/analysis").with(other))
+        .andExpect(status().isNotFound());
     mvc.perform(get("/api/match-intelligence/matches/"+MatchIntelligenceFixtures.MATCH_ID+"/rounds/1").with(owner)).andExpect(status().isOk())
         .andExpect(jsonPath("$.roundNumber").value(1)).andExpect(jsonPath("$.playerRounds",org.hamcrest.Matchers.hasSize(10)));
     mvc.perform(get("/api/match-intelligence/matches/"+MatchIntelligenceFixtures.MATCH_ID).with(other)).andExpect(status().isNotFound());
