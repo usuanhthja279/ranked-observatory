@@ -49,3 +49,11 @@ Actual browser captures were taken and inspected in ChatGPT's in-app browser at 
 ## Restart and data safety
 
 The app was stopped and restarted through `scripts/Stop-LeaderboardService.ps1` and `scripts/Start-LeaderboardService.ps1`. The post-restart health endpoint responded on port 8090; PostgreSQL-backed snapshot reads succeeded. No collection endpoint or provider-profile lookup was invoked. Latest successful snapshot ID remains 400.
+
+## Search focus follow-up
+
+- The Find a player dialog intentionally focuses its search input on open; `Ctrl+K` opens it and `Escape` closes it and restores focus to the trigger.
+- The blue inset ring duplicated the search field's existing teal `:focus-within` treatment. Removed the inset ring while keeping a visible focus state on the field container.
+- ChatGPT in-app browser verification after restart: modal opens with one teal focus treatment, Ctrl+K opens it, and Escape closes it. No player query was submitted.
+- `JAVA_HOME=C:\Users\usuan\.jdks\dragonwell-21.0.12 .\gradlew.bat bootJar` — **PASS**. `git diff --check` — **PASS**.
+- Restarted on port 8090 using the repository scripts. The all-extraction pause marker remained present; startup log confirms archive extraction remains paused. HTTP GET `/countries` returned 200 and rendered in the in-app browser.
