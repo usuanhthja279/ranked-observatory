@@ -54,7 +54,7 @@ async function initializeActFilter(){
  const response=await fetch('/api/leaderboard/acts');if(!response.ok)throw new Error('Unable to load available acts.');const acts=await response.json();
  const current=acts.find(a=>a.current_act);currentAct=current?.act||'';if(view==='archive'&&(!selectedAct||selectedAct===currentAct||!acts.some(a=>a.act===selectedAct&&!a.current_act)))selectedAct=acts.find(a=>!a.current_act)?.act||currentAct;if(!selectedAct||!acts.some(a=>a.act===selectedAct))selectedAct=currentAct;globalThis.syncShellNavigation?.(currentAct,selectedAct);
  $('actFilter').dataset.acts=JSON.stringify(acts);$('actFilter').innerHTML=acts.map(a=>`<option value="${esc(a.act)}">${esc(a.label)}${a.current_act?' · Live':''}</option>`).join('');$('actFilter').value=selectedAct;
- $('masthead').querySelector('.brand-eyebrow').href=pageUrl('world');const globalLink=$('regionSection').querySelector('a.page-link');if(globalLink)globalLink.href=pageUrl('global');
+ $('masthead').querySelector('.brand-eyebrow').href=pageUrl('world');const globalLink=$('overviewGlobalLink');if(globalLink)globalLink.href=pageUrl('global');
 $('actFilter').onchange=()=>{let next=$('actFilter').value;if(view==='archive'&&next===currentAct)next=(JSON.parse($('actFilter').dataset.acts||'[]').find(a=>!a.current_act)?.act)||currentAct;const p=new URLSearchParams(location.search);if(next===currentAct)p.delete('act');else p.set('act',next);if(view==='global')p.delete('page');location.href=location.pathname+(p.toString()?'?'+p:'');};
 }
 const tierBadge=name=>{const normalized=String(name).replace(/s$/,'');const slug={'Radiant':'radiant','Immortal 1':'immortal-1','Immortal 2':'immortal-2','Immortal 3':'immortal-3','Immortal':'immortal-3'}[normalized];return slug?`<img class="rank-icon" src="/ranks/${slug}.png" alt="${esc(name)}" title="${esc(normalized==='Immortal'?'Immortal · all tiers':name)}" width="28" height="28">`:esc(name);};
@@ -293,6 +293,7 @@ function setScope(){
  if(view==='watchlist'){setWatchlistScope();return;}
  if(view==='settings'){setSettingsScope();return;}
  const historical=Boolean(data?.status?.archiveOnly),hasRegion=region!=='all',hasCountry=hasRegion&&country!=='all',detail=view==='region'||view==='country';
+ $('historicalTrendDisclosure').classList.toggle('hidden',view==='world');
  $('overviewActivitySection').classList.toggle('hidden',view!=='world'||historical);$('masthead').classList.toggle('overview-masthead',view==='world');
  $('regionSection').classList.toggle('hidden',detail);$('regionTableSection').classList.toggle('hidden',detail);
  $('trendLayout').classList.toggle('hidden',!detail&&!hasRegion);$('trendLayout').classList.toggle('world-preview',false);$('trendLayout').classList.toggle('world-country-pair',view==='world');

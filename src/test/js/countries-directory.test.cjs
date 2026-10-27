@@ -37,3 +37,16 @@ test('sort choices order full filtered results deterministically', () => {
   assert.deepEqual(selectRows(worldRows, regionRows, {sort: 'name', names}).rows.map(row => row.country), ['in', 'jp', 'unknown']);
   assert.deepEqual(selectRows(worldRows, regionRows, {sort: 'radiant', names}).rows.map(row => row.country), ['in', 'jp', 'unknown']);
 });
+
+test('unknown country follows the first twelve named countries at the bottom of page one', () => {
+  const rows = Array.from({length: 13}, (_, index) => ({country: `c${String(index).padStart(2, '0')}`, players: 100 - index, radiant: 0}));
+  rows.push({country: 'unknown', players: 1000, radiant: 999});
+  const first = selectRows(rows, {}, {sort: 'players', page: 1, pageSize: 12, names});
+  const second = selectRows(rows, {}, {sort: 'players', page: 2, pageSize: 12, names});
+  assert.equal(first.pageRows.length, 13);
+  assert.equal(first.pageRows.at(-1).country, 'unknown');
+  assert.ok(first.pageRows.slice(0, 12).every(row => row.country !== 'unknown'));
+  assert.equal(second.pageRows.length, 1);
+  assert.notEqual(second.pageRows[0].country, 'unknown');
+  assert.equal(second.pageRows[0].country, 'c12');
+});

@@ -62,3 +62,18 @@ test('comparison limits windows to supported bounded intervals',()=>{
   assert.equal(result.windowMinutes,60);
   assert.equal(result.available,true);
 });
+
+test('country comparison accepts at most ten available unique countries',()=>{
+  const available=Array.from({length:12},(_,index)=>`c${index}`);
+  assert.deepEqual(Array.from(context.compareAnalysis.normalizeCountrySelection(['c1','c1','missing',...available],available)),['c1','c0','c2','c3','c4','c5','c6','c7','c8','c9']);
+});
+
+test('country trend alignment shares snapshot timestamps and omits ambiguous points',()=>{
+  const aligned=context.compareAnalysis.alignCountryHistories([
+    {label:'India',rows:[{completed_at:'2026-10-01T00:00:00Z',players:100},{completed_at:'2026-10-02T00:00:00Z',players:120,carried_forward:true}]},
+    {label:'Japan',rows:[{completed_at:'2026-10-01T00:00:00Z',players:80},{completed_at:'2026-10-03T00:00:00Z',players:90}]}
+  ]);
+  assert.equal(aligned.times.length,2);
+  assert.deepEqual(Array.from(aligned.series[0].values),[100,null]);
+  assert.deepEqual(Array.from(aligned.series[1].values),[80,90]);
+});

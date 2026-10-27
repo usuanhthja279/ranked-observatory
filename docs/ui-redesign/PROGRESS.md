@@ -522,3 +522,16 @@ Phase 10 is complete. The final full Gradle run passed 59 tests with 0 failures/
 - Supplemental Phase 10 Trends export: fixed route-state code that re-disabled CSV after data load; all 17 focused JavaScript tests passed, bootJar succeeded, and a CSV was downloaded and inspected in the built-in browser after restarting port 8090 with extraction still paused.
 
 Phase 10 is complete; phases 2–10 are implemented and verified on `codex/ranked-observatory`. The service was rebuilt and restarted on port 8090 after the final correction.
+
+## User comment follow-up — 27 Oct 2026
+
+- Removed the Historical Act trends disclosure from Overview while keeping the full Act trends workspace on `/trends`.
+- Changed the header control to “Search players” and placed the `Ctrl + K` hint in the desktop sidebar note.
+- Moved Unknown country beneath the first 12 named country cards on the Countries page; page one now reports the additional card in its pagination range.
+- Added Trends focus for all regions, selected countries in a chosen region, and saved player RR history. Country trends support up to 10 selections.
+- Expanded country comparison to 2–10 selected countries with a shared saved-snapshot chart.
+- Added player search suggestions on the authenticated Watchlist page and an Overview shortcut. During browser verification, the shortcut initially opened Global because the existing script selected the first generic page link; stable link IDs corrected the target.
+- Reworked the responsive masthead for narrow layouts. Reviewed the Overview, Trends country picker, and Compare screen in the ChatGPT in-app browser at its available 700 × 668 viewport.
+- Focused verification: `node --test src/test/js/countries-directory.test.cjs src/test/js/compare-analysis.test.cjs src/test/js/act-trends-export.test.cjs src/test/js/overview-shortcut.test.cjs` — **PASS, 16 tests**; `node --check` for the changed JavaScript — **PASS**; `git diff --check` — **PASS**; `bootJar` with the installed Java 21 JDK — **PASS**.
+- The Watchlist correctly gates its private items behind sign-in. This browser session was signed out, so player suggestion selection and authenticated saving were not submitted; no account or watchlist data was changed.
+- Restarted the packaged app on port 8090 and verified the Overview shortcut opens `/watchlist`. Collector status remains `enabled:false`, `paused:true`, `running:false`; no extraction was started.

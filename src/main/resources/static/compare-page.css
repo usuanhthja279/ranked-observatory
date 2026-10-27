@@ -13,6 +13,24 @@
 .compare-section-heading .compare-kicker{margin:0}
 .compare-basis{padding:8px 12px;border:1px solid #31485e;border-radius:999px;background:#14263a;color:#b6c8d9;font-size:.82rem}
 .compare-selectors{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.compare-country-options{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,190px),1fr));gap:8px;max-height:260px;overflow:auto;margin-top:12px;padding:2px}
+.compare-country-option{display:grid;grid-template-columns:22px minmax(0,1fr) auto;align-items:center;gap:8px;min-width:0;padding:9px 10px!important;text-align:left;font-size:.82rem!important}
+.compare-country-option[aria-pressed=true]{border-color:#3ac5b1!important;background:#163b43!important;color:#9ae9dc!important}
+.compare-country-option small{color:#9fb2c4;font-size:.7rem}
+.compare-country-chips,.compare-country-legend{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.compare-country-chip{min-height:34px!important;padding:6px 10px!important;border-color:#35615e!important;background:#163b43!important;color:#a3eadc!important;font-size:.78rem!important}
+.compare-country-result-heading{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:14px}
+.compare-country-result-heading h3{margin:3px 0}
+.compare-country-table-wrap{width:100%;overflow:auto;border:1px solid #2a4055;border-radius:14px}
+.compare-country-table-wrap table{width:100%;min-width:680px;border-collapse:collapse}
+.compare-country-table-wrap th,.compare-country-table-wrap td{padding:11px 13px;border-bottom:1px solid #283d51;text-align:left;white-space:nowrap}
+.compare-country-trend{margin-top:24px;padding-top:18px;border-top:1px solid #2b4056}
+.compare-country-trend h3{margin:0 0 12px}
+.compare-country-chart-scroll{width:100%;overflow-x:auto}
+.compare-country-chart-scroll svg{display:block;width:100%;min-width:560px;height:auto;overflow:visible}
+.compare-country-legend-item{display:inline-flex;align-items:center;gap:7px;color:#b7c8d7;font-size:.78rem}
+.compare-country-legend-item i{width:10px;height:10px;border-radius:50%;background:var(--series-color)}
+.compare-country-chart-empty{padding:24px;border:1px dashed #385169;border-radius:12px;color:#9fb2c4}
 .compare-field{display:grid;gap:7px;min-width:0;color:#b9c9d8;font-size:.86rem;font-weight:700}
 .compare-field select,.compare-field input,.compare-window select{width:100%;min-width:0;min-height:46px;padding:10px 12px;border:1px solid #314a61;border-radius:12px;background:#0b1826;color:#f2f6fa;font:inherit}
 .compare-field input::placeholder{color:#8496a8}

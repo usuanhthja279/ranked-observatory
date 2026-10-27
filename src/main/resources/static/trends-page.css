@@ -4,6 +4,17 @@
 .act-trend-heading-tools { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
 #trendsPageWorkspace #historicalTrendDisclosure { display: block; margin: 0; }
 #trendsPageWorkspace #historicalTrendDisclosure > summary { display: none; }
+.act-trend-focus{display:grid;grid-template-columns:minmax(0,1fr);gap:7px;max-width:360px;margin:0 0 16px;color:#b9c9d8;font-size:.86rem;font-weight:700}
+.act-trend-focus select,.act-trend-player-workspace input{width:100%;min-height:44px;padding:10px 12px;border:1px solid #314a61;border-radius:12px;background:#0b1826;color:#f2f6fa;font:inherit}
+.act-trend-player-workspace{margin:0 0 18px;padding:18px;border:1px solid #294157;border-radius:16px;background:#0e1b2a}
+.act-trend-player-workspace h3{margin:0 0 6px}
+.act-trend-player-workspace>p{color:#a9bacb;line-height:1.55}
+.act-trend-player-workspace>label{display:grid;gap:7px;max-width:620px;color:#b9c9d8;font-weight:700}
+#actTrendPlayerOptions{display:grid;gap:6px;max-width:620px;max-height:240px;overflow:auto;margin-top:8px}
+#actTrendPlayerOptions button{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:9px 12px;border:1px solid #314a61;border-radius:10px;background:#14263a;color:#e8f1fa;text-align:left}
+#actTrendPlayerOptions button small{color:#9fb2c4}
+#actTrendPlayerChart{display:block;width:100%;height:260px;margin-top:12px;border:1px solid #25384b;border-radius:12px;background:#0a1521}
+#actTrendPlayerNote{min-height:20px;color:#9fb2c4}
 #trendsPageWorkspace #actTrendsSection { margin-top: 0; }
 #trendsPageWorkspace #actTrendChart { min-width: 0; }
 @media (max-width: 760px) {

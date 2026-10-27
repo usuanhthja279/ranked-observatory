@@ -23,6 +23,7 @@ body { margin: 0; background: var(--obs-bg); color: var(--obs-ink); }
 .observatory-nav-link[aria-current="page"], .observatory-nav-link[aria-pressed="true"] { border-color: #27515d; background: #12323c; color: var(--obs-teal); }
 .observatory-nav-icon { display: grid; width: 22px; height: 22px; flex: 0 0 22px; place-items: center; font-size: 16px; }
 .observatory-sidebar-note { margin: auto 9px 0; color: var(--obs-muted); font-size: 11px; line-height: 1.5; }
+.sidebar-shortcut { display: block; margin-top: 8px; color: var(--obs-teal); }
 .observatory-app > main { box-sizing: border-box; width: 100%; min-width: 0; max-width: none; margin: 0; padding: 24px clamp(18px, 2.8vw, 42px) 40px; }
 .skip-to-content { position: fixed; z-index: 30; top: 8px; left: 8px; padding: 10px 14px; transform: translateY(-150%); border-radius: 8px; background: var(--obs-ink); color: var(--obs-sidebar); }
 .skip-to-content:focus { transform: translateY(0); }
@@ -46,6 +47,21 @@ body { margin: 0; background: var(--obs-bg); color: var(--obs-ink); }
   .act-trend-range-row select, .act-trend-scope-row select { width: 100%; min-width: 0 !important; max-width: none !important; }
   .act-trend-country-multi { width: 100% !important; min-width: 0 !important; max-width: 100% !important; grid-template-columns: minmax(0, 1fr) !important; }
   .act-trend-country-multi > * { min-width: 0 !important; max-width: 100%; }
+}
+
+@media (max-width: 900px) {
+  #masthead.masthead { display: grid; grid-template-columns: minmax(0, 1fr); align-items: start; gap: 14px; }
+  #masthead .header-meta { width: 100%; min-width: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: center; justify-items: stretch; gap: 12px; padding-top: 0; margin-top: 0; text-align: left; }
+  #masthead .updated-label { min-width: 0; text-align: left; }
+  #masthead .header-meta .toolbar { min-width: 0; justify-content: flex-start; }
+  #masthead .header-meta .toolbar > * { min-width: 0; max-width: 100%; }
+}
+
+@media (max-width: 520px) {
+  #masthead .header-meta { grid-template-columns: minmax(0, 1fr); }
+  #masthead .header-meta .toolbar { display: grid; grid-template-columns: minmax(0, 1fr); }
+  #masthead .header-meta .toolbar .act-filter { width: 100%; }
+  #masthead .header-meta .toolbar .act-filter select { width: 100%; min-width: 0; }
 }
 
 @media (prefers-reduced-motion: reduce) {

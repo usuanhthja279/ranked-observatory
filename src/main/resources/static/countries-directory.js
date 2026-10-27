@@ -23,13 +23,21 @@
     let rows = (region === 'all' ? allRows || [] : byRegion?.[region] || []).map(row => ({...row, country: row.country || 'unknown', regions: index.get(row.country || 'unknown') || []}));
     rows = rows.filter(row => !needle || `${names[row.country] || row.country} ${row.country}`.toLocaleLowerCase().includes(needle));
     rows.sort((a, b) => {
+      if (a.country === 'unknown' || b.country === 'unknown') return a.country === b.country ? 0 : a.country === 'unknown' ? 1 : -1;
       if (sort === 'name') return String(names[a.country] || a.country).localeCompare(String(names[b.country] || b.country));
       const aValue = sort === 'radiant' ? Number(a.radiant_confirmed ?? a.radiant ?? 0) : Number(a.players || 0);
       const bValue = sort === 'radiant' ? Number(b.radiant_confirmed ?? b.radiant ?? 0) : Number(b.players || 0);
       return bValue - aValue || String(names[a.country] || a.country).localeCompare(String(names[b.country] || b.country));
     });
-    const pages = Math.max(1, Math.ceil(rows.length / Math.max(1, pageSize))), currentPage = Math.min(pages, Math.max(1, Number(page) || 1));
-    return {rows, pageRows: rows.slice((currentPage - 1) * pageSize, currentPage * pageSize), page: currentPage, pages, total: rows.length, regionNames};
+    const unknown = rows.find(row => row.country === 'unknown');
+    const namedRows = rows.filter(row => row.country !== 'unknown');
+    const size = Math.max(1, pageSize);
+    const pages = Math.max(1, Math.ceil(namedRows.length / size)), currentPage = Math.min(pages, Math.max(1, Number(page) || 1));
+    const pageRows = namedRows.slice((currentPage - 1) * size, currentPage * size);
+    // Keep the unclassified aggregate visible after the first page of named
+    // countries; it is useful context but should not displace a named country.
+    if (currentPage === 1 && unknown) pageRows.push(unknown);
+    return {rows, pageRows, page: currentPage, pages, total: rows.length, hasUnknown: Boolean(unknown), regionNames};
   }
   return {REGION_KEYS, REGION_LABELS, indexRegions, selectRows};
 });
@@ -89,7 +97,8 @@ function mount(root, model) {
       const reportedTiers = [['Radiant', row.radiant_confirmed ?? row.radiant], ['Immortal 3', row.immortal3], ['Immortal 2', row.immortal2], ['Immortal 1', row.immortal1]].filter(([, value]) => value != null);
       return `<article class="country-directory-card"><div class="country-directory-name">${row.country === 'unknown' ? '<span class="unknown-symbol" aria-hidden="true">?</span>' : `<img class="flag" src="/flags/${encodeURIComponent(row.country)}.svg" alt="" loading="lazy">`}<span>${esc(names[row.country] || (row.country === 'unknown' ? 'Unknown country' : row.country))}</span><span class="country-directory-code">${esc(code)}</span></div><div class="country-directory-count">${fmt(row.players)}<small>observed entries</small></div><div class="country-directory-tiers">${reportedTiers.map(([label, value]) => `<span>${esc(label)} · ${fmt(value)}</span>`).join('') || '<span>Rank detail unavailable</span>'}</div><div class="country-directory-regions"><span>Regional views</span>${regionLinks(row)}</div></article>`;
     }).join('') : '<div class="countries-empty">No country labels match these filters. Try another name, code or region.</div>';
-    $('countriesPageLabel').textContent = selected.total ? `Showing ${(selected.page - 1) * 12 + 1}–${Math.min(selected.page * 12, selected.total)} of ${fmt(selected.total)}` : '0 countries';
+    const pageStart = selected.page === 1 ? 1 : 13 + (selected.hasUnknown ? 1 : 0) + (selected.page - 2) * 12;
+    $('countriesPageLabel').textContent = selected.total ? `Showing ${pageStart}–${pageStart + selected.pageRows.length - 1} of ${fmt(selected.total)}` : '0 countries';
     $('countriesPrevious').disabled = selected.page <= 1;
     $('countriesNext').disabled = selected.page >= selected.pages;
     $('countriesPagination').hidden = selected.pages <= 1;
