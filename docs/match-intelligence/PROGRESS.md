@@ -90,3 +90,9 @@ Clutches, exact trade opportunity, visibility, movement paths, utility value, vo
 ### Phase boundary
 
 M5 is complete. M6 contextual benchmarks and cohort/sample adequacy are next; M7 ML and M8 integrated release verification remain unstarted.
+
+### M5 correction — restore the owner-selected player perspective
+
+A post-phase review found that canonical match versions intentionally strip selected-player identity so shared match records do not retain an importing account's perspective. The analysis route now restores the requesting owner's selected-player perspective in memory from that owner's import link before calculating player metrics. It does not alter the shared canonical record or widen owner-scoped access.
+
+Focused verification: the Spring endpoint regression asserts that the selected player's opening-kill metric is computed as 1/1 for the owner and that another account still receives not found. `StandaloneApplicationTest` passed with the focused M5 analyzer suite. This correction was found before beginning M6.

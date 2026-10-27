@@ -267,6 +267,9 @@ class StandaloneApplicationTest {
     mvc.perform(get("/api/match-intelligence/matches/"+MatchIntelligenceFixtures.MATCH_ID+"/analysis").with(owner))
         .andExpect(status().isOk()).andExpect(jsonPath("$.analysisVersion").value("deterministic-tactics-v1"))
         .andExpect(jsonPath("$.metrics",org.hamcrest.Matchers.hasSize(13)))
+        .andExpect(jsonPath("$.metrics[0].key").value("player_opening_kills"))
+        .andExpect(jsonPath("$.metrics[0].numerator").value(1))
+        .andExpect(jsonPath("$.metrics[0].denominator").value(1))
         .andExpect(jsonPath("$.findings[0].matchId").value(MatchIntelligenceFixtures.MATCH_ID));
     mvc.perform(get("/api/match-intelligence/matches/"+MatchIntelligenceFixtures.MATCH_ID+"/analysis").with(other))
         .andExpect(status().isNotFound());

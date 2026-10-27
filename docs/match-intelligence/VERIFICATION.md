@@ -89,3 +89,15 @@ node --test src/test/js/match-analyzer.test.cjs src/test/js/match-intelligence-c
 Result: syntax check passed; 17 Node tests passed. PostgreSQL was not rerun because no schema or persistence code changed in M5. No live Tracker requests, collection/admin API calls, or restarts of the active 8090 application occurred. Browser backend verification of the Coaching report remains pending because 8091 is static-only; synthetic browser evidence must be separately identified if used.
 
 ChatGPT in-app browser verification used the ignored synthetic-only preview on port 8092. The Coaching tab displayed a synthetic report on desktop and in a 390-pixel mobile iframe. The measured mobile document width was 375 CSS px with a 390px viewport and the horizontal tab overflow was confined to the tab strip. The finding category and round labels were visually inspected; their spacing was corrected. This does not verify the new endpoint against a live authenticated browser session, because the port-8091 preview is static-only and port 8090 was intentionally left running without a restart.
+
+## M5 owner-perspective correction
+
+Command:
+
+```powershell
+$env:JAVA_HOME='C:\Users\usuan\.jdks\dragonwell-21.0.12'
+$env:Path="$env:JAVA_HOME\bin;$env:Path"
+.\gradlew.bat test --tests com.valorant.leaderboard.matchintelligence.DeterministicMatchAnalyzerTest --tests com.valorant.leaderboard.StandaloneApplicationTest --no-daemon
+```
+
+Result: **BUILD SUCCESSFUL**. The analysis endpoint regression verifies selected-player opening kills are calculated from the authenticated import perspective after canonical shared data has had that perspective stripped. A different owner remains unable to read the match. Shared stored canonical JSON is unchanged.

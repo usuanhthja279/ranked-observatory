@@ -93,7 +93,7 @@ public class MatchIntelligenceController {
   @GetMapping("/matches/{matchId}/analysis")
   public DeterministicMatchAnalyzer.Report analysis(Authentication authentication, @PathVariable String matchId) {
     // Reuse the owner-scoped lookup so the analyzer cannot expose another account's match.
-    return analyzer.analyze(store.getMatch(authentication.getName(), matchId).match());
+    return analyzer.analyze(store.getMatch(authentication.getName(), matchId).withSelectedPerspective());
   }
 
   @GetMapping("/matches/{matchId}/rounds/{roundNumber}")

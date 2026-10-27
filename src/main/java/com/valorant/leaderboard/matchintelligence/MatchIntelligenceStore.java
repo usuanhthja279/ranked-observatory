@@ -54,7 +54,18 @@ public class MatchIntelligenceStore {
   public record MatchPage(int page, int size, long total, List<MatchSummary> matches) { }
   public record PlayerPerspective(String identity, String riotId, String teamId) { }
   public record MatchView(CanonicalMatch match, PlayerPerspective perspective,
-      MatchProvenanceService.Provenance provenance, String quality, List<MatchValidationIssue> issues) { }
+      MatchProvenanceService.Provenance provenance, String quality, List<MatchValidationIssue> issues) {
+    /** Rehydrate the owner-specific perspective only for calculations that need a selected player. */
+    public CanonicalMatch withSelectedPerspective() {
+      return new CanonicalMatch(match.provider(), match.providerMatchId(), match.responseSource(),
+          match.modeKey(), match.modeName(), match.queueId(), match.mapId(), match.mapName(), match.patch(),
+          match.actId(), match.startedAt(), match.durationMillis(), match.ranked(), match.overtime(),
+          match.complete(), perspective.identity(), perspective.riotId(), perspective.teamId(),
+          match.teams(), match.participants(), match.rounds(), match.playerRounds(), match.damageInteractions(),
+          match.events(), match.positions(), match.mapTransform(), match.availability(), match.provenance(),
+          match.parserVersion(), match.dataQuality(), match.issues());
+    }
+  }
   public record RoundView(String providerMatchId, int roundNumber, PlayerPerspective perspective,
       Round round, List<PlayerRound> playerRounds, List<DamageInteraction> damageInteractions,
       List<MatchEvent> events, List<PositionSnapshot> positions) { }
