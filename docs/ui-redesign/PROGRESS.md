@@ -479,3 +479,28 @@ Phase 8 is complete. Continue to Phase 9A; keep all extraction paused.
 - No extraction was resumed. Historical policy is explicit and versioned in persisted Act metadata; introducing a new policy family will require adding it to the constrained policy set and assigning it deliberately.
 
 Phase 9A is complete. Continue to Phase 9B; keep all extraction paused.
+
+## Phase 9B — Worker ownership, profile request bounds and measured reads
+
+### Changes
+
+- Added a PostgreSQL session advisory lock for the historical archive worker. It is acquired before catalog seeding or stale `RUNNING` recovery; instances without ownership skip archive writes/scheduling. Connection loss releases ownership automatically. Shutdown stops workers and waits before releasing the lock.
+- Archive status reports whether this instance owns the worker and reports scheduling as paused when it does not.
+- Added same-player profile single-flight on top of the existing two-request semaphore and bounded provider timeout. Concurrent callers share one provider request; follower waits are capped at 35 seconds and then return an unavailable/busy result without affecting other project statistics.
+- Added an isolated PostgreSQL test database: `ranked_observatory_redesign_test`. No live archive tables were used for worker contention/recovery checks.
+
+### Verification
+
+- `JAVA_HOME=C:\Users\usuan\.jdks\dragonwell-21.0.12 .\gradlew.bat test --tests com.valorant.leaderboard.PostgresArchiveWorkerLockIntegrationTest --tests com.valorant.leaderboard.TrackerProfilesSingleFlightTest --tests com.valorant.leaderboard.HistoricalActArchiveServiceTest --tests com.valorant.leaderboard.HistoricalActArchiveSummaryTest --tests com.valorant.leaderboard.HistoricalTrendsQueryServiceTest --tests com.valorant.leaderboard.DashboardCacheRevisionTest --tests com.valorant.leaderboard.HistoricalRankPolicyTest bootJar` — **PASS**, including PostgreSQL two-connection lock contention and lock recovery after connection close, profile single-flight, archive, cache, rank policy and trends regressions.
+- `git diff --check` — **PASS** (line-ending conversion warnings only).
+- Packaged app restart on port 8090 — **PASS**. Flyway reports V10 current; archive status reports `workerOwner:true`, `paused:true`, `running:false`, `scheduled:false`.
+- Data extraction status — **PASS**: live collector is `enabled:false`, `paused:true`, `running:false`; latest successful snapshot is still 400. No source calls were made.
+- ChatGPT in-app browser — **PASS** after final restart: archive summary and Act trend chart/table loaded with saved source data.
+- Local read-only API timing samples (three per endpoint; cold/warm effects included): `/api/leaderboard/acts` 22.3/37.2/25.5 ms (median 25.5 ms); `/api/leaderboard/trends/capabilities` 15,593.2/13.6/12.2 ms (median 13.6 ms after cache warm); bounded APAC top-100 trend series 73.6/18.9/19.7 ms (median 19.7 ms). The first capability calculation is a visible cold-start cost; subsequent requests are served quickly from the revision-aware cache.
+
+### Limits
+
+- PostgreSQL lock integration covers the shared advisory-lock primitive with two independent connections, and the actual application reports ownership while paused. It does not start a second Spring process; that would exercise more startup paths than needed for the lock test.
+- The capability endpoint has a 15.6-second cold calculation over the existing archive and is 12–14 ms warm. Further query/precompute optimization can be considered separately if cold first-view latency is unacceptable.
+
+Phase 9B is complete. Continue to Phase 10; keep all extraction paused.

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,24 +15,39 @@ public class TrackerProfiles {
  private final TrackerLeaderboardClient client;private final String act;
  private record Entry(Map<String,Object> value,Instant expires){}
  private final Map<String,Entry> cache=new LinkedHashMap<>(256,.75f,true);
+ private final ConcurrentMap<String,CompletableFuture<Map<String,Object>>> inFlight=new ConcurrentHashMap<>();
  private final Semaphore permits=new Semaphore(2);
  private final JdbcTemplate db;
  public TrackerProfiles(TrackerLeaderboardClient client,String act){this(client,act,null);}
  @Autowired public TrackerProfiles(TrackerLeaderboardClient client,@Value("${leaderboard.act:d816f426-48ea-f052-117f-9697a155b319}")String act,JdbcTemplate db){this.client=client;this.act=act;this.db=db;}
  public Map<String,Object> get(String player){
   String key=player.toLowerCase(Locale.ROOT);synchronized(cache){var entry=cache.get(key);if(entry!=null&&entry.expires.isAfter(Instant.now()))return entry.value;}
-  if(!permits.tryAcquire())return Map.of("available",false,"message","Profile lookup busy. Snapshot statistics remain available.");
+  var own=new CompletableFuture<Map<String,Object>>();var active=inFlight.putIfAbsent(key,own);
+  if(active!=null){
+   try{return active.get(35,TimeUnit.SECONDS);}
+   catch(InterruptedException e){Thread.currentThread().interrupt();return unavailable("Profile lookup interrupted. Snapshot statistics remain available.");}
+   catch(ExecutionException|TimeoutException e){return unavailable("Profile lookup busy. Snapshot statistics remain available.");}
+  }
+  Map<String,Object> result;
+  try{result=fetch(player,key);own.complete(result);return result;}
+  catch(RuntimeException error){var unavailable=unavailable("Profile lookup is unavailable. Snapshot statistics remain available.");own.complete(unavailable);return unavailable;}
+  finally{inFlight.remove(key,own);}
+ }
+
+ private Map<String,Object> fetch(String player,String key){
+  if(!permits.tryAcquire())return unavailable("Profile lookup busy. Snapshot statistics remain available.");
   Map<String,Object> result;
   try{result=parse(client.fetchProfile(player,act),player,act);
    if(db!=null&&result.containsKey("country"))db.update("insert into reported_profile_countries(player_key,country,fetched_at) values(lower(?),?,current_timestamp) on conflict(player_key) do update set country=excluded.country,fetched_at=excluded.fetched_at",player,result.get("country"));
   }
-  catch(InterruptedException e){Thread.currentThread().interrupt();result=Map.of("available",false,"message","Profile lookup interrupted.");}
-  catch(Exception e){result=Map.of("available",false,"message","Tracker profile is unavailable or private. Snapshot statistics remain available.");}
+  catch(InterruptedException e){Thread.currentThread().interrupt();result=unavailable("Profile lookup interrupted. Snapshot statistics remain available.");}
+  catch(Exception e){result=unavailable("Tracker profile is unavailable or private. Snapshot statistics remain available.");}
   finally{permits.release();}
   int minutes=Boolean.TRUE.equals(result.get("available"))?15:5;
   synchronized(cache){cache.put(key,new Entry(result,Instant.now().plusSeconds(minutes*60L)));while(cache.size()>256)cache.remove(cache.keySet().iterator().next());}
   return result;
  }
+ private static Map<String,Object> unavailable(String message){return Map.of("available",false,"message",message);}
  static Map<String,Object> parse(JsonNode root,String player,String act){
   JsonNode data=root.path("data");
   if(!data.path("platformInfo").path("platformUserIdentifier").asText().equalsIgnoreCase(player)||!data.path("metadata").path("defaultPlatform").asText().equals("pc"))throw new IllegalStateException("Profile identity/platform mismatch");

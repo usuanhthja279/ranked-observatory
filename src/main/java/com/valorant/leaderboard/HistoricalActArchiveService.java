@@ -7,6 +7,8 @@ import java.time.*;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -34,6 +36,9 @@ public class HistoricalActArchiveService {
   private final ExecutorService pageFetchers=Executors.newFixedThreadPool(PAGE_CONCURRENCY,r->{var t=new Thread(r,"historical-act-page");t.setDaemon(true);return t;});
   private final ScheduledExecutorService scheduler=Executors.newSingleThreadScheduledExecutor(r->{var t=new Thread(r,"historical-act-archive-resume");t.setDaemon(true);return t;});
   private final AtomicBoolean running=new AtomicBoolean();
+  private static final long ARCHIVE_WORKER_LOCK=782613505L;
+  private volatile Connection workerLockConnection;
+  private volatile boolean workerOwner;
   private static final int PAGE_CONCURRENCY=5;
   @Value("${leaderboard.pause-all-extraction:false}") private boolean pauseAllExtraction;
   @Value("${leaderboard.historical.max-pages:10000}") private int maxPages=10000;
@@ -47,10 +52,41 @@ public class HistoricalActArchiveService {
 
   @EventListener(ApplicationReadyEvent.class)
   public void start(){
+    if(!acquireWorkerOwnership())return;
     try{seedCatalog();db.update("update historical_act_sources set status='PENDING',error=null where status='RUNNING'");}
-    catch(Exception e){log.error("Historical act archive could not initialize; it will remain resumable on next startup",e);return;}
+    catch(Exception e){releaseWorkerOwnership();log.error("Historical act archive could not initialize; it will remain resumable on next startup",e);return;}
+    if(pauseAllExtraction){log.info("Historical archive worker owner acquired; extraction remains paused by configuration");return;}
     // Delay the first archive request so the current-act extraction can establish its live queue first.
     scheduler.scheduleWithFixedDelay(this::scheduleWork,30,60,TimeUnit.SECONDS);
+  }
+
+  private synchronized boolean acquireWorkerOwnership(){
+    if(workerLockConnection!=null)return true;
+    Connection connection=null;
+    try{
+      connection=Objects.requireNonNull(db.getDataSource()).getConnection();
+      try(PreparedStatement statement=connection.prepareStatement("select pg_try_advisory_lock(?)")){
+        statement.setLong(1,ARCHIVE_WORKER_LOCK);
+        try(var result=statement.executeQuery()){
+          result.next();
+          if(!result.getBoolean(1)){connection.close();log.warn("Historical archive worker is owned by another application instance; this instance will remain read-only for archive work");return false;}
+        }
+      }
+      workerLockConnection=connection;workerOwner=true;return true;
+    }catch(Exception error){
+      if(connection!=null)try{connection.close();}catch(Exception ignored){}
+      log.error("Could not acquire the PostgreSQL historical archive worker lock; archive work remains disabled",error);
+      return false;
+    }
+  }
+
+  private synchronized void releaseWorkerOwnership(){
+    Connection connection=workerLockConnection;workerLockConnection=null;workerOwner=false;
+    if(connection==null)return;
+    try(PreparedStatement statement=connection.prepareStatement("select pg_advisory_unlock(?)")){
+      statement.setLong(1,ARCHIVE_WORKER_LOCK);statement.execute();
+    }catch(Exception error){log.warn("Could not explicitly release historical archive worker lock; connection close will release it",error);}
+    finally{try{connection.close();}catch(Exception ignored){}}
   }
 
   private void seedCatalog() throws Exception {
@@ -163,7 +199,7 @@ public class HistoricalActArchiveService {
     var sourceTime=db.queryForObject("select max(source_updated_at) from historical_act_sources where act=?",OffsetDateTime.class,act);
     int pages=sources.stream().mapToInt(s->((Number)s.get("pages")).intValue()).sum();int sourceRows=sources.stream().mapToInt(s->((Number)s.get("players")).intValue()).sum();
     var progress=new LinkedHashMap<String,Object>();progress.put("completedSources",completed);progress.put("totalSources",7);progress.put("pages",pages);progress.put("sourceRows",sourceRows);progress.put("players",totalRows);progress.put("lastPageFetchedAt",latest==null?"":latest.toString());progress.put("sourceUpdatedAt",sourceTime==null?"":sourceTime.toString());progress.putAll(completionEstimate());
-    var result=new LinkedHashMap<String,Object>();result.put("act",act);result.put("archiveOnly",true);result.put("enabled",false);result.put("paused",pauseAllExtraction);result.put("running",running.get());result.put("pageConcurrency",PAGE_CONCURRENCY);result.put("lastError",null);result.put("regions",GlobalLeaderboardService.REGIONS);result.put("countries",countries);result.put("schedule",Map.of("scheduled",!pauseAllExtraction,"paused",pauseAllExtraction,"intervalMillis",60000,"overlapPolicy","one low-priority archive worker; five page requests in flight with ordered durable commits; live requests have priority"));result.put("runs",sources);result.put("latestSnapshot",List.of(Map.of("id",act,"act",act,"status",completed==7?"COMPLETE":"PARTIAL","completed_at",latest==null?"":latest.toString(),"pages",pages,"players",totalRows)));result.put("archiveProgress",progress);return result;
+    var result=new LinkedHashMap<String,Object>();result.put("act",act);result.put("archiveOnly",true);result.put("enabled",false);result.put("paused",pauseAllExtraction);result.put("running",running.get());result.put("workerOwner",workerOwner);result.put("pageConcurrency",PAGE_CONCURRENCY);result.put("lastError",null);result.put("regions",GlobalLeaderboardService.REGIONS);result.put("countries",countries);result.put("schedule",Map.of("scheduled",!pauseAllExtraction&&workerOwner,"paused",pauseAllExtraction||!workerOwner,"intervalMillis",60000,"overlapPolicy","single PostgreSQL advisory-lock owner; five page requests in flight with ordered durable commits; live requests have priority"));result.put("runs",sources);result.put("latestSnapshot",List.of(Map.of("id",act,"act",act,"status",completed==7?"COMPLETE":"PARTIAL","completed_at",latest==null?"":latest.toString(),"pages",pages,"players",totalRows)));result.put("archiveProgress",progress);return result;
   }
 
   public Map<String,Object> confidence(String act,String region,String country){
@@ -269,5 +305,5 @@ public class HistoricalActArchiveService {
   public Map<String,Object> playerSummary(String act,String player,String region){var rows=history(act,player,region);if(rows.isEmpty())return Map.of("act",act,"current",List.of(),"peak",List.of(),"best",Map.of("observation_count",0),"archiveOnly",true);var row=rows.get(0);var best=new LinkedHashMap<String,Object>();best.put("observation_count",rows.size());best.put("best_rr",row.get("rr"));best.put("best_global_rank",region.equals("all")?row.get("rr_rank"):null);best.put("best_regional_rank",region.equals("all")?null:row.get("rr_rank"));return Map.of("act",act,"current",List.of(row),"peak",List.of(row),"best",best,"archiveOnly",true);}
   public Map<String,Object> countryPage(String act,String region,String country,int page,String search){var status=status(act);var latest=(List<Map<String,Object>>)status.get("latestSnapshot");Object id=latest.isEmpty()?act:latest.get(0).get("id");return Map.of("snapshotId",id,"countries",countries(act,region,"all"),"players",players(act,region,country,search,page,10),"confidence",confidence(act,region,country));}
   public Map<String,Object> unavailable(String act,String feature){return Map.of("act",act,"archiveOnly",true,"available",false,"message",feature+" is unavailable for a single end-of-act leaderboard snapshot.");}
-  @PreDestroy public void close(){scheduler.shutdownNow();worker.shutdownNow();pageFetchers.shutdownNow();}
+  @PreDestroy public void close(){scheduler.shutdownNow();worker.shutdownNow();pageFetchers.shutdownNow();try{worker.awaitTermination(35,TimeUnit.SECONDS);pageFetchers.awaitTermination(35,TimeUnit.SECONDS);}catch(InterruptedException e){Thread.currentThread().interrupt();}releaseWorkerOwnership();}
 }
