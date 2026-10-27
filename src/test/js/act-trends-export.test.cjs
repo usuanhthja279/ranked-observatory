@@ -15,3 +15,27 @@ test('trend CSV neutralizes spreadsheet formulas in server-provided text fields'
   assert.match(csv, /"'=HYPERLINK\(""https:\/\/example\.invalid""\)"/);
   assert.match(csv, /"' \+SUM\(A1:A2\)"/);
 });
+
+test('entering Trends scope does not override CSV availability owned by the trend loader', () => {
+  const fs = require('node:fs');
+  const vm = require('node:vm');
+  const source = fs.readFileSync(require.resolve('../../main/resources/static/leaderboard.js'), 'utf8');
+  const match = source.match(/function setTrendsScope\(\)\{[\s\S]*?\n\}/);
+  assert.ok(match, 'Trends scope function is present');
+
+  const elements = new Map();
+  const $ = id => {
+    if (!elements.has(id)) elements.set(id, {
+      classList: { add() {}, remove() {}, toggle() {} },
+      appendChild() {},
+      querySelector() { return {}; }
+    });
+    return elements.get(id);
+  };
+  const context = { $, document: { title: '' } };
+  $('actTrendExport').disabled = false; // loader enabled export after returning rows
+
+  vm.runInNewContext(`${match[0]}\nsetTrendsScope();`, context);
+
+  assert.equal($('actTrendExport').disabled, false);
+});

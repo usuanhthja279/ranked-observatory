@@ -110,7 +110,7 @@ No production service was started/restarted, and no collection, migration or liv
 - [x] 7A/7B — Comparisons and persistent watchlist.
 - [x] 8 — Account/settings, methodology and roadmap.
 - [x] 9A/9B — Publication/cache/policy and collector/resource reliability.
-- [ ] 10 — Full integrated/visual release review.
+- [x] 10 — Full integrated/visual release review.
 
 A rendered illustrative reference does not complete a production implementation phase.
 
@@ -508,7 +508,7 @@ Phase 9B is complete. Continue to Phase 10; keep all extraction paused.
 ## Phase 10 — Final integrated and visual review
 
 - Fixed the tablet-width Countries filter overflow at 768 px by placing search on a full row above Region and Sort; rechecked after packaging and restart.
-- Added the missing V10 publication-revision table to the H2-only Spring test fixture. The first complete Gradle attempt exposed two fixture-related SQL failures; the final PostgreSQL-backed rerun passed all 59 tests (0 failures/errors, 1 intentionally disabled live Tracker HTTP test). The JS suite passed 16/16.
+- Added the missing V10 publication-revision table to the H2-only Spring test fixture. The first complete Gradle attempt exposed two fixture-related SQL failures; the final PostgreSQL-backed rerun passed all 59 tests (0 failures/errors, 1 intentionally disabled live Tracker HTTP test). The JavaScript suite passed 17/17, including the Trends CSV readiness regression.
 - ChatGPT in-app browser smoke review passed 162 combinations across 18 canonical/legacy routes at all nine planned widths: 320×700, 360×800, 390×844, 430×932, 768×1024, 1024×768, 1440×900, 1536×816 and 1920×1080. No tested page exceeded its viewport width or lacked a title/H1.
 - Focused browser checks passed for country filtering/pagination, Ctrl+K/Escape, mobile navigation and the final Countries/Overview visual layouts. No console errors were reported in the final Countries view.
 - Actual 1440×900, 768×1024 and 390×844 screenshots were captured and inspected inline in the ChatGPT browser. The browser did not expose a supported PNG export into the repository; therefore no standalone screenshot files are claimed.
@@ -517,5 +517,8 @@ Phase 9B is complete. Continue to Phase 10; keep all extraction paused.
 - Follow-up: simplified the Find a player keyboard-focus treatment, rebuilt and restarted the packaged service, and verified Ctrl+K/Escape plus the single visible focus treatment in ChatGPT's in-app browser. Extraction remained paused.
 - Follow-up: exercised sign-up, sign-in, saved settings, watchlist persistence and signed-out gating in ChatGPT's in-app browser against temporary port 8091 and the dedicated PostgreSQL test database. The temporary process was stopped; port 8090 stayed running and all extraction remained paused.
 
-Phase 10 has a passing focused release review. The final full Gradle run passed 59 tests with 0 failures/errors and 1 intentional skip (live Tracker HTTP). PostgreSQL activity, country evidence, global persistence, migration/comparison and archive-worker lock tests passed against `ranked_observatory_redesign_test`. An authenticated synthetic browser flow now also passes against that test database. Remaining limits are no file-backed screenshot exports and no live player-profile visual load, because its endpoint may contact the upstream provider.
+Phase 10 is complete. The final full Gradle run passed 59 tests with 0 failures/errors and 1 intentional skip (live Tracker HTTP); PostgreSQL activity, country evidence, global persistence, migration/comparison and archive-worker lock tests passed against `ranked_observatory_redesign_test`. The JavaScript suite passes 17/17, including the Trends CSV readiness regression. Authenticated synthetic browser acceptance passed against the test database; the in-app-browser review covered 162 route/viewport combinations plus focused search, archive, country, export and account flows. Screenshots were captured and inspected inline; existing desktop/mobile player-profile screenshots from Phase 5 remain in `evidence/`. The built-in browser did not provide a supported repository PNG export. All data extraction remains paused pending user direction.
 - Supplemental Phase 10 mobile browser path: at 390 × 844, filtered archived countries for India, opened the India/Asia-Pacific detail, paged archived players from 1 to 2 of 600, and opened the 7/7 source publication matrix. Screenshot review and width measurement are recorded in `FINAL_VERIFICATION_REPORT.md`; extraction remained paused.
+- Supplemental Phase 10 Trends export: fixed route-state code that re-disabled CSV after data load; all 17 focused JavaScript tests passed, bootJar succeeded, and a CSV was downloaded and inspected in the built-in browser after restarting port 8090 with extraction still paused.
+
+Phase 10 is complete; phases 2–10 are implemented and verified on `codex/ranked-observatory`. The service was rebuilt and restarted on port 8090 after the final correction.

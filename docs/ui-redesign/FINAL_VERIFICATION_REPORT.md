@@ -17,7 +17,7 @@ The local application was rebuilt and restarted on port 8090 after the final cor
 
 | Check | Result | Evidence |
 | --- | --- | --- |
-| `$files = Get-ChildItem src/test/js -Filter '*.test.cjs' | ForEach-Object { $_.FullName }; node --test $files` | PASS — 16 tests, 0 failures | Search lifecycle, trend export, comparison, country directory and region detail regressions |
+| `$files = Get-ChildItem src/test/js -Filter '*.test.cjs' | ForEach-Object { $_.FullName }; node --test $files` | PASS — 17 tests, 0 failures | Search lifecycle, trend CSV export readiness/serialization, comparison, country directory and region detail regressions |
 | `JAVA_HOME=C:\Users\usuan\.jdks\dragonwell-21.0.12 .\gradlew.bat test bootJar --console=plain` with process-scoped `LEADERBOARD_TEST_DB_*` variables targeting the dedicated database | PASS — 59 tests, 0 failures, 0 errors, 1 skipped; bootJar successful | Full Gradle test task and native PostgreSQL integration cases |
 | `git diff --check` | PASS | No whitespace errors; Git emitted only line-ending conversion warnings |
 | ChatGPT in-app browser responsive matrix | PASS — 162 route/viewport checks | 18 canonical/legacy routes × 9 CSS viewports: 320×700, 360×800, 390×844, 430×932, 768×1024, 1024×768, 1440×900, 1536×816, 1920×1080. Each route had a title and H1; document/body width did not exceed viewport. |
@@ -43,7 +43,7 @@ Actual browser captures were taken and inspected in ChatGPT's in-app browser at 
 
 ## Remaining limitations
 
-- The player-profile visual journey was not opened against the local live app because its profile read may call the upstream Tracker provider. Keeping collection paused was a release invariant; no external profile request was issued. Profile route validation and existing profile tests remain the available evidence.
+- No new live profile request was made during Phase 10 because the endpoint may call the upstream Tracker provider while extraction is paused. The actual player-profile desktop and mobile views remain visually evidenced by `evidence/phase5-player-profile-desktop.png` and `evidence/phase5-player-profile-mobile.png`; those screenshots were re-inspected for this final audit.
 - The browser auth journey used one synthetic account in `ranked_observatory_redesign_test`; it does not replace multi-account authorization isolation checks, MFA, password recovery, or email delivery verification. Existing Java integration tests remain the evidence for CSRF, authorization, account isolation and persistence.
 - The 162 checks verify route shell rendering and horizontal fit; they do not certify every data combination or every keyboard/screen-reader interaction. Phase-specific unit and Spring regressions provide the corresponding targeted coverage.
 - Standalone PNG evidence is still absent. The actual in-app-browser images were inspected inline and identified above.
@@ -76,3 +76,12 @@ The app was stopped and restarted through `scripts/Stop-LeaderboardService.ps1` 
 - Visual inspection confirmed the narrow archive tab strip and wide tables use their own horizontal scrollers. At a 390 px viewport, document and body widths were 380 px; no page-level horizontal overflow was present.
 - Screenshots were captured and inspected inline in the built-in browser. They were not saved as repository PNGs: the browser has no supported filesystem export for the screenshot bytes, and a data-URL export attempt was refused by browser URL policy. No alternate export path was attempted.
 - All reads used the persisted archived snapshot. No player profile was opened and no provider request or collection was triggered. The extraction pause remained enabled.
+
+## Trends export regression and acceptance — 27 October 2026
+
+- Reproduced `Download CSV` disabled after all six trend summary rows and chart data had rendered. The Trends route controller was resetting the export button after the data loader set its readiness state.
+- Removed that route-level reset; the trend data loader remains the single owner of export availability. Added a focused regression test confirming a Trends route change does not disable an export already enabled by returned rows.
+- `node --test src/test/js/*.test.cjs` (PowerShell-expanded file list) — **PASS**, 17 tests, 0 failures.
+- Process-scoped Dragonwell 21 `JAVA_HOME` with `.\gradlew.bat bootJar --console=plain` — **PASS**. The packaged service was restarted on port 8090 using the checked-in scripts; the extraction pause marker stayed present.
+- In ChatGPT's built-in browser, the Trends page enabled `Download CSV` after loading the 35 historical acts and current snapshot. The browser downloaded the CSV; its header and first archived data rows were inspected. A screenshot of the enabled control and chart was captured and visually inspected inline.
+- No extraction, collection endpoint, player-profile request or upstream provider call was made.

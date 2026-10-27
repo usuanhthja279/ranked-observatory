@@ -284,7 +284,7 @@ function setCompareScope(){
  $('dataConfidence').classList.remove('hidden');$('dataFreshness').classList.add('hidden');$('masthead').classList.remove('region-masthead','country-masthead','overview-masthead');$('regionScenery').classList.add('hidden');
  $('trendsPageIntro').classList.remove('hidden');$('trendsPageWorkspace').classList.remove('hidden');$('trendsPageWorkspace').appendChild($('historicalTrendDisclosure'));$('historicalTrendDisclosure').classList.remove('hidden');$('historicalTrendDisclosure').open=true;$('historicalTrendDisclosure').querySelector('summary').hidden=true;
  $('pageTitle').textContent='Historical trends';document.title='Historical trends · Valorant Ranked Observatory';$('subtitle').textContent='Compare observed ranked populations across completed Acts and the latest complete snapshot.';
- $('breadcrumbs').innerHTML='<a class="breadcrumb-link" href="/overview">Overview</a><span class="subtle">›</span><span class="breadcrumb-current" aria-current="page">Historical trends</span>';$('actTrendExport').disabled=true;
+ $('breadcrumbs').innerHTML='<a class="breadcrumb-link" href="/overview">Overview</a><span class="subtle">›</span><span class="breadcrumb-current" aria-current="page">Historical trends</span>';
 }
 function setScope(){
  if(view==='profile'){setProfileScope();return;}
