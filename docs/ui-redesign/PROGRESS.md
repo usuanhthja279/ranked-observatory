@@ -606,7 +606,7 @@ Phase 10 is complete; phases 2–10 are implemented and verified on `codex/ranke
 ### Git
 
 - Branch: `codex/ranked-observatory`.
-- Phase 11C commit: pending at documentation time.
+- Phase 11C commit: `dcb2f42` (`feat(observatory): complete search navigation and saved workflows`).
 - Untracked user directories `match-data/` and `ui-sample/` were preserved and excluded.
 
 ## Phase 11D — Data quality, performance and reliability — 27 Oct 2026
@@ -623,15 +623,15 @@ Phase 10 is complete; phases 2–10 are implemented and verified on `codex/ranke
 - `node --check` for `act-trends.js` and `observatory-lifecycle.js` — **PASS**.
 - Focused `node --test` for `observatory-lifecycle.test.cjs` and `act-trends-export.test.cjs` — **PASS, 9 tests** after updating the renderer asset-version assertion.
 - `git diff --check` — **PASS** (only expected Windows line-ending notices).
-- Browser visual verification was not run: the ChatGPT in-app browser tool reported that computer use had been stopped with Escape and instructed this turn not to make further computer-use calls. No screenshot or browser result is claimed for this phase.
+- ChatGPT in-app browser verification — **PASS** after resuming browser access: opened `/regions/ap`, selected Historical trends, and confirmed the real saved Act trend view rendered; opened `/archive` and confirmed the archived snapshot summary loaded from saved data. The in-app browser displays screenshots for inspection but does not provide a supported export into the repository; no standalone screenshot files are claimed.
 
 ### Limitations and operational safety
 
 - The current read-only runtime status was `enabled:true`, `paused:false`, `running:false`, run 422 at page 479, latest complete snapshot 420 with 54,238 players. No restart, collection/admin request, database mutation or pause-state change was made.
-- This phase reduces requests for users who leave optional trends collapsed; it does not optimize the database cold scan. Cold query profiling and the 11D full visual/performance matrix remain open pending a safe isolated cold-cache environment and an available browser session.
+- This phase reduces requests for users who leave optional trends collapsed; it does not optimize the database cold scan. Cold query profiling remains open pending a safe isolated cold-cache environment. The live region-trends and archive views were checked in the built-in browser, but no restart or cache eviction was performed.
 
 ### Git
 
 - Branch: `codex/ranked-observatory`.
-- Phase 11D commit: pending at documentation time.
+- Phase 11D implementation commit: `4c48e05` (`perf(observatory): defer collapsed historical analytics`). The browser-verification and report correction in this commit follow that implementation commit.
 - Untracked user directories `match-data/` and `ui-sample/` remain untouched and excluded.
