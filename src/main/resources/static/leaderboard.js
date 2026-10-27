@@ -284,6 +284,10 @@ function setCompareScope(){
  $('watchlistPageIntro').classList.remove('hidden');$('watchlistPageWorkspace').classList.remove('hidden');$('dataFreshness').classList.add('hidden');
  $('pageTitle').textContent='Your watchlist';document.title='Your watchlist · Valorant Ranked Observatory';$('subtitle').textContent='Save players, countries, regions and Acts to find them again.';
  $('masthead').classList.remove('region-masthead','country-masthead','overview-masthead');$('regionScenery').classList.add('hidden');
+}function setMatchAnalysisScope(){
+ for(const id of ['countriesDirectory','regionExperienceTabs','regionTabHint','regionOverviewPanel','regionDistributionPanel','regionSection','regionTableSection','overviewActivitySection','currentSection','countryMovementSection','playerSection','trendLayout','timelineSection','scopeSection','selectedPlayerSection','countrySection','regionPage','countryPreview','historySection','historicalTrendDisclosure','playerProfileIntro','playerProfileWorkspace','trendsPageIntro','trendsPageWorkspace','comparePageIntro','comparePage','archivePageIntro','archivePageWorkspace','watchlistPageIntro','watchlistPageWorkspace','settingsPageIntro','settingsPageWorkspace','globalPlayerCards','overviewPlayerSection','previewPlayerSection','dataFreshness','dataConfidence'])$(id)?.classList.add('hidden');
+ $('matchAnalysisPageIntro').classList.remove('hidden');$('matchAnalysisPageWorkspace').classList.remove('hidden');$('dataFreshness').classList.add('hidden');$('refresh').classList.add('hidden');$('masthead').classList.remove('region-masthead','country-masthead','overview-masthead');$('regionScenery').classList.add('hidden');
+ $('pageTitle').textContent='Match analysis';document.title='Match analysis · Valorant Ranked Observatory';$('subtitle').textContent='Saved match records and tactical detail, tied to their source coverage.';$('breadcrumbs').innerHTML='<a class="breadcrumb-link" href="/overview">Overview</a><span class="subtle">›</span><span class="breadcrumb-current" aria-current="page">Match analysis</span>';
 }function setSettingsScope(){
  for(const id of ['countriesDirectory','regionExperienceTabs','regionTabHint','regionOverviewPanel','regionDistributionPanel','regionSection','regionTableSection','overviewActivitySection','currentSection','countryMovementSection','playerSection','trendLayout','timelineSection','scopeSection','selectedPlayerSection','countrySection','regionPage','countryPreview','historySection','historicalTrendDisclosure','playerProfileIntro','playerProfileWorkspace','trendsPageIntro','trendsPageWorkspace','comparePageIntro','comparePage','archivePageIntro','archivePageWorkspace','watchlistPageIntro','watchlistPageWorkspace','globalPlayerCards','overviewPlayerSection','previewPlayerSection','dataFreshness','dataConfidence'])$(id)?.classList.add('hidden');
  $('settingsPageIntro').classList.remove('hidden');$('settingsPageWorkspace').classList.remove('hidden');
@@ -301,7 +305,7 @@ function setScope(){
  if(view==='trends'){setTrendsScope();return;}
  if(view==='compare'){setCompareScope();return;}
  if(view==='watchlist'){setWatchlistScope();return;}
- if(view==='settings'){setSettingsScope();return;}
+ if(view==='settings'){setSettingsScope();return;}if(view==='match-analysis'){setMatchAnalysisScope();return;}
  const historical=Boolean(data?.status?.archiveOnly),hasRegion=region!=='all',hasCountry=hasRegion&&country!=='all',detail=view==='region'||view==='country';
  $('historicalTrendDisclosure').classList.toggle('hidden',view==='world');
  $('overviewActivitySection').classList.toggle('hidden',view!=='world'||historical);$('masthead').classList.toggle('overview-masthead',view==='world');
@@ -605,5 +609,7 @@ accountHeader();
 initializeActFilter().then(()=>refresh()).catch(error=>{$('message').textContent=error.message;});setInterval(()=>{if(selectedAct&&!document.hidden)refresh();},60000);
 
 if (new URLSearchParams(location.search).has('player')) {
- const importClientScript=document.createElement('script');importClientScript.src='/match-intelligence-client.js?v=1';importClientScript.onload=()=>{const matchAnalyzerScript=document.createElement('script');matchAnalyzerScript.src='/match-analyzer.js?v=4';document.head.appendChild(matchAnalyzerScript);};document.head.appendChild(importClientScript);
+ const importClientScript=document.createElement('script');importClientScript.src='/match-intelligence-client.js?v=1';importClientScript.onload=()=>{const matchAnalyzerScript=document.createElement('script');matchAnalyzerScript.src='/match-analyzer.js?v=4';matchAnalyzerScript.onload=()=>{const workspaceScript=document.createElement('script');workspaceScript.src='/match-intelligence-workspace.js?v=1';document.head.appendChild(workspaceScript);};document.head.appendChild(matchAnalyzerScript);};document.head.appendChild(importClientScript);
 }
+
+if(view==='match-analysis'){const workspaceScript=document.createElement('script');workspaceScript.src='/match-intelligence-workspace.js?v=1';document.head.appendChild(workspaceScript);}

@@ -57,3 +57,21 @@ The browser bridge accepts requests only from the local Observatory origin and a
 - The latest packaged extension must be reloaded from `build/tracker-collector-extension`; the running Observatory on 8090 has intentionally not been restarted to preserve its active extraction.
 
 M4 is the next phase; M5–M8 remain unstarted.
+
+## Phase M4 — Backend-backed Match Analysis workspace
+
+**Complete.** Added an account-wide `/match-analysis` route and primary navigation entry plus a Player Profile integration. The workspace reads only the existing owner-scoped match list/detail APIs. It reports source-backed match, score, K/D/A, ACS/ADR, opening summary, map/agent usage, pistol and recorded-economy coverage, with small-sample and unavailable labels. Match detail has keyboard-operable Overview, Rounds, Timeline, Economy, Team Analysis and Coaching tabs; round selection and filters include outcomes, regulation pistols, overtime and reported attack/defense side. The detail exposes team/agent roster, provenance, validation quality, source availability, round records, event categories, raw source time units and coordinate snapshots. It does not infer buy categories or tactical conclusions.
+
+No map plot is shown: the source data may contain coordinates, but a matching map asset and validated display transform were not established. Positions remain a table of discrete observations, never continuous paths. Coaching explicitly remains unavailable until M5. The page uses the shared Observatory shell and responsive table scrolling. No backend workflow or permissions changed.
+
+### Verification
+
+- `node --test src/test/js/match-intelligence-workspace.test.cjs` — 2 passed. The tests cover observed sample aggregation, unknown scores not being counted as losses, pistol/economy/map/agent summaries, and round filters.
+- `JAVA_HOME=C:\Users\usuan\.jdks\dragonwell-21.0.12 .\gradlew.bat test --tests com.valorant.leaderboard.StandaloneApplicationTest --no-daemon` — **BUILD SUCCESSFUL**, including the new `/match-analysis` shared-shell forward route regression.
+- ChatGPT in-app browser desktop inspection at `http://127.0.0.1:8091/leaderboard.html?view=match-analysis` confirmed the real Observatory shell, navigation and clear API-unavailable state on source preview (8091 does not host backend APIs).
+- A separate synthetic-only browser fixture served the actual M4 module and CSS. In the built-in browser, a saved match opened through Overview and Rounds tabs, with event, economy and missing-position states. The same workspace rendered in a 390-pixel iframe viewport; document width equaled viewport width (375 CSS px after the vertical scrollbar), with dense tables constrained to internal scrolling. The fixture was synthetic, not a backend data acceptance run.
+- No application process was restarted. Live extraction remained undisturbed.
+
+### Limitations
+
+M4 has not been authenticated against a running Spring backend in a browser session. Existing H2 Spring and native PostgreSQL API tests cover authorization and persisted values, while the browser’s connected-record UI was exercised with synthetic responses. The production-like map plot, event-coordinate visualization and M5 deterministic coaching findings are not yet available.

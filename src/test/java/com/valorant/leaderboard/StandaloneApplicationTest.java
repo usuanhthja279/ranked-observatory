@@ -199,6 +199,10 @@ class StandaloneApplicationTest {
     mvc.perform(get("/api/account/watchlist").with(owner)).andExpect(status().isOk()).andExpect(jsonPath("$",org.hamcrest.Matchers.hasSize(3)));
   }
 
+  @Test void matchAnalysisPageUsesCanonicalRoute() throws Exception {
+    mvc.perform(get("/match-analysis")).andExpect(status().isOk())
+        .andExpect(forwardedUrl("/leaderboard.html?view=match-analysis"));
+  }
   @Test void watchlistPageUsesCanonicalRoute()throws Exception {
     mvc.perform(get("/watchlist")).andExpect(status().isOk()).andExpect(forwardedUrl("/leaderboard.html?view=watchlist"));
   }

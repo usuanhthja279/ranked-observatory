@@ -114,6 +114,9 @@ public class ObservatoryPageController {
     return "forward:" + target.build().encode().toUriString();
   }
 
+  @GetMapping("/match-analysis")
+  public String matchAnalysis(){return "forward:/leaderboard.html?view=match-analysis";}
+
   @GetMapping("/watchlist")
   public String watchlist(){return "forward:/leaderboard.html?view=watchlist";}
   @GetMapping("/settings")

@@ -32,3 +32,5 @@ The selected Riot ID in an export is source metadata. M2 validates it against th
 - M8: cross-module release verification and operational readiness.
 
 No match-intelligence import can start or pause a leaderboard collection job. M2 does not call Tracker, the collector, or any collection/admin endpoint.
+
+M4 adds the account-wide `/match-analysis` workspace and the selected-player profile section. Both use owner-scoped APIs only. Navigation route: `/match-analysis` (shared `leaderboard.html` shell), or open a profile from `/players?player=...&region=...`. Match rows are followed by summary/detail GETs; no raw match payload is returned. The view surfaces API auth/loading/error/empty states and source-quality metadata. Dense tables scroll within their own container. Unknown values remain “Not reported”; events retain unverified source time units. No spatial map is rendered unless both source transform and a matching map asset can be validated.

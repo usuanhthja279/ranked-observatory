@@ -1,6 +1,6 @@
 'use strict';
 (()=>{
- const params=new URLSearchParams(location.search),currentView=params.get('view')||(location.pathname==='/trends'?'trends':location.pathname==='/archive'?'archive':location.pathname==='/compare'?'compare':location.pathname==='/watchlist'?'watchlist':location.pathname==='/settings'?'settings':['/leaderboard','/players'].includes(location.pathname)?'global':'world');
+ const params=new URLSearchParams(location.search),currentView=params.get('view')||(location.pathname==='/trends'?'trends':location.pathname==='/archive'?'archive':location.pathname==='/compare'?'compare':location.pathname==='/watchlist'?'watchlist':location.pathname==='/settings'?'settings':location.pathname==='/match-analysis'?'match-analysis':['/leaderboard','/players'].includes(location.pathname)?'global':'world');
  const currentRegion=params.get('region')||'ap';let selectedAct=params.get('act')||'',currentAct='';
  const validRegions=new Set(['ap','eu','na','latam','br','kr']);
  function shellHref(view){
@@ -12,6 +12,7 @@
   if(view==='compare')return '/compare'+(selectedAct&&selectedAct!==currentAct?'?act='+encodeURIComponent(selectedAct):'');
   if(view==='watchlist')return '/watchlist';
   if(view==='settings')return '/settings';
+  if(view==='match-analysis')return '/match-analysis';
   return (view==='world'?'/overview':view==='region'?'/regions/'+encodeURIComponent(validRegions.has(currentRegion)?currentRegion:'ap'):view==='countries'?'/countries':'/leaderboard.html')+(p.has('act')?'?act='+encodeURIComponent(p.get('act')):'');
  }
  function syncShellNavigation(latestCurrentAct=currentAct,activeAct=selectedAct){
