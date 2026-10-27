@@ -26,12 +26,20 @@ $env:Path="$env:JAVA_HOME\bin;$env:Path"
 .\gradlew.bat test --tests com.valorant.leaderboard.StandaloneApplicationTest --tests com.valorant.leaderboard.matchintelligence.MatchExportParserTest --tests com.valorant.leaderboard.matchintelligence.PostgresMatchIntelligenceIntegrationTest --no-daemon
 ```
 
-Result: **BUILD SUCCESSFUL**. The selected suites reported 18 `StandaloneApplicationTest` cases and 9 parser cases passed; the dedicated PostgreSQL integration test was skipped because `LEADERBOARD_TEST_DB_URL`, `LEADERBOARD_TEST_DB_USERNAME`, and `LEADERBOARD_TEST_DB_PASSWORD` were not present. The Spring API regression used only its isolated H2 fixture, not the running application database.
+Result: **BUILD SUCCESSFUL**. The focused suites reported 18 `StandaloneApplicationTest` cases, 9 parser cases, and the PostgreSQL persistence test passed against isolated PostgreSQL. The Spring API regression used its isolated H2 fixture, not the running application database.
 
-The active PostgreSQL port 5434 accepted TCP connections but rejected a temporary read-only `postgres`/empty-password probe with SCRAM authentication required. The temporary test source was deleted. No password was discovered, printed, or stored, and no schema was created.
+The active PostgreSQL database on 5434 was left untouched. A separate native PostgreSQL 17 test cluster was created at `127.0.0.1:5435`, database `ranked_observatory_redesign_test`, role `mi_test`, under the ignored `build/match-intelligence-test-postgres` folder. Its generated password is kept in a local-only `pgpass.conf` with a restricted Windows ACL and is not included here.
 
-The H2 test exercises an owner import twice and verifies one canonical match/version and one set of normalized round/event rows, then verifies other-account denial and owner deletion. This is not a substitute for native PostgreSQL migration or transaction verification.
+Additional focused command, with the dedicated environment variables configured from the local private credentials:
+
+```powershell
+.\gradlew.bat test --rerun-tasks --tests com.valorant.leaderboard.matchintelligence.PostgresMatchIntelligenceIntegrationTest --no-daemon
+```
+
+Result: **BUILD SUCCESSFUL** against PostgreSQL 17. The test applied all migrations into a unique temporary schema, imported the same synthetic export twice, verified one canonical version and one normalized event/player-round set, then verified owner deletion and cleanup. A separate opt-in test imported the local five-match sample, verified five complete accepted matches and five canonical versions, and removed its temporary schema. The source export was never copied into a fixture, emitted in logs, or committed by this work.
+
+The first native run exposed that catching a PostgreSQL duplicate-key exception leaves the transaction aborted; idempotent inserts now use a savepoint and rollback to it before continuing. The integration fixture also now registers Java time support and asserts the actual 20 player-round rows created by its two-round fixture.
 
 ## Scope limits
 
-No PostgreSQL database was changed, the Spring production app was not restarted, and no browser, collection/admin API, or UI flow was used. M1 is an in-memory parser and validator; M2's Spring API tests used an isolated H2 schema. The native PostgreSQL M2 test remains pending. No Tracker request was made.
+Only the isolated disposable test cluster on 5435 was used. The active port-8090 application and its extraction state were not restarted or changed, and no collection/admin API or Tracker request was made. Phase M2 native PostgreSQL acceptance is complete; its APIs remain covered by the existing authenticated/CSRF H2 Spring tests, while SQL persistence is covered on PostgreSQL.

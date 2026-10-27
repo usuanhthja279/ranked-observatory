@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.sql.Timestamp;
+import java.sql.Savepoint;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
@@ -19,6 +20,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.HttpStatus;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.ConnectionCallback;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -112,8 +114,7 @@ public class MatchIntelligenceStore {
   }
 
   private Long saveCanonicalVersion(CanonicalMatch match, MatchDataQuality quality) {
-    try { db.update("insert into mi_matches(provider,provider_match_id) values(?,?)", match.provider(), match.providerMatchId()); }
-    catch (DuplicateKeyException alreadyExists) { /* provider+match is canonical and shared across account imports */ }
+    insertIgnoringDuplicate("insert into mi_matches(provider,provider_match_id) values(?,?)", match.provider(), match.providerMatchId());
     try {
       ObjectNode canonical = mapper.valueToTree(match);
       canonical.putNull("selectedPlayerIdentity"); canonical.putNull("selectedPlayerRiotId"); canonical.putNull("selectedPlayerTeamId");
@@ -126,10 +127,12 @@ public class MatchIntelligenceStore {
           rs -> rs.next() ? rs.getLong(1) : null, match.provider(), match.providerMatchId(), canonicalHash);
       if (existing != null) return existing;
       Instant start = match.startedAt();
-      db.update("insert into mi_match_versions(provider,provider_match_id,canonical_sha256,source_response_sha256,parser_version,quality,source_started_at,duration_millis,map_name,mode_name,act_id,summary_json,canonical_json) values(?,?,?,?,?,?,?,?,?,?,?,?,?)",
+      int inserted = insertIgnoringDuplicate("insert into mi_match_versions(provider,provider_match_id,canonical_sha256,source_response_sha256,parser_version,quality,source_started_at,duration_millis,map_name,mode_name,act_id,summary_json,canonical_json) values(?,?,?,?,?,?,?,?,?,?,?,?,?)",
           match.provider(), match.providerMatchId(), canonicalHash, match.provenance().payloadSha256(),
           match.parserVersion(), quality.name(), start == null ? null : Timestamp.from(start), match.durationMillis(),
           match.mapName(), match.modeName(), match.actId(), summaryJson, canonicalJson);
+      if (inserted == 0) return db.queryForObject("select version_id from mi_match_versions where provider=? and provider_match_id=? and canonical_sha256=?",
+          Long.class, match.provider(), match.providerMatchId(), canonicalHash);
       Long createdVersion = db.queryForObject("select version_id from mi_match_versions where provider=? and provider_match_id=? and canonical_sha256=?",
           Long.class, match.provider(), match.providerMatchId(), canonicalHash);
       persistCanonicalRows(createdVersion, match);
@@ -137,6 +140,19 @@ public class MatchIntelligenceStore {
     } catch (DuplicateKeyException concurrentDuplicate) {
       return db.queryForObject("select version_id from mi_match_versions where provider=? and provider_match_id=? and canonical_sha256=?",
           Long.class, match.provider(), match.providerMatchId(), sha256(write(writeShared(match)).getBytes(StandardCharsets.UTF_8)));
+    }
+  }
+
+  /** Rolls back a duplicate-key statement to a savepoint so PostgreSQL can continue the enclosing import transaction. */
+  private int insertIgnoringDuplicate(String sql, Object... args) {
+    Savepoint savepoint = db.execute((ConnectionCallback<Savepoint>) connection -> connection.setSavepoint());
+    try {
+      int inserted = db.update(sql, args);
+      db.execute((ConnectionCallback<Void>) connection -> { connection.releaseSavepoint(savepoint); return null; });
+      return inserted;
+    } catch (DuplicateKeyException duplicate) {
+      db.execute((ConnectionCallback<Void>) connection -> { connection.rollback(savepoint); connection.releaseSavepoint(savepoint); return null; });
+      return 0;
     }
   }
 
