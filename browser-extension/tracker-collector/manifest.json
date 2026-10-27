@@ -1,13 +1,14 @@
 {
   "manifest_version": 3,
   "name": "Observatory Tracker Match Collector",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Collect up to five selected-player matches from visible Tracker pages.",
   "permissions": [
     "tabs",
     "storage",
     "webRequest",
-    "debugger"
+    "debugger",
+    "downloads"
   ],
   "host_permissions": [
     "https://tracker.gg/*",

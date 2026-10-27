@@ -83,7 +83,20 @@
     }
     throw new Error('Tracker page helper did not become available.');
   }
-  let captures = [], failures = [], seen = new Set();
+  let captures = [], failures = [], seen = new Set(), responses = [];
+  async function exportResponses() {
+    if (!responses.length) return 'No match responses available for JSON export.';
+    const content = JSON.stringify({ schemaVersion: 1, source: 'tracker.gg', player: currentJob.player,
+      exportedAt: new Date().toISOString(), requestedMatches: 5, responseCount: responses.length,
+      complete: responses.length === 5, failures, matches: responses }, null, 2);
+    const url = URL.createObjectURL(new Blob([content], {type:'application/json'}));
+    try {
+      await update('progress', 'Choose where to save the match response JSON. Use the ignored Observatory build or data folder.');
+      await chrome.downloads.download({url, filename:'tracker-match-responses-' + new Date().toISOString().replace(/[:.]/g,'-') + '.json', saveAs:true});
+      return 'JSON save started for ' + responses.length + ' response(s).';
+    } catch (error) { return 'JSON export failed or was cancelled: ' + String(error.message || error); }
+    finally { setTimeout(() => URL.revokeObjectURL(url), 60000); }
+  }
   try {
     for (let n = 0; n < 30; n++) {
       currentJob = await getJob();
@@ -121,7 +134,15 @@
           for (let n = 0; n < 40 && !bodies.has(id); n++) { await check(); await sleep(100); }
           if (bodies.has(id)) {
             try {
-              const analysis = window.TrackerNetworkAnalysis.analyze(await bodies.get(id), id, currentJob.player);
+              const body = await bodies.get(id);
+              const data = body?.data;
+              const selected = Array.isArray(data?.segments) && data.segments.some(s => s?.type === 'player-summary' && typeof s.attributes?.platformUserIdentifier === 'string' && s.attributes.platformUserIdentifier.trim().toLocaleLowerCase() === currentJob.player.trim().toLocaleLowerCase());
+              if (String(data?.attributes?.id || '').toLowerCase() !== id || !selected) throw new Error('Response identity does not match.');
+              if (!responses.some(item => item.matchId === id)) responses.push({ matchId:id, validation:'pending', response:body });
+              const record = responses.find(item => item.matchId === id);
+              let analysis;
+              try { analysis = window.TrackerNetworkAnalysis.analyze(body, id, currentJob.player); record.validation = 'passed'; }
+              catch (error) { record.validation = 'failed'; record.validationError = String(error.message).slice(0,300); throw error; }
               await check();
               bodies.delete(id);
               if (!seen.has(id)) { seen.add(id); captures.push({networkAnalysis:analysis}); await update('progress', 'Validated response for ' + captures.length + ' of 5 matches.', {networkAnalysis:analysis, failures}); }
@@ -152,10 +173,11 @@
         await update('progress', 'Match ' + (index + 1) + ' failed validation; continuing.', { failures });
       }
     }
-    await update('finished', 'Finished: ' + captures.length + ' validated match(es), ' + failures.length + ' issue(s).', { captures: captures.filter(c => !c.networkAnalysis), failures });
+    const exportStatus = await exportResponses();
+    await update('finished', 'Finished: ' + captures.length + ' validated match(es), ' + failures.length + ' issue(s). ' + exportStatus, { captures: captures.filter(c => !c.networkAnalysis), failures });
   } catch (error) {
     if (currentJob?.id) {
-      try { await update('finished', 'Collection stopped: ' + error.message, { captures: captures.filter(c => !c.networkAnalysis), failures }); }
+      try { const exportStatus = await exportResponses(); await update('finished', 'Collection stopped: ' + error.message + '. ' + exportStatus, { captures: captures.filter(c => !c.networkAnalysis), failures }); }
       catch { status.textContent = 'Collection stopped: ' + error.message; }
     } else status.textContent = 'Collection could not start: ' + error.message;
   } finally {

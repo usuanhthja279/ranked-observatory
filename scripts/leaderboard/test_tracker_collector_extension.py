@@ -19,6 +19,7 @@ OUTPUT.mkdir(parents=True, exist_ok=True)
 def main():
     args = argparse.ArgumentParser()
     args.add_argument('--real', action='store_true')
+    args.add_argument('--network-only', action='store_true')
     options = args.parse_args()
     scenario = {'value': 'real' if options.real else 'complete', 'requests': 0}
     template = FIXTURE.read_text(encoding='utf-8-sig')
@@ -26,9 +27,11 @@ def main():
     with sync_playwright() as playwright:
         context = playwright.chromium.launch_persistent_context(
             profile_dir, headless=True, executable_path=playwright.chromium.executable_path,
-            viewport={'width': 1440, 'height': 900},
+            viewport={'width': 1440, 'height': 900}, downloads_path=str(OUTPUT),
             args=['--disable-extensions-except=' + str(EXTENSION), '--load-extension=' + str(EXTENSION)])
         try:
+            observed_downloads = []
+            context.on('page', lambda opened: opened.on('download', lambda download: observed_downloads.append(download)))
             worker = context.service_workers[0] if context.service_workers else context.wait_for_event('serviceworker', timeout=15000)
             print('Extension loaded:', worker.url.split('/')[0] + '//<local-extension>', flush=True)
             if not options.real:
@@ -92,6 +95,18 @@ def main():
                     print('Timed out; status:', page.locator('#matchAnalyzerCollectStatus').inner_text(), flush=True)
                     raise
                 return page.locator('#matchAnalyzerCollectStatus').inner_text()
+            if options.network_only:
+                scenario['value'] = 'network'
+                outcome = run()
+                print('Network result:', outcome, flush=True)
+                assert 'JSON save started for 5 response(s)' in outcome, outcome
+                page.wait_for_timeout(1000)
+                assert observed_downloads, 'No download event observed'
+                exported = json.loads(Path(observed_downloads[-1].path()).read_text(encoding='utf-8'))
+                assert exported['complete'] and exported['responseCount'] == 5
+                assert len(exported['matches']) == 5 and all(m['validation'] == 'passed' and m['response']['data']['attributes']['id'] == m['matchId'] for m in exported['matches'])
+                print('PASS: saved JSON contains five validated synthetic response bodies', flush=True)
+                return
             if options.real:
                 outcome = run()
                 page.screenshot(path=str(OUTPUT / 'real-result.png'))
@@ -127,7 +142,13 @@ def main():
             assert page.locator('#matchAnalyzerCollected option').count() == 5
             assert 'Validated Tracker network response' in page.locator('#matchAnalyzerResult').inner_text()
             assert '100.0 damage/round' in page.locator('#matchAnalyzerResult').inner_text()
-            print('PASS: five synthetic network responses analyzed in the player workspace', flush=True)
+            assert 'JSON save started for 5 response(s)' in outcome, outcome
+            page.wait_for_timeout(1000)
+            assert observed_downloads, 'No download event observed'
+            exported = json.loads(Path(observed_downloads[-1].path()).read_text(encoding='utf-8'))
+            assert exported['complete'] is True and exported['responseCount'] == 5
+            assert len(exported['matches']) == 5 and all(m['validation'] == 'passed' and m['response']['data']['attributes']['id'] == m['matchId'] for m in exported['matches'])
+            print('PASS: saved JSON contains five validated synthetic response bodies', flush=True)
             scenario['value'] = 'partial'
             outcome = run()
             assert 'Finished: 3 validated match(es), 1 issue(s).' in outcome, outcome
