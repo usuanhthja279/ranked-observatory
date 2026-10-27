@@ -2,6 +2,12 @@
  * Paste into the Tracker page's developer console. It reads rendered UI only,
  * clicks the visible round selector, and downloads a local JSON file.
  */
+function normalizeTrackerWinMethod(label) {
+  const normalized = String(label).toUpperCase().replace(/[^A-Z]+/g, '_').replace(/^_|_$/g, '');
+  const methods = { ELIMINATION: 'ELIMINATION', DEFUSE: 'DEFUSE', DETONATE: 'SPIKE_DETONATED', SPIKE_DETONATED: 'SPIKE_DETONATED', TIME: 'TIME' };
+  return Object.prototype.hasOwnProperty.call(methods, normalized) ? methods[normalized] : 'UNKNOWN';
+}
+
 async function captureTrackerMatch(playerInput, sourceUrl = location.href, isCancelled = () => false) {
   const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
   const readNumber = value => {
@@ -75,6 +81,9 @@ async function captureTrackerMatch(playerInput, sourceUrl = location.href, isCan
       if (!heading.match(new RegExp(`ROUND\\s+${index + 1}\\b`, 'i'))) throw new Error(`Round ${index + 1} did not render.`);
       const outcome = heading.match(/TEAM\s+([AB])\s+(.+?)\s+WIN/i);
       if (!outcome) throw new Error(`Round ${index + 1} result did not render. Capture stopped without downloading a file.`);
+      const winMethodLabel = outcome[2].trim();
+      if (!winMethodLabel || winMethodLabel.length > 80) throw new Error('Round result label is invalid.');
+      const winMethod = normalizeTrackerWinMethod(winMethodLabel);
       const teamStats = new Map();
       let playerRow = null;
       for (const table of tables()) {
@@ -99,7 +108,8 @@ async function captureTrackerMatch(playerInput, sourceUrl = location.href, isCan
       rounds.push({
         number: index + 1,
         winnerTeam: outcome[1].toUpperCase(),
-        winMethod: outcome[2].toUpperCase().replace(/[^A-Z]+/g, '_').replace(/^_|_$/g, ''),
+        winMethod,
+        ...(winMethod === 'UNKNOWN' ? { winMethodLabel } : {}),
         player: { kills: ownKda[0], deaths: ownKda[1], assists: ownKda[2], score: readNumber(readCell(ownCells[1])) },
         teamKills: teamStats.get(isA ? 'A' : 'B'),
         opponentKills: teamStats.get(isA ? 'B' : 'A')
@@ -118,7 +128,7 @@ async function captureTrackerMatch(playerInput, sourceUrl = location.href, isCan
     return payload;
   }
 }
-if (typeof module !== 'undefined' && module.exports) module.exports = { captureTrackerMatch };
+if (typeof module !== 'undefined' && module.exports) module.exports = { captureTrackerMatch, normalizeTrackerWinMethod };
 if (typeof window !== 'undefined') {
   globalThis.TrackerMatchCapture = { capture: captureTrackerMatch };
   if (!globalThis.__trackerCollectorMode) {

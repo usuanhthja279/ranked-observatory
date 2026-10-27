@@ -21,7 +21,7 @@ chrome.runtime.onMessage.addListener((message, sender, reply) => {
       await chrome.storage.session.set({ collectorJob: j });
       await sendApp(j, { type: 'started' });
       try {
-        const runner = await chrome.tabs.create({ url: chrome.runtime.getURL('runner.html'), active: true });
+        const runner = await chrome.tabs.create({ url: chrome.runtime.getURL('runner.html'), active: false });
         j.runnerTabId = runner.id;
         await chrome.storage.session.set({ collectorJob: j });
       } catch (error) {

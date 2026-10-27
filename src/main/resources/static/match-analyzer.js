@@ -60,7 +60,11 @@
     const roundNumbers = new Set();
     const aggregate = { kills: 0, deaths: 0, assists: 0, wins: 0, losses: 0 };
     for (const round of raw.rounds) {
-      exactKeys(round, ['number', 'winnerTeam', 'winMethod', 'player', 'teamKills', 'opponentKills'], 'Round');
+      if (!object(round)) fail('Round must be an object.');
+      const roundKeys = ['number', 'winnerTeam', 'winMethod', 'player', 'teamKills', 'opponentKills'];
+      if (own(round, 'winMethodLabel')) roundKeys.push('winMethodLabel');
+      exactKeys(round, roundKeys, 'Round');
+      if (own(round, 'winMethodLabel') && (typeof round.winMethodLabel !== 'string' || !round.winMethodLabel.trim() || round.winMethodLabel.length > 80)) fail('Round result label is invalid.');
       integer(round.number, 'Round number', 1, 30);
       if (roundNumbers.has(round.number)) fail(`Duplicate round ${round.number}.`);
       roundNumbers.add(round.number);
@@ -127,13 +131,13 @@
   const workspace = document.getElementById('playerProfileWorkspace');
   if (!workspace) return;
   const stylesheet = document.createElement('link');
-  stylesheet.rel = 'stylesheet'; stylesheet.href = '/match-analyzer.css?v=2'; document.head.append(stylesheet);
+  stylesheet.rel = 'stylesheet'; stylesheet.href = '/match-analyzer.css?v=3'; document.head.append(stylesheet);
   const section = document.createElement('section');
   section.className = 'match-analyzer'; section.setAttribute('aria-labelledby', 'matchAnalyzerTitle');
   section.innerHTML = `
     <div class="match-analyzer-heading"><div><p class="match-analyzer-kicker">MATCH REVIEW · BROWSER-ASSISTED</p><h2 id="matchAnalyzerTitle">Round-by-round match analyzer</h2><p class="match-analyzer-note">Import a local JSON capture from a Tracker match page. Data stays in your browser and is not uploaded to the Observatory.</p></div></div>
     <div class="match-analyzer-import"><label for="matchAnalyzerFile">Choose a Tracker match capture (.json)</label><input id="matchAnalyzerFile" type="file" accept="application/json,.json"><p id="matchAnalyzerStatus" role="status" aria-live="polite">No file imported. Use the browser collector below to request recent matches.</p><details><summary>How to capture a Tracker match</summary><ol><li>Open the match page on Tracker and use the same browser.</li><li><a href="/tracker-match-capture.js" download="tracker-match-capture.js">Download the browser capture helper</a>, open the downloaded file in a text editor, and copy its contents.</li><li>On the Tracker page, open Developer Tools → Console, paste the helper, and run it. Enter the Riot ID shown in the match scoreboard.</li><li>Import the downloaded JSON here. The helper reads visible scoreboard/round tables and saves only the selected player’s round stats plus team kill totals; it does not call a match API or send the capture to this app.</li></ol></details></div>
-    <div class="match-analyzer-collector"><button type="button" id="matchAnalyzerCollect">Collect latest five matches</button><p id="matchAnalyzerCollectStatus" role="status" aria-live="polite">Install the collector in Chrome, Edge or Brave. The default Tracker profile filters determine which recent matches are shown.</p><label id="matchAnalyzerCollectedLabel" hidden>Review a collected match <select id="matchAnalyzerCollected"></select></label><ul id="matchAnalyzerFailures"></ul></div>
+    <div class="match-analyzer-collector"><button type="button" id="matchAnalyzerCollect">Collect latest five matches</button><p>Keep the Tracker collector window open and visible. You can use other tabs in the main window.</p><p id="matchAnalyzerCollectStatus" role="status" aria-live="polite">Install the collector in Chrome, Edge or Brave. The default Tracker profile filters determine which recent matches are shown.</p><label id="matchAnalyzerCollectedLabel" hidden>Review a collected match <select id="matchAnalyzerCollected"></select></label><ul id="matchAnalyzerFailures"></ul></div>
     <div id="matchAnalyzerResult"></div>`;
   workspace.append(section);
   const input = section.querySelector('#matchAnalyzerFile');
@@ -141,13 +145,14 @@
   const result = section.querySelector('#matchAnalyzerResult');
   let imported = null, filter = 'all', selectedRound = null;
   const escape = value => String(value ?? '—').replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));
+  const formatWinMethod = round => round.winMethod === 'UNKNOWN' && round.winMethodLabel ? 'Unknown (Tracker: ' + round.winMethodLabel + ')' : round.winMethod.toLowerCase().replaceAll('_', ' ');
   const pct = value => `${Number(value).toLocaleString()}%`;
   const detail = (match, round) => {
     if (!round) return '';
     const resultText = round.winnerTeam === match.player.team ? 'Team win' : 'Team loss';
     const teamKills = round.teamKills;
     const opponentKills = round.opponentKills;
-    return `<p class="match-analyzer-selected-round">Round ${round.number}: ${resultText} by ${escape(round.winMethod.toLowerCase().replaceAll('_', ' '))} · player ${round.player.kills}/${round.player.deaths}/${round.player.assists} K/D/A · team eliminations ${teamKills}–${opponentKills}. Team side is not available in this capture.</p>`;
+    return `<p class="match-analyzer-selected-round">Round ${round.number}: ${resultText} by ${escape(formatWinMethod(round))} · player ${round.player.kills}/${round.player.deaths}/${round.player.assists} K/D/A · team eliminations ${teamKills}–${opponentKills}. Team side is not available in this capture.</p>`;
   };
   function render() {
     if (!imported) { result.innerHTML = ''; return; }
@@ -165,7 +170,7 @@
       <div class="match-analyzer-metrics"><div><span>Match K/D/A</span><strong>${match.player.totals.kills}/${match.player.totals.deaths}/${match.player.totals.assists}</strong></div><div><span>K/D ratio</span><strong>${ratio}</strong></div><div><span>ACS · ADR</span><strong>${match.player.totals.acs} · ${match.player.totals.adr}</strong></div><div><span>HS · KAST</span><strong>${pct(match.player.totals.headshotPercent)} · ${pct(match.player.totals.kastPercent)}</strong></div></div>
       <section class="match-analyzer-pistols"><div><h4>Regulation pistol rounds</h4><p>${pistols.length ? `Rounds ${pistolNums.join(' and ')} · team won ${pistolWins} of ${pistols.length} · player ${pistolKda.kills}/${pistolKda.deaths}/${pistolKda.assists} K/D/A` : 'Pistol-round coverage is unavailable for this match.'}</p></div><div class="match-analyzer-unknown"><strong>Not captured yet</strong><span>Buy classification, round sides, opening duel identity, event timeline and Radiant comparison.</span></div></section>
       <div class="match-analyzer-table-heading"><h4>Round detail</h4><label>Show <select id="matchAnalyzerFilter"><option value="all" ${filter==='all'?'selected':''}>All rounds</option><option value="pistols" ${filter==='pistols'?'selected':''}>Pistol rounds</option><option value="wins" ${filter==='wins'?'selected':''}>Team wins</option><option value="losses" ${filter==='losses'?'selected':''}>Team losses</option></select></label></div>
-      <div class="match-analyzer-table-wrap"><table><thead><tr><th>Round</th><th>Result</th><th>Player K/D/A</th><th>Score</th><th>Team eliminations</th></tr></thead><tbody>${rounds.map(round => `<tr${selectedRound===round.number?' class="is-selected"':''}><td><button type="button" class="match-analyzer-round" data-match-round="${round.number}" aria-pressed="${selectedRound===round.number}">Round ${round.number}</button></td><td><span class="match-analyzer-result ${round.winnerTeam===ownTeam?'is-win':'is-loss'}">${round.winnerTeam===ownTeam?'Win':'Loss'}</span><small>${escape(round.winMethod.toLowerCase().replaceAll('_',' '))}${pistolNums.includes(round.number)?' · pistol':''}</small></td><td>${round.player.kills}/${round.player.deaths}/${round.player.assists}</td><td>${round.player.score}</td><td>${round.teamKills}–${round.opponentKills}</td></tr>`).join('') || '<tr><td colspan="5">No captured rounds match this filter.</td></tr>'}</tbody></table></div>
+      <div class="match-analyzer-table-wrap"><table><thead><tr><th>Round</th><th>Result</th><th>Player K/D/A</th><th>Score</th><th>Team eliminations</th></tr></thead><tbody>${rounds.map(round => `<tr${selectedRound===round.number?' class="is-selected"':''}><td><button type="button" class="match-analyzer-round" data-match-round="${round.number}" aria-pressed="${selectedRound===round.number}">Round ${round.number}</button></td><td><span class="match-analyzer-result ${round.winnerTeam===ownTeam?'is-win':'is-loss'}">${round.winnerTeam===ownTeam?'Win':'Loss'}</span><small>${escape(formatWinMethod(round))}${pistolNums.includes(round.number)?' · pistol':''}</small></td><td>${round.player.kills}/${round.player.deaths}/${round.player.assists}</td><td>${round.player.score}</td><td>${round.teamKills}–${round.opponentKills}</td></tr>`).join('') || '<tr><td colspan="5">No captured rounds match this filter.</td></tr>'}</tbody></table></div>
       ${detail(match, selected)}
       <p class="match-analyzer-provenance">Source method: rendered Tracker page capture; no match API is used. Zero values are preserved. Economy amounts are intentionally omitted until their labels are verified. This import is temporary and clears when this page is reloaded.</p>`;
     result.querySelector('#matchAnalyzerFilter').addEventListener('change', event => { filter = event.target.value; render(); });
@@ -223,7 +228,7 @@
     if (update.type === 'started') {
       if (typeof update.jobId !== 'string') return;
       currentJobId = update.jobId; clearTimeout(responseTimer);
-      collectStatus.textContent = 'Collector started. Keep the collector tab open.';
+      collectStatus.textContent = 'Collector started. Keep the Tracker collector window open and visible.';
       return;
     }
     if (update.type === 'error' && !currentJobId) {

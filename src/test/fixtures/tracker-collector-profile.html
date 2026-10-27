@@ -17,7 +17,7 @@ function showSummary(i) {
   document.getElementById('board').innerHTML = team('st-valorant-team-Red','A',headers,i === 4 ? b : a) + team('st-valorant-team-Blue','B',['Team B',...headers.slice(1)],i === 4 ? a : b);
 }
 function showRound(n) {
-  document.querySelector('.vmr-header-left').innerHTML = 'ROUND ' + n + '<br>TEAM ' + (n === 1 ? (window.activeIndex === 4 ? 'B' : 'A') : (window.activeIndex === 4 ? 'A' : 'B')) + ' ELIMINATION WIN';
+  document.querySelector('.vmr-header-left').innerHTML = 'ROUND ' + n + '<br>TEAM ' + (n === 1 ? (window.activeIndex === 4 ? 'B' : 'A') : (window.activeIndex === 4 ? 'A' : 'B')) + (n === 1 ? ' DETONATE WIN' : ' UNFAMILIAR OUTCOME WIN');
   const headers = ['Team A','Score','K','D','A','Econ'];
   const a = nameCell(playerHref,'Jett') + [n === 1 ? '100' : '0',n === 1 ? '1' : '0',n === 1 ? '0' : '1','0',''].map(cell).join('');
   const b = nameCell(otherHref,'Clove') + [n === 1 ? '0' : '100',n === 1 ? '0' : '1',n === 1 ? '1' : '0','0',''].map(cell).join('');

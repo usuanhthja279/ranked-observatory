@@ -1,7 +1,7 @@
 (async () => {
   const status = document.getElementById('status');
   const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
-  let stopped = false, trackerTabId = null, currentJob = null, lastPageId = null;
+  let stopped = false, trackerTabId = null, trackerWindowId = null, currentJob = null, lastPageId = null;
   chrome.runtime.onMessage.addListener(message => {
     if (message?.type === 'COLLECTOR_BLOCKED' && message.jobId === currentJob?.id) stopped = true;
   });
@@ -69,7 +69,10 @@
       await sleep(100);
     }
     if (!currentJob?.runnerTabId) throw new Error('Collector session was not initialized.');
-    const tab = await chrome.tabs.create({ url: 'about:blank', active: true });
+    const collectorWindow = await chrome.windows.create({ url: 'about:blank', type: 'popup', focused: false, width: 680, height: 760 });
+    trackerWindowId = collectorWindow.id;
+    const tab = collectorWindow.tabs?.[0];
+    if (!tab?.id) throw new Error('Tracker collector window could not be created.');
     trackerTabId = tab.id;
     currentJob.trackerTabId = tab.id;
     await chrome.storage.session.set({ collectorJob: currentJob });
@@ -109,6 +112,7 @@
       catch { status.textContent = 'Collection stopped: ' + error.message; }
     } else status.textContent = 'Collection could not start: ' + error.message;
   } finally {
-    if (trackerTabId) try { await chrome.tabs.remove(trackerTabId); } catch {}
+    if (trackerWindowId) { try { await chrome.windows.remove(trackerWindowId); } catch {} }
+    else if (trackerTabId) { try { await chrome.tabs.remove(trackerTabId); } catch {} }
   }
 })();

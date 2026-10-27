@@ -86,3 +86,19 @@ test('rejects lookalike source paths and non-Tracker hosts', () => {
   const wrongHost = fixture(); wrongHost.source.url = wrongHost.source.url.replace('tracker.gg', 'tracker.example');
   assert.throws(() => validate(wrongHost), /Source URL/);
 });
+
+test('normalizes verified Tracker round results and retains unknown labels', () => {
+  const { normalizeTrackerWinMethod } = require('../../main/resources/static/tracker-match-capture.js');
+  assert.equal(normalizeTrackerWinMethod('DETONATE'), 'SPIKE_DETONATED');
+  assert.equal(normalizeTrackerWinMethod('ELIMINATION'), 'ELIMINATION');
+  assert.equal(normalizeTrackerWinMethod('DEFUSE'), 'DEFUSE');
+  assert.equal(normalizeTrackerWinMethod('unfamiliar outcome'), 'UNKNOWN');
+  const match = fixture();
+  match.rounds[0].winMethod = 'UNKNOWN';
+  match.rounds[0].winMethodLabel = 'UNFAMILIAR OUTCOME';
+  assert.equal(validate(match).rounds[0].winMethodLabel, 'UNFAMILIAR OUTCOME');
+  const invalidRound = fixture(); invalidRound.rounds[0] = null;
+  assert.throws(() => validate(invalidRound), /Round must be an object/);
+  match.rounds[0].winMethodLabel = 'x'.repeat(81);
+  assert.throws(() => validate(match), /result label/i);
+});

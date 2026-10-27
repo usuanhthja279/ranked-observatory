@@ -47,8 +47,33 @@ def main():
             page.goto(PROFILE, wait_until='domcontentloaded', timeout=30000)
             page.locator('#matchAnalyzerCollect').wait_for(state='visible', timeout=30000)
             page.wait_for_timeout(1000)
-            def run():
+            def run(background=False):
                 page.locator('#matchAnalyzerCollect').click()
+                if background:
+                    page.wait_for_function(
+                        "() => /Reading recent match|Validated/.test(document.querySelector('#matchAnalyzerCollectStatus').textContent)",
+                        timeout=30000)
+                    window_state = worker.evaluate('''async () => {
+                        const j = (await chrome.storage.session.get('collectorJob')).collectorJob;
+                        if (!j?.trackerTabId) return null;
+                        const tracker = await chrome.tabs.get(j.trackerTabId);
+                        const app = await chrome.tabs.get(j.appTabId);
+                        return { trackerActive: tracker.active, separateWindow: tracker.windowId !== app.windowId };
+                    }''')
+                    assert window_state and window_state['trackerActive'] and window_state['separateWindow'], window_state
+                    other_tab.bring_to_front()
+                    after_switch = worker.evaluate('''async () => {
+                        const j = (await chrome.storage.session.get('collectorJob')).collectorJob;
+                        const tracker = await chrome.tabs.get(j.trackerTabId);
+                        const app = await chrome.tabs.get(j.appTabId);
+                        const tabs = await chrome.tabs.query({windowId: app.windowId});
+                        return { trackerActive: tracker.active, otherTabActive: tabs.some(t => t.active && t.url?.includes('another-tab')) };
+                    }''')
+                    assert after_switch['trackerActive'] and after_switch['otherTabActive'], after_switch
+                    tracker_page = next(p for p in context.pages if p.url.startswith('https://tracker.gg/valorant/profile/riot/'))
+                    visibility = tracker_page.evaluate('document.visibilityState')
+                    print('Tracker page visibility after switch:', visibility, flush=True)
+                    assert visibility == 'visible', visibility
                 try:
                     page.wait_for_function(
                         "() => /Finished:|Collection stopped:|No extension response|Collector could not/.test(document.querySelector('#matchAnalyzerCollectStatus').textContent)",
@@ -69,7 +94,11 @@ def main():
             page.wait_for_function("() => document.querySelector('#matchAnalyzerCollectStatus').textContent.includes('No extension response')", timeout=10000)
             assert scenario['requests'] == 0, 'Synthetic DOM click must not start collection'
             print('PASS: untrusted synthetic click does not start collection', flush=True)
-            outcome = run()
+            other_tab = context.new_page()
+            other_tab.goto('about:blank#another-tab')
+            page.bring_to_front()
+            outcome = run(background=True)
+            print('PASS: switched main-window tab while Tracker stayed active in its own window', flush=True)
             print('Synthetic outcome:', outcome, 'details:', page.locator('#matchAnalyzerFailures').inner_text(), flush=True)
             assert 'Finished: 5 validated match(es), 0 issue(s).' in outcome, outcome
             assert page.locator('#matchAnalyzerCollected option').count() == 5
@@ -77,6 +106,8 @@ def main():
             page.locator('#matchAnalyzerCollected').select_option(index=4)
             assert 'Mock Map 5' in page.locator('#matchAnalyzerResult').inner_text()
             assert page.locator('#matchAnalyzerResult tbody tr').first.locator('td').nth(4).inner_text() == '1–0'
+            assert 'spike detonated' in page.locator('#matchAnalyzerResult tbody tr').first.inner_text().lower()
+            assert 'UNFAMILIAR OUTCOME' in page.locator('#matchAnalyzerResult tbody tr').nth(1).inner_text()
             page.screenshot(path=str(OUTPUT / 'synthetic-five.png'))
             print('PASS: five validated synthetic matches appear in the app', flush=True)
             scenario['value'] = 'partial'
