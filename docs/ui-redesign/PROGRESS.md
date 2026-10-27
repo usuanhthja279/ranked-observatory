@@ -552,3 +552,29 @@ Phase 10 is complete; phases 2–10 are implemented and verified on `codex/ranke
 - Focused JavaScript tests passed **20/20**. All JavaScript tests reported **40/41**, with the unrelated archived disclosure assertion in `region-detail.test.cjs:78` failing both in the complete run and when isolated. Syntax checks and `git diff --check` passed. Exact commands and the limitation are in `PHASE_11A_VERIFICATION.md`.
 - Player comparison was rendered through a DOM-backed UI harness; no live browser screenshot or desktop/mobile visual inspection was performed because port 8090 was actively collecting and was not restarted or redeployed. A read-only status check confirmed `enabled:true`, `paused:false`, `running:true` after tests; no collection or database state was changed.
 - Phase 11A scope only. Do not begin Phase 11B in this run.
+
+## Phase 11B — Responsive shared-shell correction — 27 Oct 2026
+
+### Changes
+
+- Added `observatory-polish.css` after the route stylesheets, with a shared masthead layout rule. The desktop masthead keeps its title and controls side by side when the actual viewport has room; below 1100 CSS px it stacks controls within the content column. The threshold accounts for the persistent 224 px navigation rail.
+- Removed the heading width cap that caused an unnecessary desktop line break. At 1440 px the masthead stays compact and its date, search and Act controls fit inside the page surface.
+
+### Verification
+
+- Source preview served the updated static files on temporary localhost port 8091 and proxied only read-only GET API calls to 8090. This did not restart the active application or call collection/admin APIs.
+- Browser geometry checks at 320×700, 360×800, 390×844, 430×932, 768×1024, 1024×768, 1280×800, 1440×900, 1536×816 and 1920×1080: **PASS** for no document-level horizontal overflow; masthead/toolbar stayed within its bounds. Narrow tables and region cards retained their existing internal scrollers.
+- Captured and visually inspected the 1440×900 source-preview overview after correction. The masthead title, date/search/Act controls and overview action buttons fit; the first row of region cards is visible. A mobile viewport was included in the geometry matrix; mobile screenshot export is not available through this browser session.
+- Browser console errors in the preview: **0**. The earlier full Phase 10 route matrix remains the baseline for other pages; it was not repeated route-by-route in this phase.
+- The browser delivered screenshots for visual inspection in-session; this environment did not expose a supported export path for saving the new captures under `evidence/`. Existing baseline image: `evidence/phase3a-overview-desktop.png`.
+
+### Operational safety and limitations
+
+- Live collection remained active on 8090 (fresh capture `23d8e4ed-e73f-4dde-99d9-fac4422cd5e8`); archive extraction remained paused. The app was not restarted.
+- Temporary source preview used port 8091; shut it down after this phase. No database records, collection checkpoints, credentials or user directories were changed.
+- Phase 11B is **partial**: only the demonstrated shared masthead responsiveness issue was corrected. The broad visual sweep of every canonical page has not been repeated against the source preview.
+
+### Git
+
+- Branch: `codex/ranked-observatory`; base `94d43e9cdfd5e5dac28075259e8062dcb8f3f60b`.
+- Do not count Phase 11B as fully complete until the page-specific visual sweep is finished.
