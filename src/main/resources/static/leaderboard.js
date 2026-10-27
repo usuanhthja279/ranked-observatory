@@ -3,7 +3,7 @@ const $=id=>document.getElementById(id);
 const esc=value=>String(value??'—').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const time=v=>v?new Date(v).toLocaleString():'—';
 const fmt=v=>v==null?'—':Number(v).toLocaleString();
-const params=new URLSearchParams(location.search),view=params.get('view')||(location.pathname==='/leaderboard'?'global':location.pathname==='/players'?'profile':'world');
+const params=new URLSearchParams(location.search),view=params.get('view')||(location.pathname==='/leaderboard'?'global':location.pathname==='/players'?'profile':location.pathname==='/trends'?'trends':'world');
 let selectedAct=params.get('act')||'';let currentAct='';
 const playerPageSize=view==='country'||view==='global'?10:20;
 const playerSorts=new Set(['globalRank','regionalRank','name','country','tier','rr','rrChange','updated']);
@@ -227,8 +227,16 @@ function setProfileScope(){
  $('breadcrumbs').innerHTML=`<a class="breadcrumb-link" href="${esc(pageUrl('world'))}">Overview</a><span class="subtle">›</span><a class="breadcrumb-link" href="${esc(pageUrl('global'))}">Global leaderboard</a><span class="subtle">›</span><span class="breadcrumb-current" aria-current="page">Player profile</span>`;
  $('playerProfileHeading').textContent=requestedProfilePlayer||'Player profile';$('playerProfileMeta').textContent=`${regionName(requestedProfileRegion)} · Loading current snapshot evidence…`;
 }
+function setTrendsScope(){
+ for(const id of ['countriesDirectory','regionExperienceTabs','regionTabHint','regionOverviewPanel','regionDistributionPanel','regionSection','regionTableSection','overviewActivitySection','currentSection','countryMovementSection','playerSection','trendLayout','countrySection','countryPreview','historySection','timelineSection','scopeSection','playerProfileIntro','playerProfileWorkspace','selectedPlayerSection'])$(id).classList.add('hidden');
+ $('dataConfidence').classList.remove('hidden');$('dataFreshness').classList.add('hidden');$('masthead').classList.remove('region-masthead','country-masthead','overview-masthead');$('regionScenery').classList.add('hidden');
+ $('trendsPageIntro').classList.remove('hidden');$('trendsPageWorkspace').classList.remove('hidden');$('trendsPageWorkspace').appendChild($('historicalTrendDisclosure'));$('historicalTrendDisclosure').classList.remove('hidden');$('historicalTrendDisclosure').open=true;$('historicalTrendDisclosure').querySelector('summary').hidden=true;
+ $('pageTitle').textContent='Historical trends';document.title='Historical trends · Valorant Ranked Observatory';$('subtitle').textContent='Compare observed ranked populations across completed Acts and the latest complete snapshot.';
+ $('breadcrumbs').innerHTML='<a class="breadcrumb-link" href="/overview">Overview</a><span class="subtle">›</span><span class="breadcrumb-current" aria-current="page">Historical trends</span>';$('actTrendExport').disabled=true;
+}
 function setScope(){
  if(view==='profile'){setProfileScope();return;}
+ if(view==='trends'){setTrendsScope();return;}
  const historical=Boolean(data?.status?.archiveOnly),hasRegion=region!=='all',hasCountry=hasRegion&&country!=='all',detail=view==='region'||view==='country';
  $('overviewActivitySection').classList.toggle('hidden',view!=='world'||historical);$('masthead').classList.toggle('overview-masthead',view==='world');
  $('regionSection').classList.toggle('hidden',detail);$('regionTableSection').classList.toggle('hidden',detail);
@@ -301,6 +309,7 @@ function renderTrends(){
 async function refresh(){const version=++generation;try{
  if(view==='countries'){await globalThis.loadCountriesDirectory?.();return;}
  if(view==='profile'){await refreshPlayerProfilePage(version);return;}
+ if(view==='trends'){await refreshTrendsPage(version);return;}
  if(selectedAct&&selectedAct!==currentAct){await refreshArchived(version);return;}
  if(view==='global'){await refreshGlobalPage(version);return;}
  if(view==='country'){await refreshCountryPage(version);return;}
@@ -360,6 +369,11 @@ async function refreshPlayerProfilePage(version){
  data={status,confidence,countries:[],regions:[],result:{items:[],total:0},trends:{points:[],regionPoints:[],movers:[],snapshotCount:0},modelEvidence:{snapshotId:status.latestSnapshot[0].id}};
  countryNames=status.countries||{};regionNames=status.regions||{};$('lastUpdated').textContent=time(status.latestSnapshot[0]?.completed_at);$('message').textContent='';
  renderConfidence(status,confidence);setProfileScope();await showSelectedPlayer(requestedProfilePlayer,requestedProfileRegion,false,false);
+}
+async function refreshTrendsPage(version){
+ const status=await api('status');if(version!==generation)return;
+ data={status,countries:[],regions:[],result:{items:[],total:0},trends:{points:[],regionPoints:[],movers:[],snapshotCount:0},modelEvidence:{snapshotId:status.latestSnapshot?.[0]?.id}};
+ countryNames=status.countries||{};regionNames=status.regions||{};$('lastUpdated').textContent=time(status.latestSnapshot?.[0]?.completed_at);$('message').textContent='';renderConfidence(status,null);setTrendsScope();
 }
 async function refreshCountryPage(version){
  const [status,core]=await Promise.all([api('status'),api('country-page?'+new URLSearchParams({region,country,page,search}))]);

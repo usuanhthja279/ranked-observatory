@@ -91,6 +91,21 @@ public class ObservatoryPageController {
     return "forward:/leaderboard.html";
   }
 
+  @GetMapping("/trends")
+  public String historicalTrends(@RequestParam(required = false) String region,
+                                 @RequestParam(required = false) String country) {
+    if (region != null && !region.equals("all") && !GlobalLeaderboardService.REGIONS.containsKey(region)) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "A supported trends region is required");
+    }
+    if (country != null && (!country.matches("[a-z]{2}") || region == null || region.equals("all"))) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "A supported country code is required");
+    }
+    var target = UriComponentsBuilder.fromPath("/leaderboard.html").queryParam("view", "trends");
+    if (region != null) target.queryParam("region", region);
+    if (country != null) target.queryParam("country", country);
+    return "forward:" + target.build().encode().toUriString();
+  }
+
   private RedirectView regionRedirect(String region, String act) {
     if (!GlobalLeaderboardService.REGIONS.containsKey(region)) {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Unknown leaderboard region");

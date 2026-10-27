@@ -1,12 +1,13 @@
 'use strict';
 (()=>{
- const params=new URLSearchParams(location.search),currentView=params.get('view')||(['/leaderboard','/players'].includes(location.pathname)?'global':'world');
+ const params=new URLSearchParams(location.search),currentView=params.get('view')||(location.pathname==='/trends'?'trends':['/leaderboard','/players'].includes(location.pathname)?'global':'world');
  const currentRegion=params.get('region')||'ap';let selectedAct=params.get('act')||'',currentAct='';
  const validRegions=new Set(['ap','eu','na','latam','br','kr']);
  function shellHref(view){
   const p=new URLSearchParams({view});
   if(selectedAct&&selectedAct!==currentAct)p.set('act',selectedAct);
   if(view==='global')return '/leaderboard'+(p.has('act')?'?act='+encodeURIComponent(p.get('act')):'');
+  if(view==='trends')return '/trends';
   return (view==='world'?'/overview':view==='region'?'/regions/'+encodeURIComponent(validRegions.has(currentRegion)?currentRegion:'ap'):view==='countries'?'/countries':'/leaderboard.html')+(p.has('act')?'?act='+encodeURIComponent(p.get('act')):'');
  }
  function syncShellNavigation(latestCurrentAct=currentAct,activeAct=selectedAct){

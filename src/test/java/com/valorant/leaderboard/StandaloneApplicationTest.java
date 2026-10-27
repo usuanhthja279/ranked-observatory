@@ -94,6 +94,17 @@ class StandaloneApplicationTest {
         .andExpect(status().isBadRequest());
   }
 
+  @Test void canonicalTrendsRoutePreservesValidatedScope() throws Exception {
+    mvc.perform(get("/trends").param("region", "ap").param("country", "in"))
+        .andExpect(status().isOk()).andExpect(forwardedUrl("/leaderboard.html?view=trends&region=ap&country=in"));
+    mvc.perform(get("/trends").param("region", "invalid"))
+        .andExpect(status().isBadRequest());
+    mvc.perform(get("/trends").param("country", "invalid"))
+        .andExpect(status().isBadRequest());
+    mvc.perform(get("/trends").param("country", "in"))
+        .andExpect(status().isBadRequest());
+  }
+
   @Test void playerSortRejectsUnsupportedColumnsAndDirections() throws Exception {
     mvc.perform(get("/api/leaderboard/players").param("sort","p.player_key;drop table x"))
         .andExpect(status().isBadRequest());

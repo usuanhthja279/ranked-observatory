@@ -105,7 +105,8 @@ No production service was started/restarted, and no collection, migration or liv
 - [ ] 3A/3B — World/regions and region detail.
 - [ ] 4A/4B — Countries and global leaderboard.
 - [ ] 5 — Full player profile and Radiant race.
-- [ ] 6A/6B — Dedicated trends and archive explorer.
+- [x] 6A — Dedicated trends.
+- [ ] 6B — Archive explorer.
 - [ ] 7A/7B — Comparisons and persistent watchlist.
 - [ ] 8 — Account/settings, methodology and roadmap.
 - [ ] 9A/9B — Publication/cache/policy and collector/resource reliability.
@@ -313,3 +314,32 @@ Phase 4B is implemented and focused verification passed. Continue to Phase 5. Ke
 - Captures use persisted local data, not synthetic fixtures. Tracker profile values are a separate cached external source and carry their own fetched timestamp; leaderboard and history remain anchored to local completed snapshots. The desktop browser panel constrained screenshot width; the mobile fixed navigation overlays the viewport bottom, while remaining page content is scrollable.
 
 Phase 5 is implemented and focused verification passed. Continue to Phase 6A. Keep all data extraction paused until the redesign phases are complete.
+
+## Phase 6A — Complete: dedicated historical trends
+
+### Changes
+
+- Added the canonical `/trends` route and a dedicated trends page while preserving the existing legacy query route.
+- Added historical-act comparisons for region/country, cohort and tier, including observed/estimated counts, regional/scope shares, index comparisons, chart shape selection and CSV export.
+- Excluded empty series and clarified index cases with no non-zero first-act baseline; table peaks remain empty instead of rendering negative infinity.
+- Kept filter selectors usable on desktop and mobile. The metric selector now has sufficient desktop width; mobile filter groups use the full panel width and the metric selector uses a dedicated full-width row.
+
+### Verification
+
+- `node --check src/main/resources/static/act-trends.js` — **PASS**.
+- `node --check src/main/resources/static/act-trends-export.js` — **PASS**.
+- `node --test src/test/js/act-trends-export.test.cjs src/test/js/countries-directory.test.cjs` — **PASS**, 6 tests, 0 failures.
+- `JAVA_HOME=C:\Users\usuan\.jdks\dragonwell-21.0.12 .\gradlew.bat test --tests com.valorant.leaderboard.StandaloneApplicationTest --console=plain bootJar` — **PASS**, 11 tests, 0 failures/errors/skips; packaged jar successful.
+- Final CSS-only rebuild `.\gradlew.bat bootJar --console=plain` — **PASS**. The route test was not rerun after this CSS-only adjustment; it had passed immediately before it.
+- `git diff --check` — **PASS** (Git reports only the existing LF-to-CRLF working-copy conversion warning for `act-trends.js`).
+- ChatGPT in-app browser with local PostgreSQL snapshot 400 — **PASS**: `/trends` rendered 35 historical Acts and six region series; chart totals and summary table matched. At 1440 × 900, the metric label fits. At 390 × 844, the filter groups span the panel and the page has no horizontal overflow (380 px document width in the built-in browser content area).
+- Baseline edge case — **PASS**: Asia-Pacific, Top 500, Immortal 2, index displayed the explanatory no-baseline message; browser page text contained no `Infinity`/`-∞` artifacts and the chart legend was empty.
+- Status before and after the final restart — **PASS**: `enabled:false`, `paused:true`, `running:false`, latest completed snapshot 400. No extraction request was sent.
+
+### Visual evidence and limitations
+
+- `evidence/phase6a-trends-desktop.png` — actual local application screenshot at a 1440 × 900 CSS viewport.
+- `evidence/phase6a-trends-mobile.png` — actual local application screenshot at a 390 × 844 CSS viewport; the in-app browser's capture content is 380 px wide.
+- Screenshots were inspected. The responsive table retains an internal horizontal scroller for its full set of columns. The browser download event did not complete during the earlier UI attempt, so CSV file delivery remains unverified in the browser; the CSV generation tests pass.
+
+Phase 6A is complete. Continue to Phase 6B (archive explorer); keep all data extraction paused until every redesign phase is complete.
