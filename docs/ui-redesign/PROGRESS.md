@@ -664,5 +664,25 @@ Phase 10 is complete; phases 2–10 are implemented and verified on `codex/ranke
 ### Git
 
 - Branch: `codex/ranked-observatory`.
-- Phase 11E changes are prepared for commit `test(observatory): add comprehensive browser and integration quality gates`.
+- Phase 11E commit: `a3137d7` (`test(observatory): add comprehensive browser and integration quality gates`).
 - Untracked user directories `match-data/` and `ui-sample/` remain preserved and excluded.
+
+## Phase 11F — Final production-readiness audit — 28 Oct 2026
+
+### Final result
+
+- Baseline in the master prompt: **7.1/10 provisional**.
+- Evidence-based final score: **8.4/10**, below the 9.0 release target. Category weights, scores, calculations, evidence and the smallest remaining improvements are in `docs/ui-redesign/FINAL_9_PLUS_AUDIT.md`.
+- Final deliverables: `docs/ui-redesign/QUALITY_IMPROVEMENT_REPORT.md` and `docs/ui-redesign/FINAL_9_PLUS_AUDIT.md`.
+- Release decision: **not approved as a 9+/10 production release**. The latest live extraction failed with Tracker HTTP 403; the local environment lacks PostgreSQL for six integration checks; CI/Playwright have not run; authenticated persistence, cold analytics performance and numeric accessibility audits remain unverified.
+
+### Final operational review
+
+- Read-only collector status: live extraction enabled, not paused, idle after run 426 failed at source page 479; archive extraction disabled, paused and idle. No retry, restart, data mutation, migration or pause-state change was made.
+- Current-source pages were reviewed in the ChatGPT in-app browser at desktop and mobile sizes. The browser exposed no supported path to retain final-pass screenshots in repository files; this is documented rather than overstated.
+- `match-data/` and `ui-sample/` were preserved as untracked user directories and excluded from commits.
+
+### Git
+
+- Phase 11E commit: `a3137d7` (`test(observatory): add comprehensive browser and integration quality gates`).
+- Phase 11F documentation commit: pending.
