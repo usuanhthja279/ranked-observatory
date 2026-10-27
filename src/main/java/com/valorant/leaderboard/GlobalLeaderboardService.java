@@ -403,6 +403,6 @@ public class GlobalLeaderboardService {
       from leaderboard_players p join leaderboard_runs r on p.run_id=r.id where r.act=? and r.status='COMPLETE' and lower(p.player_key)=? and ?='ap'
       ) h order by completed_at desc limit 1000
       """,act,player.toLowerCase(Locale.ROOT),region,act,player.toLowerCase(Locale.ROOT),region);}
-  public List<Map<String,Object>> countryHistory(String region,String country){return sql.queryForList("select r.completed_at,count(p.player_key) players,count(p.player_key) filter(where p.carried_forward) carried_forward from global_leaderboard_runs r left join global_leaderboard_players p on p.run_id=r.id and "+FILTER+" where r.act=:act and r.status='COMPLETE' group by r.id,r.completed_at order by r.id desc limit 1000",params(region,country));}
+  public List<Map<String,Object>> countryHistory(String region,String country){return sql.queryForList("select r.completed_at,count(p.player_key) players,count(p.player_key) filter(where p.carried_forward) carried_forward,count(p.player_key) filter(where p.stats_ambiguous) stats_ambiguous from global_leaderboard_runs r left join global_leaderboard_players p on p.run_id=r.id and "+FILTER+" where r.act=:act and r.status='COMPLETE' group by r.id,r.completed_at order by r.id desc limit 1000",params(region,country));}
   @PreDestroy public void close(){synchronized(scheduleGuard){closing=true;pendingScheduledRun=false;}collectionScheduler.shutdownNow();worker.shutdownNow();fetchers.shutdownNow();}
 }

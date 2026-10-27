@@ -3,7 +3,7 @@ const $=id=>document.getElementById(id);
 const esc=value=>String(value??'—').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const time=v=>v?new Date(v).toLocaleString():'—';
 const fmt=v=>v==null?'—':Number(v).toLocaleString();
-const params=new URLSearchParams(location.search),view=params.get('view')||(location.pathname==='/leaderboard'?'global':location.pathname==='/players'?'profile':location.pathname==='/trends'?'trends':location.pathname==='/archive'?'archive':'world');
+const params=new URLSearchParams(location.search),view=params.get('view')||(location.pathname==='/leaderboard'?'global':location.pathname==='/players'?'profile':location.pathname==='/trends'?'trends':location.pathname==='/archive'?'archive':location.pathname==='/compare'?'compare':'world');
 let selectedAct=params.get('act')||'';let currentAct='';
 const playerPageSize=view==='country'||view==='global'?10:20;
 const playerSorts=new Set(['globalRank','regionalRank','name','country','tier','rr','rrChange','updated']);
@@ -41,6 +41,7 @@ function updateShellBreadcrumbs(){
   if(country!=='all')items.push(`<span class="breadcrumb-current" aria-current="page">${esc(countryName(country))}</span>`);
  }
  if(view==='global')items.push('<span class="breadcrumb-current" aria-current="page">Global leaderboard</span>');
+ if(view==='compare')items.push('<span class="breadcrumb-current" aria-current="page">Compare</span>');
  const selected=$('actFilter')?.selectedOptions?.[0]?.textContent?.replace(/\s*·\s*Live$/, '')||'';
  if(selectedAct&&selectedAct!==currentAct&&selected)items.push(`<span class="breadcrumb-current" aria-current="page">${esc(selected)} archive</span>`);
  host.innerHTML=items.join('<span class="subtle" aria-hidden="true">›</span>');
@@ -263,7 +264,12 @@ async function refreshArchiveExplorer(version){
   renderArchiveExplorer();if(!document.documentElement.dataset.coreReadyMs)document.documentElement.dataset.coreReadyMs=String(Math.round(performance.now()));
  }catch(error){if(version===generation){$('message').textContent=error.message;$('archivePageWorkspace').innerHTML=`${archiveTabs()}<section class="archive-panel archive-error" role="alert"><h3>Archive data unavailable</h3><p>${esc(error.message)}</p><button type="button" id="archiveRetry">Retry archive load</button></section>`;}}
 }
-function setTrendsScope(){
+function setCompareScope(){
+ for(const id of ['countriesDirectory','regionExperienceTabs','regionTabHint','regionOverviewPanel','regionDistributionPanel','regionSection','regionTableSection','overviewActivitySection','currentSection','countryMovementSection','playerSection','trendLayout','timelineSection','scopeSection','selectedPlayerSection','countrySection','regionPage','countryPreview','historySection','historicalTrendDisclosure','playerProfileIntro','playerProfileWorkspace','trendsPageIntro','trendsPageWorkspace','archivePageIntro','archivePageWorkspace','globalPlayerCards','overviewPlayerSection','previewPlayerSection','dataFreshness'])$(id).classList.add('hidden');
+ $('comparePageIntro').classList.remove('hidden');$('comparePage').classList.remove('hidden');
+ $('pageTitle').textContent='Compare fairly';document.title='Compare fairly · Valorant Ranked Observatory';$('subtitle').textContent='Same Act, labeled source scope, evidence-backed differences.';
+ $('masthead').classList.remove('region-masthead','country-masthead','overview-masthead');$('regionScenery').classList.add('hidden');
+}function setTrendsScope(){
  for(const id of ['countriesDirectory','regionExperienceTabs','regionTabHint','regionOverviewPanel','regionDistributionPanel','regionSection','regionTableSection','overviewActivitySection','currentSection','countryMovementSection','playerSection','trendLayout','countrySection','countryPreview','historySection','timelineSection','scopeSection','playerProfileIntro','playerProfileWorkspace','selectedPlayerSection'])$(id).classList.add('hidden');
  $('dataConfidence').classList.remove('hidden');$('dataFreshness').classList.add('hidden');$('masthead').classList.remove('region-masthead','country-masthead','overview-masthead');$('regionScenery').classList.add('hidden');
  $('trendsPageIntro').classList.remove('hidden');$('trendsPageWorkspace').classList.remove('hidden');$('trendsPageWorkspace').appendChild($('historicalTrendDisclosure'));$('historicalTrendDisclosure').classList.remove('hidden');$('historicalTrendDisclosure').open=true;$('historicalTrendDisclosure').querySelector('summary').hidden=true;
@@ -273,6 +279,7 @@ function setTrendsScope(){
 function setScope(){
  if(view==='profile'){setProfileScope();return;}
  if(view==='trends'){setTrendsScope();return;}
+ if(view==='compare'){setCompareScope();return;}
  const historical=Boolean(data?.status?.archiveOnly),hasRegion=region!=='all',hasCountry=hasRegion&&country!=='all',detail=view==='region'||view==='country';
  $('overviewActivitySection').classList.toggle('hidden',view!=='world'||historical);$('masthead').classList.toggle('overview-masthead',view==='world');
  $('regionSection').classList.toggle('hidden',detail);$('regionTableSection').classList.toggle('hidden',detail);
@@ -346,6 +353,7 @@ async function refresh(){const version=++generation;try{
  if(view==='countries'){await globalThis.loadCountriesDirectory?.();return;}
  if(view==='profile'){await refreshPlayerProfilePage(version);return;}
  if(view==='trends'){await refreshTrendsPage(version);return;}
+ if(view==='compare'){setCompareScope();await globalThis.refreshComparePage?.();return;}
  if(view==='archive'){await refreshArchiveExplorer(version);return;}
  if(selectedAct&&selectedAct!==currentAct){await refreshArchived(version);return;}
  if(view==='global'){await refreshGlobalPage(version);return;}

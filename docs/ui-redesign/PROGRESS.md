@@ -373,3 +373,32 @@ Phase 6A is complete. Continue to Phase 6B (archive explorer); keep all data ext
 - The inspected browser data is the persisted local snapshot, not synthetic data. Source status rows are recorded source evidence, not a claim that the currently disabled collector is running.
 
 Phase 6B implementation and focused checks are complete; mobile visual evidence remains a known verification gap. Continue to Phase 7 only after capturing the remaining mobile evidence if the in-app browser supports a mobile viewport; keep extraction paused until the redesign phases are complete.
+
+## Phase 7A — Evidence-based comparison
+
+### Changes
+
+- Added a canonical `/compare` page with Countries, Regions, and Players modes. The current Act is the default; Act selection is retained in the URL and each comparison states the source basis.
+- Country comparisons use the global source and expose 1-hour, 6-hour, and 24-hour change windows for the current Act. Archived country comparisons show the selected archived snapshot and explicitly state that an archived Act has no within-Act time series.
+- Region comparisons use the same selected Act and disclose whether counts come from the current global-source partition or completed archived regional ladders. The UI directs users to published Act trends when regional time-series evidence is unavailable.
+- Player comparisons require exact Riot ID matches; RR/rank change summaries use bounded windows and avoid claiming identity continuity across renamed accounts.
+- Country history now includes additive carried-forward and ambiguous-row counts. The comparison analysis excludes any aggregate snapshot containing either kind of uncertainty rather than presenting it as clean evidence.
+- Added the comparison entry to desktop and mobile navigation. No extraction or collection endpoint is invoked.
+
+### Verification
+
+- `node --check src/main/resources/static/leaderboard.js` — **PASS**.
+- `node --check src/main/resources/static/compare-page.js` — **PASS**.
+- `node --check src/main/resources/static/compare-analysis.js` — **PASS**.
+- `node --test src/test/js/compare-analysis.test.cjs` — **PASS**, 5 tests, 0 failures.
+- `JAVA_HOME=C:\Users\usuan\.jdks\dragonwell-21.0.12 .\gradlew.bat test --tests com.valorant.leaderboard.StandaloneApplicationTest.canonicalCompareRouteValidatesModeAndPreservesSelections` — **PASS**.
+- `JAVA_HOME=C:\Users\usuan\.jdks\dragonwell-21.0.12 .\gradlew.bat bootJar` — **PASS**.
+- `git diff --check` — **PASS** (LF-to-CRLF working-copy warnings only).
+- ChatGPT in-app browser on the local service — **PASS** for rendering current-Act Countries, Regions, and Players modes; confirmed source/mode selectors and country comparison results. An archived V26 Act III country comparison rendered the saved counts and an explicit “single published source snapshot” no-history explanation.
+- Restarted through `scripts/Stop-LeaderboardService.ps1 -Port 8090` and `scripts/Start-LeaderboardService.ps1 -Port 8090`. The app is running on port 8090. Status endpoint reports `enabled:false`, `paused:true`, `running:false`; latest successful snapshot remains 400. The existing extraction pause marker is present. No collection request was issued.
+
+### Visual limits
+
+The ChatGPT in-app browser was used for the actual local UI check. This session's in-app browser exposed the rendered accessibility tree but not a screenshot-save or viewport-resize operation, so no PNG evidence or 390 × 844 mobile capture is claimed. Responsive CSS is present but mobile visual fit remains unverified.
+
+Phase 7A is complete. Continue to Phase 7B (persistent watchlist); keep all extraction paused.

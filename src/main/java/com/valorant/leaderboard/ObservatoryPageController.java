@@ -91,6 +91,28 @@ public class ObservatoryPageController {
     return "forward:/leaderboard.html";
   }
 
+  @GetMapping("/compare")
+  public String compare(@RequestParam(defaultValue = "country") String mode,
+                        @RequestParam(required = false) String act,
+                        @RequestParam(required = false) String a,
+                        @RequestParam(required = false) String b,
+                        @RequestParam(defaultValue = "60") int window) {
+    if (!Set.of("country", "region", "player").contains(mode)) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Unsupported comparison mode");
+    }
+    validateAct(act);
+    if ((a != null && a.length() > 120) || (b != null && b.length() > 120)
+        || !Set.of(60, 360, 1440).contains(window)) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid comparison selection");
+    }
+    var target = UriComponentsBuilder.fromPath("/leaderboard.html")
+        .queryParam("view", "compare").queryParam("mode", mode);
+    if (act != null && !act.isBlank()) target.queryParam("act", act);
+    if (a != null && !a.isBlank()) target.queryParam("a", a);
+    if (b != null && !b.isBlank()) target.queryParam("b", b);
+    target.queryParam("window", window);
+    return "forward:" + target.build().encode().toUriString();
+  }
   @GetMapping("/archive")
   public String archive(@RequestParam(required = false) String act) {
     validateAct(act);

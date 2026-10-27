@@ -94,6 +94,17 @@ class StandaloneApplicationTest {
         .andExpect(status().isBadRequest());
   }
 
+  @Test void canonicalCompareRouteValidatesModeAndPreservesSelections() throws Exception {
+    String act="01234567-89ab-cdef-0123-456789abcdef";
+    mvc.perform(get("/compare")).andExpect(status().isOk())
+        .andExpect(forwardedUrl("/leaderboard.html?view=compare&mode=country&window=60"));
+    mvc.perform(get("/compare").param("mode","player").param("act",act)
+        .param("a","Player One#TAG").param("b","Player Two#TAG").param("window","360"))
+        .andExpect(status().isOk())
+        .andExpect(forwardedUrl("/leaderboard.html?view=compare&mode=player&act="+act+"&a=Player%20One%23TAG&b=Player%20Two%23TAG&window=360"));
+    mvc.perform(get("/compare").param("mode","unknown")).andExpect(status().isBadRequest());
+    mvc.perform(get("/compare").param("window","999")).andExpect(status().isBadRequest());
+  }
   @Test void canonicalArchiveRoutePreservesActAndRejectsMalformedAct() throws Exception {
     String act="01234567-89ab-cdef-0123-456789abcdef";
     mvc.perform(get("/archive")).andExpect(status().isOk()).andExpect(forwardedUrl("/leaderboard.html?view=archive"));
