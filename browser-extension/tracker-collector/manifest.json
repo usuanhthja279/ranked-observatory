@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "Observatory Tracker Match Collector",
-  "version": "0.3.0",
-  "description": "Collect up to five selected-player matches from visible Tracker pages.",
+  "version": "0.4.0",
+  "description": "Collect selected-player Tracker matches in bounded batches and save validated responses to the signed-in local Observatory.",
   "permissions": [
     "tabs",
     "storage",

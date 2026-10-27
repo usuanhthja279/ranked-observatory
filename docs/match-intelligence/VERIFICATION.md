@@ -43,3 +43,18 @@ The first native run exposed that catching a PostgreSQL duplicate-key exception 
 ## Scope limits
 
 Only the isolated disposable test cluster on 5435 was used. The active port-8090 application and its extraction state were not restarted or changed, and no collection/admin API or Tracker request was made. Phase M2 native PostgreSQL acceptance is complete; its APIs remain covered by the existing authenticated/CSRF H2 Spring tests, while SQL persistence is covered on PostgreSQL.
+
+## M3 collector transport verification
+
+The latest focused frontend tests passed with:
+
+```powershell
+node --test src/test/js/match-analyzer.test.cjs src/test/js/match-intelligence-client.test.cjs src/test/js/tracker-network-analysis.test.cjs
+python scripts/leaderboard/test_tracker_collector_extension.py
+python scripts/leaderboard/test_tracker_collector_extension.py --network-only --target-count 10
+python scripts/leaderboard/test_tracker_collector_extension.py --network-only --target-count 20
+```
+
+Results: 15 Node tests passed; synthetic Chromium full suite passed; synthetic network mode passed for 10 and 20 requested records, creating respectively two and four API imports capped at five records each and preserving each response JSON file. The full synthetic suite also exercised local profile route validation, switching tabs while the Tracker popup remained active, DOM fallback, identity checks, deduplication, malformed responses, and HTTP 403/429 stopping. It never contacted Tracker.
+
+The native PostgreSQL acceptance run on the dedicated port-5435 test cluster ran 2 integration cases. It passed the normal persistence test and the opt-in local export test (five accepted match versions). With 18 `StandaloneApplicationTest` and 9 parser tests, the latest combined focused Java run had 29 passing tests. No CI Actions result was checked in this phase. Neither the source app (port 8090) nor its live/archive extraction controls were restarted or changed. Real extension operation against Tracker and the latest packaged UI on port 8090 remain unverified; use the source preview for local smoke checks and reload the extension to test it in a supported Chromium browser.

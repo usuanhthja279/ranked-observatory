@@ -20,9 +20,13 @@ def main():
     args = argparse.ArgumentParser()
     args.add_argument('--real', action='store_true')
     args.add_argument('--network-only', action='store_true')
+    args.add_argument('--target-count', type=int, choices=[5, 10, 20], default=5)
     options = args.parse_args()
     scenario = {'value': 'real' if options.real else 'complete', 'requests': 0}
+    imported_batches = []
     template = FIXTURE.read_text(encoding='utf-8-sig')
+    if options.target_count > 5:
+        template = template.replace('for (let i=0; i<5; i++)', f'for (let i=0; i<{options.target_count}; i++)')
     profile_dir = tempfile.mkdtemp(prefix='collector-browser-', dir=str(ROOT / 'build'))
     with sync_playwright() as playwright:
         context = playwright.chromium.launch_persistent_context(
@@ -35,6 +39,15 @@ def main():
             worker = context.service_workers[0] if context.service_workers else context.wait_for_event('serviceworker', timeout=15000)
             print('Extension loaded:', worker.url.split('/')[0] + '//<local-extension>', flush=True)
             if not options.real:
+                context.route('**/api/leaderboard/csrf', lambda route: route.fulfill(status=200, content_type='application/json', body=json.dumps({'header':'X-CSRF-TOKEN','token':'synthetic-csrf'})))
+                def import_response(route):
+                    payload = route.request.post_data_json
+                    imported_batches.append(payload)
+                    route.fulfill(status=201, content_type='application/json', body=json.dumps({
+                        'jobId':'synthetic-import-' + str(len(imported_batches)), 'status':'COMPLETE',
+                        'acceptedMatches':len(payload.get('matches', [])), 'partialMatches':0, 'rejectedMatches':0
+                    }))
+                context.route('**/api/match-intelligence/imports', import_response)
                 def fulfill(route):
                     scenario['requests'] += 1
                     if scenario['value'] in ('blocked', 'rate_limited'):
@@ -61,6 +74,7 @@ def main():
             page.locator('#matchAnalyzerCollect').wait_for(state='visible', timeout=30000)
             page.wait_for_timeout(1000)
             def run(background=False):
+                page.locator('#matchAnalyzerTarget').select_option(str(options.target_count))
                 page.locator('#matchAnalyzerCollect').click()
                 if background:
                     page.wait_for_function(
@@ -99,13 +113,17 @@ def main():
                 scenario['value'] = 'network'
                 outcome = run()
                 print('Network result:', outcome, flush=True)
-                assert 'JSON save started for 5 response(s)' in outcome, outcome
+                assert f'Finished: {options.target_count} of {options.target_count} requested matches captured, 0 issue(s).' in outcome, outcome
+                assert f'JSON save started for {options.target_count} response(s)' in outcome, outcome
+                assert f'Saved {options.target_count} validated match(es) to your Observatory account.' in outcome, outcome
+                assert len(imported_batches) == (options.target_count + 4) // 5
+                assert all(len(batch['matches']) <= 5 for batch in imported_batches)
                 page.wait_for_timeout(1000)
                 assert observed_downloads, 'No download event observed'
                 exported = json.loads(Path(observed_downloads[-1].path()).read_text(encoding='utf-8'))
-                assert exported['complete'] and exported['responseCount'] == 5
-                assert len(exported['matches']) == 5 and all(m['validation'] == 'passed' and m['response']['data']['attributes']['id'] == m['matchId'] for m in exported['matches'])
-                print('PASS: saved JSON contains five validated synthetic response bodies', flush=True)
+                assert exported['complete'] and exported['responseCount'] == options.target_count
+                assert len(exported['matches']) == options.target_count and all(m['validation'] == 'passed' and m['response']['data']['attributes']['id'] == m['matchId'] for m in exported['matches'])
+                print(f"PASS: saved JSON contains {options.target_count} validated synthetic response bodies across {len(imported_batches)} bounded server import(s)", flush=True)
                 return
             if options.real:
                 outcome = run()
@@ -125,7 +143,7 @@ def main():
             outcome = run(background=True)
             print('PASS: switched main-window tab while Tracker stayed active in its own window', flush=True)
             print('Synthetic outcome:', outcome, 'details:', page.locator('#matchAnalyzerFailures').inner_text(), flush=True)
-            assert 'Finished: 5 validated match(es), 0 issue(s).' in outcome, outcome
+            assert 'Finished: 5 of 5 requested matches captured, 0 issue(s).' in outcome, outcome
             assert scenario['requests'] == 1, f"Expected one profile load, got {scenario['requests']}"
             assert page.locator('#matchAnalyzerCollected option').count() == 5
             assert '1/1/0' in page.locator('#matchAnalyzerResult').inner_text()
@@ -138,11 +156,13 @@ def main():
             print('PASS: five validated synthetic matches appear in the app', flush=True)
             scenario['value'] = 'network'
             outcome = run()
-            assert 'Finished: 5 validated match(es), 0 issue(s).' in outcome, outcome
+            assert 'Finished: 5 of 5 requested matches captured, 0 issue(s).' in outcome, outcome
             assert page.locator('#matchAnalyzerCollected option').count() == 5
             assert 'Validated Tracker network response' in page.locator('#matchAnalyzerResult').inner_text()
             assert '100.0 damage/round' in page.locator('#matchAnalyzerResult').inner_text()
             assert 'JSON save started for 5 response(s)' in outcome, outcome
+            assert 'Saved 5 validated match(es) to your Observatory account.' in outcome, outcome
+            assert len(imported_batches) == 1 and len(imported_batches[0]['matches']) == 5
             page.wait_for_timeout(1000)
             assert observed_downloads, 'No download event observed'
             exported = json.loads(Path(observed_downloads[-1].path()).read_text(encoding='utf-8'))
@@ -151,7 +171,7 @@ def main():
             print('PASS: saved JSON contains five validated synthetic response bodies', flush=True)
             scenario['value'] = 'partial'
             outcome = run()
-            assert 'Finished: 3 validated match(es), 1 issue(s).' in outcome, outcome
+            assert 'Finished: 3 of 5 requested matches captured, 1 issue(s).' in outcome, outcome
             assert page.locator('#matchAnalyzerCollected option').count() == 3
             assert 'Match 3:' in page.locator('#matchAnalyzerFailures').inner_text()
             print('PASS: duplicate match skipped and invalid match reported', flush=True)

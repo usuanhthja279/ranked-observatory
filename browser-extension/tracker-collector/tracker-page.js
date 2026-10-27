@@ -51,10 +51,17 @@
     if (!['COLLECT_ONE', 'OPEN_ONE'].includes(message?.type)) return;
     (async () => {
       const index = message.index;
-      if (!Number.isInteger(index) || index < 0 || index > 4 || typeof message.player !== 'string') throw new Error('Invalid collection request.');
+      if (!Number.isInteger(index) || index < 0 || index > 19 || typeof message.player !== 'string') throw new Error('Invalid collection request.');
       const displayedId = decodeURIComponent(location.pathname.split('/valorant/profile/riot/')[1]?.split('/')[0] || '');
       if (displayedId.toLocaleLowerCase() !== message.player.toLocaleLowerCase()) throw new Error('Tracker profile does not match the requested player.');
       await waitFor(() => document.querySelector('.v3-match-row'), 'Recent match list');
+      const rowsUntil = Date.now() + 5000;
+      while (document.querySelectorAll('.v3-match-row').length <= index && Date.now() < rowsUntil) {
+        check();
+        const rows = document.querySelectorAll('.v3-match-row');
+        rows[rows.length - 1]?.scrollIntoView({ block: 'end' });
+        await sleep(250);
+      }
       const rows = [...document.querySelectorAll('.v3-match-row')];
       if (index >= rows.length) return { done: true, visibleCount: rows.length };
       rows[index].click();

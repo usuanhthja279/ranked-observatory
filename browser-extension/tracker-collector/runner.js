@@ -6,7 +6,12 @@
   let stopped = false, trackerTabId = null, trackerWindowId = null, currentJob = null, lastPageId = null;
   chrome.runtime.onMessage.addListener(message => {
     if (message?.type === 'COLLECTOR_BLOCKED' && message.jobId === currentJob?.id) stopped = true;
+    if (message?.type === 'APP_IMPORT_RESULT_TO_RUNNER' && message.jobId === currentJob?.id) {
+      const pending = pendingImports.get(message.batchNumber);
+      if (pending) { clearTimeout(pending.timer); pendingImports.delete(message.batchNumber); pending.resolve(message.result); }
+    }
   });
+  const pendingImports = new Map();
   chrome.debugger.onEvent.addListener((source, method, params) => {
     if (source.tabId !== trackerTabId) return;
     if (method === 'Network.responseReceived') {
@@ -28,6 +33,17 @@
     }
   });
   async function getJob() { return (await chrome.storage.session.get('collectorJob')).collectorJob; }
+  async function importBatch(payload, batchNumber) {
+    return new Promise(async resolve => {
+      const timer = setTimeout(() => { pendingImports.delete(batchNumber); resolve({ ok:false, message:'Observatory import timed out; the JSON download remains available.' }); }, 60000);
+      pendingImports.set(batchNumber, { resolve, timer });
+      try {
+        const result = await chrome.runtime.sendMessage({ type:'RUNNER_UPDATE', jobId:currentJob.id,
+          update:{ type:'import', message:'Saving validated response batch ' + batchNumber + ' to your Observatory account.', export:payload, batchNumber } });
+        if (!result?.ok) { clearTimeout(timer); pendingImports.delete(batchNumber); resolve({ ok:false, message:result?.error || 'The Observatory could not receive this batch.' }); }
+      } catch (error) { clearTimeout(timer); pendingImports.delete(batchNumber); resolve({ ok:false, message:String(error.message || error).slice(0,300) }); }
+    });
+  }
   async function check() {
     const latest = await getJob();
     if (!latest || latest.id !== currentJob.id || latest.blockedStatus || stopped) {
@@ -84,11 +100,15 @@
     throw new Error('Tracker page helper did not become available.');
   }
   let captures = [], failures = [], seen = new Set(), responses = [];
+  function responseExport(matches, issues = failures, boundedBatch = false) {
+    return { schemaVersion:1, source:'tracker.gg', player:currentJob.player, exportedAt:new Date().toISOString(),
+      requestedMatches:boundedBatch ? matches.length : currentJob.targetMatches, responseCount:matches.length,
+      complete:boundedBatch ? matches.length > 0 : matches.length === currentJob.targetMatches && issues.length === 0,
+      failures:issues, matches };
+  }
   async function exportResponses() {
-    if (!responses.length) return 'No match responses available for JSON export.';
-    const content = JSON.stringify({ schemaVersion: 1, source: 'tracker.gg', player: currentJob.player,
-      exportedAt: new Date().toISOString(), requestedMatches: 5, responseCount: responses.length,
-      complete: responses.length === 5, failures, matches: responses }, null, 2);
+    if (!responses.length) return 'No full match responses available for JSON export.';
+    const content = JSON.stringify(responseExport(responses), null, 2);
     const url = URL.createObjectURL(new Blob([content], {type:'application/json'}));
     try {
       await update('progress', 'Choose where to save the match response JSON. Use the ignored Observatory build or data folder.');
@@ -118,14 +138,14 @@
       await chrome.debugger.sendCommand({tabId:trackerTabId}, 'Network.enable', {});
     } catch { if (debuggerAttached) { try { await chrome.debugger.detach({tabId:trackerTabId}); } catch {} } debuggerAttached = false; await update('progress', 'Response capture unavailable; using visible round tables.'); }
     await navigate(profile);
-    for (let index = 0; index < 5 && captures.length < 5; index++) {
+    for (let index = 0; index < currentJob.targetMatches && captures.length < currentJob.targetMatches; index++) {
       await check();
       if (index) await sleep(3000);
       if (index) {
         const reset = await chrome.tabs.sendMessage(trackerTabId, { type: 'CLOSE_MATCH' });
         if (!reset?.closed) await navigate(profile);
       }
-      await update('progress', 'Reading recent match ' + (index + 1) + ' (captured ' + captures.length + ' of 5).');
+      await update('progress', 'Reading recent match ' + (index + 1) + ' (captured ' + captures.length + ' of ' + currentJob.targetMatches + ').');
       let response;
       if (debuggerAttached) {
         response = await requestCapture(index, 'OPEN_ONE');
@@ -140,12 +160,19 @@
               if (String(data?.attributes?.id || '').toLowerCase() !== id || !selected) throw new Error('Response identity does not match.');
               if (!responses.some(item => item.matchId === id)) responses.push({ matchId:id, validation:'pending', response:body });
               const record = responses.find(item => item.matchId === id);
+              record.validation = 'passed';
               let analysis;
-              try { analysis = window.TrackerNetworkAnalysis.analyze(body, id, currentJob.player); record.validation = 'passed'; }
-              catch (error) { record.validation = 'failed'; record.validationError = String(error.message).slice(0,300); throw error; }
+              try { analysis = window.TrackerNetworkAnalysis.analyze(body, id, currentJob.player); }
+              catch (error) {
+                record.analysisWarning = String(error.message).slice(0,300);
+                failures.push({ index:index + 1, message:'The response was captured, but one summary analysis was unavailable: ' + record.analysisWarning });
+              }
               await check();
               bodies.delete(id);
-              if (!seen.has(id)) { seen.add(id); captures.push({networkAnalysis:analysis}); await update('progress', 'Validated response for ' + captures.length + ' of 5 matches.', {networkAnalysis:analysis, failures}); }
+              if (!seen.has(id)) {
+                seen.add(id); captures.push(analysis ? {networkAnalysis:analysis} : {networkMatchId:id});
+                await update('progress', 'Validated response for ' + captures.length + ' of ' + currentJob.targetMatches + ' matches.', {networkAnalysis:analysis, failures});
+              }
               continue;
             } catch (error) { bodies.delete(id); await update('progress', 'Response could not be validated; using visible round tables.'); }
           }
@@ -167,17 +194,27 @@
         if (seen.has(parsed.match.id)) continue;
         seen.add(parsed.match.id);
         captures.push(response.capture);
-        await update('progress', 'Validated ' + captures.length + ' of 5 matches.', { capture: response.capture, failures });
+        await update('progress', 'Validated ' + captures.length + ' of ' + currentJob.targetMatches + ' matches.', { capture: response.capture, failures });
       } catch (error) {
         failures.push({ index: index + 1, message: error.message });
         await update('progress', 'Match ' + (index + 1) + ' failed validation; continuing.', { failures });
       }
     }
+    const validResponses = responses.filter(item => item.validation === 'passed');
+    const importReceipts = [];
+    for (let offset = 0; offset < validResponses.length; offset += 5) {
+      const group = validResponses.slice(offset, offset + 5);
+      const payload = responseExport(group, [], true);
+      const receipt = await importBatch(payload, Math.floor(offset / 5) + 1);
+      if (receipt?.ok) importReceipts.push(receipt);
+      else failures.push({ index:offset + 1, message:'Account save failed: ' + String(receipt?.message || 'unknown error').slice(0,250) });
+    }
+    const importStatus = importReceipts.length ? 'Saved ' + importReceipts.reduce((n, item) => n + Number(item.acceptedMatches || 0), 0) + ' validated match(es) to your Observatory account.' : (validResponses.length ? 'Account save unavailable; use the JSON export.' : 'No validated network responses were available for account save.');
     const exportStatus = await exportResponses();
-    await update('finished', 'Finished: ' + captures.length + ' validated match(es), ' + failures.length + ' issue(s). ' + exportStatus, { captures: captures.filter(c => !c.networkAnalysis), failures });
+    await update('finished', 'Finished: ' + captures.length + ' of ' + currentJob.targetMatches + ' requested matches captured, ' + failures.length + ' issue(s). ' + importStatus + ' ' + exportStatus, { captures: captures.filter(c => c?.match && c?.player), failures });
   } catch (error) {
     if (currentJob?.id) {
-      try { const exportStatus = await exportResponses(); await update('finished', 'Collection stopped: ' + error.message + '. ' + exportStatus, { captures: captures.filter(c => !c.networkAnalysis), failures }); }
+      try { const exportStatus = await exportResponses(); await update('finished', 'Collection stopped: ' + error.message + '. ' + exportStatus, { captures: captures.filter(c => c?.match && c?.player), failures }); }
       catch { status.textContent = 'Collection stopped: ' + error.message; }
     } else status.textContent = 'Collection could not start: ' + error.message;
   } finally {

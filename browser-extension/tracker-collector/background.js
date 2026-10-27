@@ -1,5 +1,7 @@
 const allowedOrigins = new Set(['http://127.0.0.1:8090', 'http://localhost:8090', 'http://127.0.0.1:8091', 'http://localhost:8091']);
 const validPlayer = player => typeof player === 'string' && player.length <= 120 && /^[^\u0000-\u001f#]+#[^\u0000-\u001f#]+$/.test(player);
+const isPlayerPage = url => allowedOrigins.has(url.origin) && validPlayer(url.searchParams.get('player')) &&
+  (url.pathname === '/players' || (url.pathname === '/leaderboard.html' && url.searchParams.get('view') === 'profile'));
 let startPending = false;
 async function job() { return (await chrome.storage.session.get('collectorJob')).collectorJob; }
 async function sendApp(j, update) {
@@ -13,11 +15,12 @@ chrome.runtime.onMessage.addListener((message, sender, reply) => {
       startPending = true;
       try {
       const url = new URL(sender.tab?.url || '');
-      if (!allowedOrigins.has(url.origin) || url.pathname !== '/players') throw new Error('Open a local Observatory player profile.');
+      if (!isPlayerPage(url)) throw new Error('Open a local Observatory player profile.');
       const player = url.searchParams.get('player')?.trim();
       if (!validPlayer(player)) throw new Error('The player profile must contain a valid Riot ID.');
+      const targetMatches = [5, 10, 20].includes(Number(message.targetMatches)) ? Number(message.targetMatches) : 5;
       if (await job()) throw new Error('A collection is already running.');
-      const j = { id: crypto.randomUUID(), appTabId: sender.tab.id, player, startedAt: Date.now() };
+      const j = { id: crypto.randomUUID(), appTabId: sender.tab.id, player, targetMatches, startedAt: Date.now() };
       await chrome.storage.session.set({ collectorJob: j });
       await sendApp(j, { type: 'started' });
       try {
@@ -37,6 +40,15 @@ chrome.runtime.onMessage.addListener((message, sender, reply) => {
       if (!j || message.jobId !== j.id || sender.tab?.id !== j.runnerTabId) throw new Error('Unknown collector session.');
       await sendApp(j, message.update);
       if (message.update?.type === 'finished') await chrome.storage.session.remove('collectorJob');
+      return { ok: true };
+    }
+    if (message?.type === 'APP_IMPORT_RESULT') {
+      const j = await job();
+      const appUrl = new URL(sender.tab?.url || 'about:blank');
+      if (!j || message.jobId !== j.id || sender.tab?.id !== j.appTabId || !isPlayerPage(appUrl)) throw new Error('Import result did not come from the active Observatory player page.');
+      const batchNumber = Number(message.batchNumber);
+      if (!Number.isInteger(batchNumber) || batchNumber < 1 || batchNumber > 4) throw new Error('Invalid import batch identifier.');
+      chrome.runtime.sendMessage({ type: 'APP_IMPORT_RESULT_TO_RUNNER', jobId: j.id, batchNumber, result: message.result }).catch(() => {});
       return { ok: true };
     }
     throw new Error('Unsupported message.');

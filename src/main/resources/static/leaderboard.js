@@ -604,6 +604,6 @@ $('archivePageWorkspace').addEventListener('input',event=>{if(event.target.match
 accountHeader();
 initializeActFilter().then(()=>refresh()).catch(error=>{$('message').textContent=error.message;});setInterval(()=>{if(selectedAct&&!document.hidden)refresh();},60000);
 
-if (location.pathname === '/players' && new URLSearchParams(location.search).has('player')) {
- const matchAnalyzerScript=document.createElement('script');matchAnalyzerScript.src='/match-analyzer.js?v=3';document.head.appendChild(matchAnalyzerScript);
+if (new URLSearchParams(location.search).has('player')) {
+ const importClientScript=document.createElement('script');importClientScript.src='/match-intelligence-client.js?v=1';importClientScript.onload=()=>{const matchAnalyzerScript=document.createElement('script');matchAnalyzerScript.src='/match-analyzer.js?v=4';document.head.appendChild(matchAnalyzerScript);};document.head.appendChild(importClientScript);
 }

@@ -35,3 +35,25 @@ The dedicated PostgreSQL test checks V1–V11 migration, five-match sample inges
 ## Phases M3–M8
 
 Not started. M3 requires the M2 schema/API to pass the dedicated PostgreSQL acceptance test before collector integration. Subsequent phases remain gated on completing and verifying each preceding phase.
+
+## Phase M3 — Bounded collector import
+
+**Complete.** The Tracker extension now supports an explicit selected-player target of 5, 10, or 20 matches in one dedicated collector window. It observes only successful JSON match responses that Tracker itself requested after a user opens each match through the UI. Match IDs are deduplicated, progress and partial failures are preserved, and raw response JSON is offered as a local download. For an authenticated Observatory page, validated response records are sent in sequential batches of at most five through the existing authenticated, CSRF-protected import API. An API failure leaves the local JSON export available. Network response records and rendered DOM fallback captures remain distinct; DOM-only captures are not misrepresented as raw JSON or uploaded through this path.
+
+The browser bridge accepts requests only from the local Observatory origin and a validated player profile route. HTTP 403/429, private profile or challenge signals still stop the collection. No Tracker request is fabricated, no cookies or headers are copied, and there is no public unauthenticated import endpoint. M2’s server parser and ownership rules remain authoritative. The app process and live/archive extraction states were not changed.
+
+### Verification
+
+- `node --test src/test/js/match-analyzer.test.cjs src/test/js/match-intelligence-client.test.cjs src/test/js/tracker-network-analysis.test.cjs` — passed 15 focused tests.
+- `python scripts/leaderboard/test_tracker_collector_extension.py` — passed synthetic Chromium UI, route, window visibility, fallback, identity, duplicate, malformed response, 403 and 429 cases.
+- `python scripts/leaderboard/test_tracker_collector_extension.py --network-only --target-count 10` — passed with 10 synthetic response bodies, two bounded API imports, and one JSON export.
+- `python scripts/leaderboard/test_tracker_collector_extension.py --network-only --target-count 20` — passed with 20 synthetic response bodies, four bounded API imports, and one JSON export.
+- These are synthetic extension tests, not live Tracker acceptance. No real Tracker request was made during this phase. The opt-in native PostgreSQL M2 export test independently verified five complete imports; see [VERIFICATION.md](VERIFICATION.md).
+
+### Limitations
+
+- Local checkpoints/resume after a browser or extension crash are not implemented. Completed response batches and already downloaded JSON remain durable; an interrupted batch must be recollected.
+- Target values indicate maximum attempts, not guaranteed access. Partial count is shown honestly and failures are retained.
+- The latest packaged extension must be reloaded from `build/tracker-collector-extension`; the running Observatory on 8090 has intentionally not been restarted to preserve its active extraction.
+
+M4 is the next phase; M5–M8 remain unstarted.
