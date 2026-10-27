@@ -71,12 +71,21 @@ body { margin: 0; background: var(--obs-bg); color: var(--obs-ink); }
 .global-search-dialog { box-sizing: border-box; width: min(720px, calc(100vw - 28px)); max-height: min(680px, calc(100dvh - 32px)); margin: auto; padding: 0; overflow: auto; border: 1px solid var(--obs-stroke); border-radius: 18px; background: var(--obs-panel); color: var(--obs-ink); box-shadow: 0 28px 100px #000b; }
 .global-search-dialog::backdrop { background: #030914c7; backdrop-filter: blur(8px); }
 .global-search-dialog .overview-search { margin: 0; padding: clamp(18px, 3vw, 28px); border: 0; background: transparent; }
-.global-search-dialog .section-heading { align-items: flex-start; }
+.global-search-dialog .section-heading { display: flex; flex-flow: row nowrap; align-items: flex-start; justify-content: space-between; width: 100%; }
+.global-search-dialog .section-heading > div { flex: 1 1 auto; min-width: 0; }
+.global-search-dialog #globalSearchClose { flex: 0 0 40px; align-self: flex-start; }
 .global-search-dialog .section-heading h2 { margin: 0 0 4px; }
 .global-search-dialog .search-field { margin: 18px 0 10px; }
 .global-search-dialog .search-field input { min-height: 48px; }
 .global-search-dialog .search-field input:focus-visible { outline: 0 !important; box-shadow: none !important; }
 .global-search-dialog .search-results:empty { display: none; }
+.global-search-dialog .search-results { display: grid; gap: 14px; }
+.search-result-group { display: grid; gap: 6px; }
+.search-result-group h3 { margin: 0; color: var(--obs-teal); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; }
+.search-result { display: flex; min-height: 54px; flex-direction: column; justify-content: center; gap: 4px; padding: 10px 12px; border: 1px solid var(--obs-stroke); border-radius: 9px; background: var(--obs-sidebar); color: var(--obs-ink); font: inherit; text-align: left; text-decoration: none; }
+.search-result:hover, .search-result:focus-visible { border-color: var(--obs-teal); background: var(--obs-panel-raised); }
+.search-result span { color: var(--obs-muted); font-size: 12px; }
+.search-empty { margin: 0; padding: 12px 0; color: var(--obs-muted); }
 .global-search-dialog kbd { margin-left: 6px; padding: 2px 5px; border: 1px solid #435a70; border-radius: 4px; color: var(--obs-muted); font-size: 10px; }
 @media (max-width: 600px) { .global-search-dialog { width: calc(100vw - 20px); max-height: calc(100dvh - 24px); border-radius: 14px; } }
 

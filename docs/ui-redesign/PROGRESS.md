@@ -578,3 +578,33 @@ Phase 10 is complete; phases 2–10 are implemented and verified on `codex/ranke
 
 - Branch: `codex/ranked-observatory`; base `94d43e9cdfd5e5dac28075259e8062dcb8f3f60b`.
 - Do not count Phase 11B as fully complete until the page-specific visual sweep is finished.
+
+## Phase 11C — Unified discovery and player journeys — 27 Oct 2026
+
+### Changes
+
+- Replaced player-only global search with bounded Players, Countries and Regions result groups using the existing read-only leaderboard APIs. Country names resolve through the existing server map where present and `Intl.DisplayNames` otherwise, so searches such as “Japan” work even when the compact status endpoint omits its country-name map.
+- Kept the 250 ms debounce and latest-request abort behavior, cached the small country/region directory for the page session, and added keyboard result traversal/Enter activation, focus restoration, empty/loading/error states and up to five validated same-origin recent destinations.
+- Preserved selected region and archived Act when navigating from a country search result; added player-profile Compare and Watchlist shortcuts. The Watchlist form accepts a player ID/scope query to prefill the existing customer-owned form without saving automatically, and signed-out return links retain those query values.
+- Added responsive search-result styling and fixed the mobile dialog heading so its close button remains at the top right.
+
+### Verification
+
+- `node --check src/main/resources/static/leaderboard.js`, `watchlist-page.js`, and `observatory-search-model.js` — **PASS**.
+- `node --test src/test/js/observatory-search-model.test.cjs src/test/js/compare-page.test.cjs src/test/js/countries-directory.test.cjs src/test/js/observatory-lifecycle.test.cjs` — **PASS, 14 tests**.
+- `git diff --check` — **PASS** (Git emitted expected LF-to-CRLF working-copy warnings).
+- ChatGPT in-app browser source preview: searched the live saved observations for “Japan” (six player rows and a Japan country result) and “Asia-Pacific” (region result); ArrowDown/Enter opened the regional route. From the AP context, selecting Japan preserved `region=ap` and `q=jp` in the Countries view. The signed-out Watchlist path displayed a sign-in link that retained its return URL and synthetic Riot ID. No customer account was created or changed.
+- Visual checks at desktop 1440×900 and mobile 390×844: the search dialog fits the viewport; after fixing the wrapped close control, it remains aligned in the top-right on mobile. The mobile Countries view had document/body width 380 px for a 390 px viewport, with no horizontal overflow. Screenshots were displayed and inspected in the in-app browser; the browser session does not expose a supported repository PNG export, so no standalone screenshot files are claimed.
+- A player-profile route was not opened because its data endpoint may trigger an upstream Tracker request. The new Compare/Watchlist shortcuts were checked in source; signed-in persistence and comparison submission remain unverified.
+
+### Operational safety and limitations
+
+- Tests used only read-only leaderboard endpoints and synthetic UI navigation. No collection or admin endpoint, account mutation, database write, profile/provider request or service restart was performed.
+- At the start of Phase 11C, `/api/leaderboard/status?compact=true` showed live run 419 in progress, `enabled:true`, `paused:false`, `running:true`, latest complete snapshot 418; archive extraction remains paused. The application on port 8090 was left untouched. The read-only source preview on 8091 was temporary and is stopped after Phase 11C verification.
+- Saved comparisons were not added: the existing watchlist schema supports four account-owned entity types, while a comparison needs a separately validated multi-entity schema and account-isolation migration; this remains an explicit follow-up rather than being encoded into an unrelated item type.
+
+### Git
+
+- Branch: `codex/ranked-observatory`.
+- Phase 11C commit: pending at documentation time.
+- Untracked user directories `match-data/` and `ui-sample/` were preserved and excluded.
