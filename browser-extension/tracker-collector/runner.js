@@ -1,9 +1,31 @@
 (async () => {
   const status = document.getElementById('status');
   const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+  let debuggerAttached = false;
+  const pendingResponses = new Map(), bodies = new Map();
   let stopped = false, trackerTabId = null, trackerWindowId = null, currentJob = null, lastPageId = null;
   chrome.runtime.onMessage.addListener(message => {
     if (message?.type === 'COLLECTOR_BLOCKED' && message.jobId === currentJob?.id) stopped = true;
+  });
+  chrome.debugger.onEvent.addListener((source, method, params) => {
+    if (source.tabId !== trackerTabId) return;
+    if (method === 'Network.responseReceived') {
+      try {
+        const u = new URL(params.response.url);
+        const match = u.hostname === 'api.tracker.gg' && u.protocol === 'https:' && u.pathname.match(/^\/api\/v2\/valorant\/standard\/matches\/([0-9a-f-]{36})$/i);
+        if (match && params.response.status === 200 && /json/i.test(params.response.mimeType || '')) pendingResponses.set(params.requestId, match[1].toLowerCase());
+      } catch {}
+    }
+    if (method === 'Network.loadingFailed') pendingResponses.delete(params.requestId);
+    if (method === 'Network.loadingFinished' && pendingResponses.has(params.requestId)) {
+      const id = pendingResponses.get(params.requestId); pendingResponses.delete(params.requestId);
+      if (params.encodedDataLength > 5 * 1024 * 1024) return;
+      const promise = chrome.debugger.sendCommand({tabId:trackerTabId}, 'Network.getResponseBody', {requestId:params.requestId}).then(r => {
+        if (r.base64Encoded || r.body.length > 5 * 1024 * 1024) throw new Error('Unsupported response body.');
+        return JSON.parse(r.body);
+      });
+      promise.catch(() => {}); bodies.set(id, promise);
+    }
   });
   async function getJob() { return (await chrome.storage.session.get('collectorJob')).collectorJob; }
   async function check() {
@@ -49,11 +71,11 @@
     }
     throw new Error('Tracker page did not finish loading.');
   }
-  async function requestCapture(index) {
+  async function requestCapture(index, type = 'COLLECT_ONE') {
     const until = Date.now() + 15000;
     while (Date.now() < until) {
       await check();
-      try { return await chrome.tabs.sendMessage(trackerTabId, { type: 'COLLECT_ONE', player: currentJob.player, index }); }
+      try { return await chrome.tabs.sendMessage(trackerTabId, { type, player: currentJob.player, index }); }
       catch (error) {
         if (!String(error.message).includes('Receiving end does not exist')) throw error;
         await sleep(250);
@@ -78,6 +100,10 @@
     await chrome.storage.session.set({ collectorJob: currentJob });
     const profile = 'https://tracker.gg/valorant/profile/riot/' + encodeURIComponent(currentJob.player) + '/overview';
     await update('progress', 'Opening Tracker profile for ' + currentJob.player + '.');
+    try {
+      await chrome.debugger.attach({tabId:trackerTabId}, '1.3'); debuggerAttached = true;
+      await chrome.debugger.sendCommand({tabId:trackerTabId}, 'Network.enable', {});
+    } catch { if (debuggerAttached) { try { await chrome.debugger.detach({tabId:trackerTabId}); } catch {} } debuggerAttached = false; await update('progress', 'Response capture unavailable; using visible round tables.'); }
     await navigate(profile);
     for (let index = 0; index < 5 && captures.length < 5; index++) {
       await check();
@@ -87,7 +113,24 @@
         if (!reset?.closed) await navigate(profile);
       }
       await update('progress', 'Reading recent match ' + (index + 1) + ' (captured ' + captures.length + ' of 5).');
-      const response = await requestCapture(index);
+      let response;
+      if (debuggerAttached) {
+        response = await requestCapture(index, 'OPEN_ONE');
+        if (response?.matchId) {
+          const id = response.matchId.toLowerCase();
+          for (let n = 0; n < 40 && !bodies.has(id); n++) { await check(); await sleep(100); }
+          if (bodies.has(id)) {
+            try {
+              const analysis = window.TrackerNetworkAnalysis.analyze(await bodies.get(id), id, currentJob.player);
+              await check();
+              bodies.delete(id);
+              if (!seen.has(id)) { seen.add(id); captures.push({networkAnalysis:analysis}); await update('progress', 'Validated response for ' + captures.length + ' of 5 matches.', {networkAnalysis:analysis, failures}); }
+              continue;
+            } catch (error) { bodies.delete(id); await update('progress', 'Response could not be validated; using visible round tables.'); }
+          }
+          response = await chrome.tabs.sendMessage(trackerTabId, {type:'CAPTURE_CURRENT', player:currentJob.player, matchId:id});
+        }
+      } else response = await requestCapture(index);
       await check();
       if (!response) throw new Error('Tracker page returned no capture.');
       if (response.done) break;
@@ -109,13 +152,14 @@
         await update('progress', 'Match ' + (index + 1) + ' failed validation; continuing.', { failures });
       }
     }
-    await update('finished', 'Finished: ' + captures.length + ' validated match(es), ' + failures.length + ' issue(s).', { captures, failures });
+    await update('finished', 'Finished: ' + captures.length + ' validated match(es), ' + failures.length + ' issue(s).', { captures: captures.filter(c => !c.networkAnalysis), failures });
   } catch (error) {
     if (currentJob?.id) {
-      try { await update('finished', 'Collection stopped: ' + error.message, { captures, failures }); }
+      try { await update('finished', 'Collection stopped: ' + error.message, { captures: captures.filter(c => !c.networkAnalysis), failures }); }
       catch { status.textContent = 'Collection stopped: ' + error.message; }
     } else status.textContent = 'Collection could not start: ' + error.message;
   } finally {
+    if (debuggerAttached && trackerTabId) { try { await chrome.debugger.detach({tabId:trackerTabId}); } catch {} }
     if (trackerWindowId) { try { await chrome.windows.remove(trackerWindowId); } catch {} }
     else if (trackerTabId) { try { await chrome.tabs.remove(trackerTabId); } catch {} }
   }

@@ -39,7 +39,16 @@
       })().then(reply, error => reply({ error: error.message, closed: false }));
       return true;
     }
-    if (message?.type !== 'COLLECT_ONE') return;
+    if (message?.type === 'CAPTURE_CURRENT') {
+      (async () => {
+        check();
+        const link = document.querySelector('.vm-header a[href*="/valorant/match/"]');
+        const url = new URL(link?.getAttribute('href'), location.href);
+        if (url.origin !== 'https://tracker.gg' || url.pathname.split('/')[3]?.toLowerCase() !== message.matchId) throw new Error('Match changed.');
+        return {capture: await globalThis.TrackerMatchCapture.capture(message.player, url.href, () => stopped)};
+      })().then(reply, error => reply({error:error.message})); return true;
+    }
+    if (!['COLLECT_ONE', 'OPEN_ONE'].includes(message?.type)) return;
     (async () => {
       const index = message.index;
       if (!Number.isInteger(index) || index < 0 || index > 4 || typeof message.player !== 'string') throw new Error('Invalid collection request.');
@@ -53,6 +62,7 @@
       const url = new URL(link.getAttribute('href'), location.href);
       if (url.origin !== 'https://tracker.gg' || !/^\/valorant\/match\/[0-9a-f-]{36}\/?$/i.test(url.pathname)) throw new Error('Unexpected match link.');
       check();
+      if (message.type === 'OPEN_ONE') return { matchId: url.pathname.split('/')[3] };
       const capture = await globalThis.TrackerMatchCapture.capture(message.player, url.href, () => stopped);
       check();
       return { capture };

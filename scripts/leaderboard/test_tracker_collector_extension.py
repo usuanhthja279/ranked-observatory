@@ -4,6 +4,7 @@ Requires the local source preview at 127.0.0.1:8091 and the built unpacked exten
 The synthetic route is fully intercepted; --real uses normal Tracker access once.
 """
 import argparse
+import json
 from pathlib import Path
 import tempfile
 from playwright.sync_api import sync_playwright, TimeoutError as BrowserTimeout
@@ -41,8 +42,17 @@ def main():
                     bad = '2' if scenario['value'] == 'partial' else '-1'
                     duplicate = '1' if scenario['value'] == 'partial' else '-1'
                     route.fulfill(status=200, content_type='text/html',
-                                  body=template.replace('__BAD_INDEX__', bad).replace('__DUPLICATE_INDEX__', duplicate))
+                                  body=template.replace('__BAD_INDEX__', bad).replace('__DUPLICATE_INDEX__', duplicate).replace("function openMatch(i) { window.activeIndex = i;", "function openMatch(i) { window.activeIndex = i; fetch('https://api.tracker.gg/api/v2/valorant/standard/matches/' + matchId(i));" if scenario['value'] == 'network' else "function openMatch(i) { window.activeIndex = i;"))
                 context.route('https://tracker.gg/**', fulfill)
+                def match_response(route):
+                    match_id = route.request.url.rsplit('/', 1)[-1]
+                    player = 'the chosen one#mØØda'
+                    stat = lambda v: {'value':v}
+                    segments = [{'type':'player-summary','attributes':{'platformUserIdentifier':player},'metadata':{'agentName':'Jett'},'stats':{'kills':stat(1),'deaths':stat(1),'assists':stat(0)}}]
+                    for n in (1,2):
+                        segments.extend([{'type':'player-round','attributes':{'round':n,'platformUserIdentifier':player},'metadata':{'teamId':'Blue','teamSide':'attacker'},'stats':{'kills':stat(1 if n==1 else 0),'deaths':stat(1 if n==2 else 0),'assists':stat(0),'damage':stat(100),'loadoutValue':stat(800)}},{'type':'round-summary','attributes':{'round':n},'stats':{'winningTeam':stat('Blue' if n==1 else 'Red')}}])
+                    route.fulfill(status=200, content_type='application/json', headers={'Access-Control-Allow-Origin':'https://tracker.gg'}, body=json.dumps({'data':{'attributes':{'id':match_id},'metadata':{'rounds':2,'mapName':'Synthetic network'},'segments':segments}}))
+                context.route('https://api.tracker.gg/api/v2/valorant/standard/matches/**', match_response)
             page = context.pages[0] if context.pages else context.new_page()
             page.goto(PROFILE, wait_until='domcontentloaded', timeout=30000)
             page.locator('#matchAnalyzerCollect').wait_for(state='visible', timeout=30000)
@@ -111,6 +121,13 @@ def main():
             assert 'UNFAMILIAR OUTCOME' in page.locator('#matchAnalyzerResult tbody tr').nth(1).inner_text()
             page.screenshot(path=str(OUTPUT / 'synthetic-five.png'))
             print('PASS: five validated synthetic matches appear in the app', flush=True)
+            scenario['value'] = 'network'
+            outcome = run()
+            assert 'Finished: 5 validated match(es), 0 issue(s).' in outcome, outcome
+            assert page.locator('#matchAnalyzerCollected option').count() == 5
+            assert 'Validated Tracker network response' in page.locator('#matchAnalyzerResult').inner_text()
+            assert '100.0 damage/round' in page.locator('#matchAnalyzerResult').inner_text()
+            print('PASS: five synthetic network responses analyzed in the player workspace', flush=True)
             scenario['value'] = 'partial'
             outcome = run()
             assert 'Finished: 3 validated match(es), 1 issue(s).' in outcome, outcome

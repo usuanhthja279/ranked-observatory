@@ -1,0 +1,7 @@
+const test=require('node:test'), assert=require('node:assert/strict');
+const {analyze}=require('../../main/resources/static/tracker-network-analysis.js');
+const id='00000000-0000-4000-8000-000000000001', player='Player#TAG';
+const stat=(x)=>({value:x});
+function fixture(){return {data:{attributes:{id},metadata:{rounds:2,mapName:'Map',extendedDataIncluded:true},segments:[{type:'player-summary',attributes:{platformUserIdentifier:player},metadata:{agentName:'Jett'},stats:{kills:stat(1),deaths:stat(1),assists:stat(0)}},...[1,2].flatMap(n=>[{type:'player-round',attributes:{round:n,platformUserIdentifier:player},metadata:{teamId:'Blue',teamSide:n===1?'attacker':'defender'},stats:{kills:stat(n===1?1:0),deaths:stat(n===2?1:0),assists:stat(0),damage:stat(100),loadoutValue:stat(800)}},{type:'round-summary',attributes:{round:n},stats:{winningTeam:stat(n===1?'Blue':'Red')}}])]}}}
+test('extracts selected player rounds and side and pistol summaries',()=>{const a=analyze(fixture(),id,player);assert.equal(a.overall.damage,200);assert.equal(a.pistol.rounds,1);assert.equal(a.attack.wins,1);assert.equal(a.defense.rounds,1)});
+test('rejects mismatched identity, incomplete rounds and unreconciled totals',()=>{assert.throws(()=>analyze(fixture(),id,'other#tag'));const f=fixture();f.data.segments.pop();assert.throws(()=>analyze(f,id,player));const g=fixture();g.data.segments[0].stats.kills.value=2;assert.throws(()=>analyze(g,id,player));});

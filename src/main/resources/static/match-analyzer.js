@@ -181,7 +181,7 @@
   const collectedLabel = section.querySelector('#matchAnalyzerCollectedLabel');
   const collectedSelect = section.querySelector('#matchAnalyzerCollected');
   const failuresList = section.querySelector('#matchAnalyzerFailures');
-  const collected = [];
+  const collected = [], networkCollected = [];
   let pendingCollection = false, currentJobId = null, responseTimer = null;
   const collectorOrigins = new Set(['http://127.0.0.1:8090', 'http://localhost:8090', 'http://127.0.0.1:8091', 'http://localhost:8091']);
   if (!collectorOrigins.has(location.origin)) {
@@ -205,14 +205,35 @@
       imported = match; filter = 'all'; selectedRound = null; collectedSelect.value = match.match.id; render();
     }
   }
+  function showNetwork(a) {
+    imported = null;
+    result.replaceChildren();
+    const heading = document.createElement('h3'); heading.textContent = (a.map || 'Match') + ' · ' + (a.agent || 'Agent unavailable'); result.append(heading);
+    const source = document.createElement('p'); source.textContent = 'Validated Tracker network response · ' + a.rounds.length + ' rounds · ' + a.player; result.append(source);
+    for (const [label, group] of [['Overall',a.overall], ['Pistol rounds',a.pistol], ['Attack',a.attack], ['Defense',a.defense]]) {
+      const line = document.createElement('p');
+      line.textContent = label + ': ' + group.rounds + ' rounds · ' + group.wins + ' wins · ' + group.kills + '/' + group.deaths + '/' + group.assists + ' K/D/A · ' + (group.rounds ? (group.damage / group.rounds).toFixed(1) : '—') + ' damage/round'; result.append(line);
+    }
+    const table = document.createElement('table');
+    const header = document.createElement('tr');
+    for (const name of ['Round','Result','Side','K/D/A','Damage','Recorded loadout']) { const th=document.createElement('th'); th.textContent=name; header.append(th); } table.append(header);
+    for (const round of a.rounds) {
+      const row=document.createElement('tr');
+      for (const cell of [round.number,round.won?'Win':'Loss',round.side || 'Unknown',round.kills+'/'+round.deaths+'/'+round.assists,round.damage,round.loadout ?? 'Unknown']) { const td=document.createElement('td'); td.textContent=String(cell); row.append(td); } table.append(row);
+    }
+    const wrap=document.createElement('div'); wrap.className='match-analyzer-table-wrap'; wrap.append(table); result.append(wrap);
+    const note = document.createElement('p'); note.textContent = 'Round damage and side use reported response values. Event-based coaching and Radiant benchmarks are not yet available.'; result.append(note);
+  }
   collectedSelect.addEventListener('change', () => {
+    const network = networkCollected.find(a => 'network:' + a.matchId === collectedSelect.value);
+    if (network) { showNetwork(network); return; }
     const selected = collected.find(match => match.match.id === collectedSelect.value);
     if (selected) { imported = selected; filter = 'all'; selectedRound = null; render(); }
   });
   collectButton.addEventListener('click', () => {
     if (pendingCollection) return;
     pendingCollection = true; currentJobId = null; collectButton.disabled = true;
-    collected.length = 0; collectedSelect.replaceChildren(); collectedLabel.hidden = true; failuresList.replaceChildren();
+    collected.length = 0; networkCollected.length = 0; collectedSelect.replaceChildren(); collectedLabel.hidden = true; failuresList.replaceChildren();
     collectStatus.textContent = 'Starting the browser collectorâ€¦';
     clearTimeout(responseTimer);
     responseTimer = setTimeout(() => {
@@ -238,6 +259,15 @@
     }
     if (!currentJobId || update.jobId !== currentJobId || !['progress', 'finished'].includes(update.type)) return;
     try {
+      if (update.networkAnalysis) {
+        const a = update.networkAnalysis;
+        const requested = (params.get('player') || '').trim().toLocaleLowerCase();
+        if (!a || typeof a.player !== 'string' || a.player.trim().toLocaleLowerCase() !== requested || !/^[0-9a-f-]{36}$/i.test(a.matchId) || !Array.isArray(a.rounds) || a.rounds.length < 1 || a.rounds.length > 30 || ![a.overall,a.pistol,a.attack,a.defense].every(g => g && ['rounds','wins','kills','deaths','assists','damage'].every(k => Number.isFinite(g[k]) && g[k] >= 0))) throw new Error('Invalid response analysis.');
+        if (!networkCollected.some(x => x.matchId === a.matchId) && networkCollected.length < 5) {
+          networkCollected.push(a); const option = document.createElement('option'); option.value = 'network:' + a.matchId; option.textContent = (a.map || 'Match') + ' · response analysis'; collectedSelect.appendChild(option); collectedLabel.hidden = false;
+          if (networkCollected.length + collected.length === 1) { collectedSelect.value = option.value; showNetwork(a); }
+        }
+      }
       if (update.capture) addCollected(update.capture);
       if (Array.isArray(update.captures)) update.captures.slice(0, 5).forEach(addCollected);
       if (Array.isArray(update.failures)) {
