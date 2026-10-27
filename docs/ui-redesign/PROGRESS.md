@@ -102,14 +102,14 @@ No production service was started/restarted, and no collection, migration or liv
 - [x] 1 — Trend correctness and canonical archive summaries (1A/1B).
 - [x] 2A — Shared shell, navigation, breadcrumbs and responsive legacy-route compatibility.
 - [x] 2B — Global search, accessible dialog behavior and latest-request lifecycle helper.
-- [ ] 3A/3B — World/regions and region detail.
-- [ ] 4A/4B — Countries and global leaderboard.
-- [ ] 5 — Full player profile and Radiant race.
+- [x] 3A/3B — World/regions and region detail.
+- [x] 4A/4B — Countries and global leaderboard.
+- [x] 5 — Full player profile and Radiant race.
 - [x] 6A — Dedicated trends.
-- [ ] 6B — Archive explorer.
-- [ ] 7A/7B — Comparisons and persistent watchlist.
-- [ ] 8 — Account/settings, methodology and roadmap.
-- [ ] 9A/9B — Publication/cache/policy and collector/resource reliability.
+- [x] 6B — Archive explorer.
+- [x] 7A/7B — Comparisons and persistent watchlist.
+- [x] 8 — Account/settings, methodology and roadmap.
+- [x] 9A/9B — Publication/cache/policy and collector/resource reliability.
 - [ ] 10 — Full integrated/visual release review.
 
 A rendered illustrative reference does not complete a production implementation phase.
@@ -372,7 +372,7 @@ Phase 6A is complete. Continue to Phase 6B (archive explorer); keep all data ext
 - The current ChatGPT in-app browser does not expose a viewport-resize method, so a 390 × 844 mobile capture was not produced in this pass. Mobile styles exist, but mobile visual acceptance remains unverified for this phase.
 - The inspected browser data is the persisted local snapshot, not synthetic data. Source status rows are recorded source evidence, not a claim that the currently disabled collector is running.
 
-Phase 6B implementation and focused checks are complete; mobile visual evidence remains a known verification gap. Continue to Phase 7 only after capturing the remaining mobile evidence if the in-app browser supports a mobile viewport; keep extraction paused until the redesign phases are complete.
+Phase 6B implementation and focused checks are complete. Phase 10 follow-up captured and inspected the archived Act V view at a 390 × 844 ChatGPT in-app-browser viewport, including archive summary, scrollable section tabs and mobile navigation. This screenshot was displayed inline but could not be exported to a repository PNG; see the Phase 10 report. Keep extraction paused until all redesign phases are accepted.
 
 ## Phase 7A — Evidence-based comparison
 
@@ -515,5 +515,6 @@ Phase 9B is complete. Continue to Phase 10; keep all extraction paused.
 - `docs/ui-redesign/FINAL_VERIFICATION_REPORT.md` records exact commands, outcomes and limitations.
 - Restarted the packaged service on port 8090. Current worker status remains `enabled:false`, `paused:true`, `running:false`, latest successful snapshot 400. Archive worker remains `paused:true`, `running:false`, owner held, and not scheduled. No extraction or provider-profile request ran.
 - Follow-up: simplified the Find a player keyboard-focus treatment, rebuilt and restarted the packaged service, and verified Ctrl+K/Escape plus the single visible focus treatment in ChatGPT's in-app browser. Extraction remained paused.
+- Follow-up: exercised sign-up, sign-in, saved settings, watchlist persistence and signed-out gating in ChatGPT's in-app browser against temporary port 8091 and the dedicated PostgreSQL test database. The temporary process was stopped; port 8090 stayed running and all extraction remained paused.
 
-Phase 10 has a passing focused release review. The final full Gradle run passed 59 tests with 0 failures/errors and 1 intentional skip (live Tracker HTTP). PostgreSQL activity, country evidence, global persistence, migration/comparison and archive-worker lock tests passed against `ranked_observatory_redesign_test`. Remaining visual/flow limits are documented: no file-backed screenshot exports, no authenticated browser mutations, and no profile visual load because it may request upstream provider data.
+Phase 10 has a passing focused release review. The final full Gradle run passed 59 tests with 0 failures/errors and 1 intentional skip (live Tracker HTTP). PostgreSQL activity, country evidence, global persistence, migration/comparison and archive-worker lock tests passed against `ranked_observatory_redesign_test`. An authenticated synthetic browser flow now also passes against that test database. Remaining limits are no file-backed screenshot exports and no live player-profile visual load, because its endpoint may contact the upstream provider.

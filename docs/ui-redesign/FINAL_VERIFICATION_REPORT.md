@@ -28,12 +28,14 @@ The local application was rebuilt and restarted on port 8090 after the final cor
 | Browser console | PASS | No console errors in the final Countries view |
 | Current collector status before and after restart | PASS | `enabled=false`, `paused=true`, `running=false`; latest completed snapshot remained 400 |
 | Archive worker status before and after restart | PASS | `paused=true`, `running=false`, `workerOwner=true`, `scheduled=false` |
+| Mobile archive view after the search-focus follow-up | PASS — captured and visually inspected at 390 × 844 in ChatGPT's in-app browser | V26: Act V archive loaded 53,775 global source rows with 7/7 source ladders; archive section tabs remained inside their own horizontal scroller and mobile navigation remained visible. Capture was displayed inline; no repository PNG export was available. |
+| Authenticated UI flow in isolated PostgreSQL test database | PASS | Created and signed in as a synthetic user on temporary port 8091. Saved a display preference and verified it after reload; saved a synthetic watchlist item and verified it after logout/sign-in; signed-out watchlist state correctly prompted for sign-in. No live application database was used. |
 
 The first Java run reported two H2 failures because the test-only schema list did not contain the V10 publication revision table. After adding `test-publication-revision.sql`, the final full Gradle rerun supplied a process-scoped connection to `ranked_observatory_redesign_test` and passed 59 tests with no failures or errors. PostgreSQL integration tests for country activity, country model evidence, global persistence, leaderboard migrations/comparison, and archive worker locking all passed. The only remaining skip is `TrackerLeaderboardClientTest.fetchesRealTrackerPageUsingJavaHttpClient`, which requires `LEADERBOARD_LIVE_TEST=true`; it stayed disabled so no live Tracker fetch occurs.
 
 ## Visual review
 
-Actual browser captures were taken and inspected in ChatGPT's in-app browser at 1440×900 (Overview), 768×1024 (Countries before and after the correction), and 390×844 (Countries and Trends). The mobile view retains the bottom navigation, content remains readable, and the Countries filters no longer clip. Captures were displayed inline during this task. This browser interface did not provide a supported way to export those captures as PNG files into `docs/ui-redesign/evidence/`; no file-backed screenshots are claimed.
+Actual browser captures were taken and inspected in ChatGPT's in-app browser at 1440×900 (Overview), 768×1024 (Countries before and after the correction), and 390×844 (Countries, Trends, and the Act V archive). The mobile view retains the bottom navigation, content remains readable, the Countries filters no longer clip, and archive tabs stay within their own horizontal scroller. Captures were displayed inline during this task. This browser interface did not provide a supported way to export those captures as PNG files into `docs/ui-redesign/evidence/`; no file-backed screenshots are claimed.
 
 ## Routes covered
 
@@ -42,7 +44,7 @@ Actual browser captures were taken and inspected in ChatGPT's in-app browser at 
 ## Remaining limitations
 
 - The player-profile visual journey was not opened against the local live app because its profile read may call the upstream Tracker provider. Keeping collection paused was a release invariant; no external profile request was issued. Profile route validation and existing profile tests remain the available evidence.
-- Sign-in, sign-up and authenticated watchlist/preference submissions were not performed in the browser because they would create or change persistent account state. Their CSRF, authorization, account isolation and persistence cases are covered by the Java integration tests.
+- The browser auth journey used one synthetic account in `ranked_observatory_redesign_test`; it does not replace multi-account authorization isolation checks, MFA, password recovery, or email delivery verification. Existing Java integration tests remain the evidence for CSRF, authorization, account isolation and persistence.
 - The 162 checks verify route shell rendering and horizontal fit; they do not certify every data combination or every keyboard/screen-reader interaction. Phase-specific unit and Spring regressions provide the corresponding targeted coverage.
 - Standalone PNG evidence is still absent. The actual in-app-browser images were inspected inline and identified above.
 
@@ -57,3 +59,11 @@ The app was stopped and restarted through `scripts/Stop-LeaderboardService.ps1` 
 - ChatGPT in-app browser verification after restart: modal opens with one teal focus treatment, Ctrl+K opens it, and Escape closes it. No player query was submitted.
 - `JAVA_HOME=C:\Users\usuan\.jdks\dragonwell-21.0.12 .\gradlew.bat bootJar` — **PASS**. `git diff --check` — **PASS**.
 - Restarted on port 8090 using the repository scripts. The all-extraction pause marker remained present; startup log confirms archive extraction remains paused. HTTP GET `/countries` returned 200 and rendered in the in-app browser.
+
+## Isolated authenticated UI acceptance
+
+- Started a temporary Spring instance on port 8091 against `ranked_observatory_redesign_test`, with `LEADERBOARD_ENABLED=false` and `LEADERBOARD_PAUSE_ALL_EXTRACTION=true`. The instance logged that archive extraction remained paused.
+- In ChatGPT's in-app browser, created a synthetic account, signed in, saved the Compact tables preference and verified it after reload.
+- Saved a synthetic watchlist player, signed out, verified the anonymous watchlist gate, signed in again and verified the saved item returned.
+- Stopped the temporary port-8091 process after the checks. The main service remained on port 8090 and the all-extraction pause marker remained present.
+- This was a real browser-to-Spring-to-PostgreSQL flow against the isolated test database. The synthetic account remains only in that dedicated test database. No external profile lookup, account email, or collection request was made.
