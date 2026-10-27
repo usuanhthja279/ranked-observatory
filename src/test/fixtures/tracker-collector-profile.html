@@ -1,6 +1,7 @@
 <!doctype html><html><head><meta charset="utf-8"><title>Synthetic Tracker profile</title></head>
 <body><h1>Synthetic profile</h1><div id="matches"></div><div id="drawer"></div>
 <script>
+document.addEventListener('keydown', e => { if (e.key === 'Escape') document.getElementById('drawer').innerHTML = ''; });
 const player = 'the chosen one#mØØda';
 const badIndex = __BAD_INDEX__; const duplicateIndex = __DUPLICATE_INDEX__;
 const matchId = i => '00000000-0000-4000-8000-' + String((i === duplicateIndex ? 0 : i) + 1).padStart(12, '0');

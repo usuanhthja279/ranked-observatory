@@ -101,6 +101,7 @@ def main():
             print('PASS: switched main-window tab while Tracker stayed active in its own window', flush=True)
             print('Synthetic outcome:', outcome, 'details:', page.locator('#matchAnalyzerFailures').inner_text(), flush=True)
             assert 'Finished: 5 validated match(es), 0 issue(s).' in outcome, outcome
+            assert scenario['requests'] == 1, f"Expected one profile load, got {scenario['requests']}"
             assert page.locator('#matchAnalyzerCollected option').count() == 5
             assert '1/1/0' in page.locator('#matchAnalyzerResult').inner_text()
             page.locator('#matchAnalyzerCollected').select_option(index=4)

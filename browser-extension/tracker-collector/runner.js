@@ -78,10 +78,14 @@
     await chrome.storage.session.set({ collectorJob: currentJob });
     const profile = 'https://tracker.gg/valorant/profile/riot/' + encodeURIComponent(currentJob.player) + '/overview';
     await update('progress', 'Opening Tracker profile for ' + currentJob.player + '.');
+    await navigate(profile);
     for (let index = 0; index < 5 && captures.length < 5; index++) {
       await check();
       if (index) await sleep(3000);
-      await navigate(profile);
+      if (index) {
+        const reset = await chrome.tabs.sendMessage(trackerTabId, { type: 'CLOSE_MATCH' });
+        if (!reset?.closed) await navigate(profile);
+      }
       await update('progress', 'Reading recent match ' + (index + 1) + ' (captured ' + captures.length + ' of 5).');
       const response = await requestCapture(index);
       await check();

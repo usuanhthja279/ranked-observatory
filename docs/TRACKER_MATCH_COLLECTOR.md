@@ -44,3 +44,10 @@ The Tracker tab now runs as the active tab in a dedicated popup window. The main
 After updating this code, rebuild with scripts/Build-TrackerCollectorExtension.ps1, open the browser extensions page, and reload the unpacked collector. Refresh the Observatory player page to load the updated UI.
 
 Focused checks: node --test src/test/js/match-analyzer.test.cjs passed 9 tests. The synthetic Chromium extension test passed all five-match, unknown-result, duplicate, partial-failure, 403 and 429 checks. It also switched the main window to another tab, verified Tracker remained the active tab in a separate window with document visibility reported as visible, and completed all five synthetic matches. The native Gradle bootJar --no-daemon build also passed. This was an isolated Chromium test, not a successful live Brave rerun. The user reported an earlier Brave run collected four matches and rejected one result; the corrected extension still needs a live Brave retry after reload.
+
+
+## Single-profile reuse — 27 October 2026
+
+The collector opens the profile once, attempts to close the match drawer with Escape between matches, and reloads the profile only if the drawer remains visible. It validates each result as before. The focused synthetic Chromium test verified five matches with one profile request, switching the main-window tab, duplicate and invalid-match handling, and 403/429 stops. The nine match-analyzer Node tests passed. This test uses a synthetic drawer; closing the real Tracker drawer with Escape has not been verified. If it does not close, the existing reload fallback is used.
+
+Network response collection and richer match analysis have not been implemented: the response schema and its available fields were not verified in the current Brave session. The collector continues to use rendered data and does not infer economy or events.

@@ -24,6 +24,21 @@
     if (message?.type === 'STOP') { stopped = true; reply({ ok: true }); return; }
     if (!sender.url?.startsWith(chrome.runtime.getURL('runner.html'))) return;
     if (message?.type === 'PING') { reply({ pageInstanceId, url: location.href }); return; }
+    if (message?.type === 'CLOSE_MATCH') {
+      (async () => {
+        check();
+        if (!document.querySelector('.vm-header')) return { closed: true };
+        document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', code: 'Escape', bubbles: true }));
+        const until = Date.now() + 2000;
+        while (Date.now() < until) {
+          check();
+          if (!document.querySelector('.vm-header')) return { closed: true };
+          await sleep(100);
+        }
+        return { closed: false };
+      })().then(reply, error => reply({ error: error.message, closed: false }));
+      return true;
+    }
     if (message?.type !== 'COLLECT_ONE') return;
     (async () => {
       const index = message.index;
