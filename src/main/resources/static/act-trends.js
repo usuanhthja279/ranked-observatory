@@ -175,5 +175,6 @@
    state.from=$('actTrendFrom').value;state.to=$('actTrendTo').value;await loadSeries();window.addEventListener('resize',()=>{if(state.rows.length)paintChart()});
   }catch(e){$('actTrendCoverage').textContent='Historical trends unavailable';$('actTrendQuality').textContent=e.message;$('actTrendTierCoverageSummary').textContent='Tier coverage unavailable'}
  }
- init();
+ if(view==='trends')globalThis.ObservatoryLifecycle.runWhenDisclosureOpens(null,init,true);
+ else globalThis.ObservatoryLifecycle.runWhenDisclosureOpens($('historicalTrendDisclosure'),init);
 })();

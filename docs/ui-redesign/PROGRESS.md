@@ -608,3 +608,30 @@ Phase 10 is complete; phases 2–10 are implemented and verified on `codex/ranke
 - Branch: `codex/ranked-observatory`.
 - Phase 11C commit: pending at documentation time.
 - Untracked user directories `match-data/` and `ui-sample/` were preserved and excluded.
+
+## Phase 11D — Data quality, performance and reliability — 27 Oct 2026
+
+### Changes
+
+- Deferred historical Act catalog, capability and initial trend-series reads while the optional historical trends disclosure is closed. Opening it initializes the panel once; the dedicated `/trends` page still initializes eagerly. This removes avoidable work from initial page loads that never open that section without changing analytics calculations or cache/publication behavior.
+- Added a shared disclosure lifecycle helper and regression coverage for deferred, single initialization and eager initialization.
+
+### Verification and measurements
+
+- Read-only `GET /api/leaderboard/trends/capabilities` returned HTTP 200 in **111 ms, 33 ms and 17 ms** across three sequential requests; each response was **92,997 bytes**. These are warm-cache samples, not a cold-start measurement.
+- The master prompt records the prior cold baseline as approximately **15.6 seconds** and warm reads around **12–14 ms**. No restart/cache eviction was performed, so a current cold result and a before/after cold comparison are **not verified**. The sub-3-second cold target is not claimed.
+- `node --check` for `act-trends.js` and `observatory-lifecycle.js` — **PASS**.
+- Focused `node --test` for `observatory-lifecycle.test.cjs` and `act-trends-export.test.cjs` — **PASS, 9 tests** after updating the renderer asset-version assertion.
+- `git diff --check` — **PASS** (only expected Windows line-ending notices).
+- Browser visual verification was not run: the ChatGPT in-app browser tool reported that computer use had been stopped with Escape and instructed this turn not to make further computer-use calls. No screenshot or browser result is claimed for this phase.
+
+### Limitations and operational safety
+
+- The current read-only runtime status was `enabled:true`, `paused:false`, `running:false`, run 422 at page 479, latest complete snapshot 420 with 54,238 players. No restart, collection/admin request, database mutation or pause-state change was made.
+- This phase reduces requests for users who leave optional trends collapsed; it does not optimize the database cold scan. Cold query profiling and the 11D full visual/performance matrix remain open pending a safe isolated cold-cache environment and an available browser session.
+
+### Git
+
+- Branch: `codex/ranked-observatory`.
+- Phase 11D commit: pending at documentation time.
+- Untracked user directories `match-data/` and `ui-sample/` remain untouched and excluded.
