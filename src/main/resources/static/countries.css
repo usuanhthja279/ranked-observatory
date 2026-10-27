@@ -35,6 +35,11 @@ body.country-directory #regionScenery { display: none !important; }
 .countries-pagination button { min-height: 38px; padding: 7px 12px; border: 1px solid #385169; border-radius: 8px; background: #132438; color: #eef5fb; font: inherit; cursor: pointer; }
 .countries-pagination button:disabled { opacity: .45; cursor: not-allowed; }
 .countries-error { color: #ff9da7; }
+@media (max-width: 980px) {
+  .countries-controls { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .countries-search { grid-column: 1 / -1; }
+}
+
 @media (max-width: 760px) {
   .countries-directory { margin-top: 14px; }
   .countries-hero { align-items: flex-start; border-radius: 14px; }

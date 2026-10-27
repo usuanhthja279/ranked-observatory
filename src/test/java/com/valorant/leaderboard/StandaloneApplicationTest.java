@@ -15,7 +15,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
     "spring.datasource.url=jdbc:h2:mem:standalone;MODE=PostgreSQL;DB_CLOSE_DELAY=-1",
     "spring.datasource.username=sa", "spring.datasource.password=", "spring.datasource.driver-class-name=org.h2.Driver",
     "spring.datasource.hikari.schema=PUBLIC", "spring.flyway.enabled=false",
-    "spring.sql.init.mode=always", "spring.sql.init.schema-locations=classpath:db/migration/V1__ranked_leaderboard_history.sql,classpath:db/migration/V2__duplicate_observation_diagnostics.sql,classpath:db/migration/V3__global_leaderboard_snapshots.sql,classpath:db/migration/V4__hourly_regional_observation_cache.sql,classpath:db/migration/V5__observatory_accounts.sql,classpath:db/migration/V8__observatory_watchlist.sql,classpath:db/migration/V9__observatory_ui_preferences.sql",
+    "spring.sql.init.mode=always", "spring.sql.init.schema-locations=classpath:db/migration/V1__ranked_leaderboard_history.sql,classpath:db/migration/V2__duplicate_observation_diagnostics.sql,classpath:db/migration/V3__global_leaderboard_snapshots.sql,classpath:db/migration/V4__hourly_regional_observation_cache.sql,classpath:db/migration/V5__observatory_accounts.sql,classpath:db/migration/V8__observatory_watchlist.sql,classpath:db/migration/V9__observatory_ui_preferences.sql,classpath:db/test-publication-revision.sql",
     "spring.security.user.password=test-admin-only", "leaderboard.enabled=false"
 })
 @AutoConfigureMockMvc
