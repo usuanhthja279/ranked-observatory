@@ -45,7 +45,7 @@
 .compare-table-wrap thead th{color:#9db2c6;font-size:.72rem;letter-spacing:.08em;text-transform:uppercase}
 .compare-table-wrap tbody th{font-weight:700}
 .compare-muted{color:#9db0c2;line-height:1.6}
-.compare-link{display:inline-flex;margin-top:6px;color:#81ddcd;font-weight:700}
+.compare-link{display:inline-flex;align-items:center;min-height:24px;margin-top:6px;color:#81ddcd;font-weight:700}
 .compare-window{display:inline-flex;align-items:center;gap:8px;margin:6px 0 12px;color:#b9c9d8}
 .compare-window select{width:auto;min-height:38px;padding:6px 10px}
 .compare-error{border-color:#a14e52}

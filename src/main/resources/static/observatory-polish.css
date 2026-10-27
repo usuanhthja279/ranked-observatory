@@ -53,6 +53,14 @@
   #masthead .header-meta .toolbar > * { width: 100%; }
   #masthead .header-meta .toolbar .act-filter,
   #masthead .header-meta .toolbar .act-filter select { width: 100%; min-width: 0; }
+  /* Region mastheads place the account actions absolutely. Grid's static
+     position can otherwise stretch that box wider than the padded header. */
+  #masthead.region-masthead #accountControls {
+    width: max-content;
+    max-width: calc(100% - 36px);
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -571,13 +571,13 @@ Phase 10 is complete; phases 2–10 are implemented and verified on `codex/ranke
 ### Operational safety and limitations
 
 - Live collection remained active on 8090 (fresh capture `23d8e4ed-e73f-4dde-99d9-fac4422cd5e8`); archive extraction remained paused. The app was not restarted.
-- Temporary source preview used port 8091; shut it down after this phase. No database records, collection checkpoints, credentials or user directories were changed.
-- Phase 11B is **partial**: only the demonstrated shared masthead responsiveness issue was corrected. The broad visual sweep of every canonical page has not been repeated against the source preview.
+- The temporary read-only source preview on port 8091 was reused for the later Phase 11B sweep; it only served current static files and forwarded leaderboard GETs. No database records, collection checkpoints, credentials or user directories were changed.
 
 ### Git
 
 - Branch: `codex/ranked-observatory`; base `94d43e9cdfd5e5dac28075259e8062dcb8f3f60b`.
-- Do not count Phase 11B as fully complete until the page-specific visual sweep is finished.
+- Follow-up browser review on 28 Oct used the ChatGPT in-app browser against the current-source preview at 8091. All nine canonical routes were checked at the nine required viewports (81/81 passed with no document overflow). Desktop screenshots were inspected for Overview, Regions, Countries, Global leaderboard, Trends, Archive, Compare, Watchlist and Settings; mobile Region and Countries were inspected at 390×844. Region tabs remain horizontally scrollable with a visible keyboard/touch hint, and the masthead/Login controls fit the mobile panel. Screenshots were shown in the in-app browser but could not be exported to repository files.
+- Phase 11B is **complete for responsive/layout acceptance**. Account persistence, source freshness and live Tracker availability are separate backend limitations recorded under later phases.
 
 ## Phase 11C — Unified discovery and player journeys — 27 Oct 2026
 
@@ -635,3 +635,34 @@ Phase 10 is complete; phases 2–10 are implemented and verified on `codex/ranke
 - Branch: `codex/ranked-observatory`.
 - Phase 11D implementation commit: `4c48e05` (`perf(observatory): defer collapsed historical analytics`). The browser-verification and report correction in this commit follow that implementation commit.
 - Untracked user directories `match-data/` and `ui-sample/` remain untouched and excluded.
+
+## Phase 11E — Accessibility, automated QA and maintainability — 28 Oct 2026
+
+### Changes
+
+- Added a GitHub Actions quality workflow with Java 21, an isolated PostgreSQL 16 service database, Java/JS tests, static JavaScript syntax validation, and a headless Chromium smoke run. The CI application starts with live collection disabled and global extraction paused; the smoke test makes no write or collection calls.
+- Added `scripts/leaderboard/browser-smoke.cjs`: nine canonical routes at the nine required viewports (81 route/viewport checks), document overflow and landmark assertions, mobile navigation visibility, Ctrl+K/Escape, and keyboard movement across region tabs. It saves three CI screenshots and captures app logs.
+- Corrected the responsive region masthead controls so the Login button stays inside the panel at 390 px. Raised the compact Compare link touch target to 24 px.
+- Corrected the stale region test: it asserted archived-player behavior inside a live-trends panel. The test now covers the live-trends content and no longer expects an archive-only movers section.
+
+### Verification
+
+- `node --test src/test/js/*.test.cjs` — **PASS, 46 tests, 0 failures**.
+- `node --check` across all 24 `src/main/resources/static/*.js` files and `node --check scripts/leaderboard/browser-smoke.cjs` — **PASS**.
+- `git diff --check` — **PASS** (line-ending conversion notices only).
+- `JAVA_HOME=C:\Users\usuan\.jdks\dragonwell-21.0.12; .\gradlew.bat test bootJar` — **BUILD SUCCESSFUL**; 59 JUnit test cases reported, 53 passed, 0 failed, 6 skipped. The skipped cases need PostgreSQL or make a live external Tracker request. There was no PostgreSQL listener or `LEADERBOARD_TEST_DB_URL` on this machine, so database integration results are not claimed.
+- ChatGPT in-app browser, current-source preview at 8091: **81/81 route/viewport checks** across 320×700, 360×800, 390×844, 430×932, 768×1024, 1024×768, 1440×900, 1536×816 and 1920×1080; no document horizontal overflow. Desktop Overview and mobile Asia-Pacific region layouts were visually inspected. Global search keyboard interaction, mobile navigation, 10-country comparison, player comparison, archive summary, and browser Back state were also checked in-browser. The view checks ran against the current-source preview, not the old 8090 UI bundle.
+- Direct read-only checks against 8090 confirmed signed-out preferences and watchlist return HTTP 401 and `/api/account/me` returns `authenticated:false`. The source preview does not forward account API requests, so its Settings view shows a preview-proxy error; the current frontend maps a real 401 to the sign-in panel. This is a preview limitation, not evidence of a product authorization defect.
+- Collector status was checked through a read-only GET: live extraction remains enabled and not paused, currently idle after run 426 failed at source page 479 with Tracker HTTP 403. The historical archive remains paused and idle. No collection/admin API, account mutation, database write or app restart was performed.
+
+### Limitations
+
+- The GitHub Actions workflow was added but has **not yet run**. The local smoke script could not be executed because the pinned Playwright package is not installed in this environment; its syntax passed and the built-in browser supplied the visual checks above.
+- No axe/automated WCAG scan, numeric contrast report, screen-reader pass, authenticated watchlist/settings persistence run, or PostgreSQL-backed account/archive test is claimed. The initial 8090 UI bundle predates the current source, and the preview proxy omits account API paths.
+- Browser screenshots were shown and inspected in the ChatGPT in-app browser; its supported controls did not provide a repository image export, so no Phase 11E screenshot files are claimed. The CI workflow will retain its screenshots as an Actions artifact when it runs.
+
+### Git
+
+- Branch: `codex/ranked-observatory`.
+- Phase 11E changes are prepared for commit `test(observatory): add comprehensive browser and integration quality gates`.
+- Untracked user directories `match-data/` and `ui-sample/` remain preserved and excluded.

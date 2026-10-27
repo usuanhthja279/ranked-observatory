@@ -63,9 +63,9 @@ test('region detail renders observed metrics and six keyboard-accessible tabs', 
   assert.equal(page.history.lastUrl,'/regions/ap?act=season-x#standings');
 });
 
-test('region tabs switch scoped panels and open archived Act trends only on request', () => {
+test('region tabs switch scoped panels and show live Act trends only on request', () => {
   const page = setup();
-  page.publish({view:'region',region:'eu',summary:{players:12,radiant:2,immortal3:3,immortal2:4,immortal1:3},boundary:null,archive:true});
+  page.publish({view:'region',region:'eu',summary:{players:12,radiant:2,immortal3:3,immortal2:4,immortal1:3},boundary:null,archive:false});
   page.tabs[2].click();
   assert.equal(page.elements.get('countrySection').classList.contains('hidden'),false);
   assert.equal(page.elements.get('playerSection').classList.contains('hidden'),true);
@@ -73,12 +73,11 @@ test('region tabs switch scoped panels and open archived Act trends only on requ
   assert.equal(page.elements.get('trendLayout').classList.contains('hidden'),false);
   assert.equal(page.elements.get('scopeSection').classList.contains('hidden'),false);
   assert.equal(page.elements.get('timelineSection').classList.contains('hidden'),true);
-  assert.match(page.elements.get('movers').innerHTML,/one end-of-Act standings snapshot/);
   page.tabs[5].click();
   assert.equal(page.elements.get('timelineSection').classList.contains('hidden'),false);
   assert.equal(page.elements.get('historicalTrendDisclosure').hidden,false);
   assert.equal(page.elements.get('historicalTrendDisclosure').open,true);
-  assert.match(page.elements.get('regionOverviewNote').textContent,/Archived act snapshot/);
+  assert.match(page.elements.get('regionOverviewNote').textContent,/Latest complete regional snapshot/);
   assert.match(page.elements.get('regionOverviewMetrics').innerHTML,/Observed Radiant boundary/);
   assert.match(page.elements.get('regionOverviewMetrics').innerHTML,/Unavailable/);
 });
