@@ -3,6 +3,7 @@
   const same = (a, b) => String(a || '').trim().toLocaleLowerCase() === String(b || '').trim().toLocaleLowerCase();
   const finite = value => typeof value === 'number' && Number.isFinite(value) ? value : null;
   const sum = values => values.reduce((total, value) => total + (finite(value) ?? 0), 0);
+  const escapeChartText = value => String(value ?? '').replace(/[&<>"']/g, character => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[character]));
   function summarize(matches, details) {
     const rows = matches.map(row => ({ row, view: details.get(row.providerMatchId) })).filter(item => item.view?.match);
     const outcomes = rows.map(({ view }) => {
@@ -45,6 +46,47 @@
       if (!prior || (prior.category === 'PLAYER_DEATH' && event.category !== 'PLAYER_DEATH')) bySourceRef.set(event.sourceRef, event);
     }
     return [...bySourceRef.values()];
+  }
+  function equipmentByRound(match) {
+    const participants = match?.participants || [];
+    const teamIds = [...new Set(participants.map(player => player.teamId).filter(Boolean))].sort();
+    if (teamIds.length !== 2) return [];
+    const playerRounds = match?.playerRounds || [];
+    return (match?.rounds || []).map(round => {
+      const totals = {};
+      for (const teamId of teamIds) {
+        const members = participants.filter(player => player.teamId === teamId);
+        let total = 0, complete = members.length > 0;
+        for (const player of members) {
+          const key = player.identity?.stableKey;
+          const row = key ? playerRounds.find(item => item.roundNumber === round.roundNumber && item.identity?.stableKey === key) : null;
+          const value = finite(row?.loadoutValue);
+          if (value === null) { complete = false; break; }
+          total += value;
+        }
+        totals[teamId] = complete ? total : null;
+      }
+      return { roundNumber: round.roundNumber, teams: totals };
+    });
+  }
+  function equipmentChart(match, selectedTeam) {
+    const series = equipmentByRound(match), teamIds = [...new Set(series.flatMap(point => Object.keys(point.teams)))];
+    if (teamIds.length !== 2) return '<p class="mi-empty">Team equipment comparison is unavailable; two complete teams were not reported.</p>';
+    const opponent = teamIds.find(team => team !== selectedTeam);
+    const complete = series.filter(point => finite(point.teams[selectedTeam]) !== null && finite(point.teams[opponent]) !== null);
+    if (!complete.length) return '<p class="mi-empty">No rounds have complete recorded loadout values for both teams.</p>';
+    const width=960,height=260,left=56,right=14,top=18,bottom=34,plotW=width-left-right,plotH=height-top-bottom;
+    const max=Math.max(1,...complete.flatMap(point=>[point.teams[selectedTeam],point.teams[opponent]]));
+    const step=plotW/Math.max(1,series.length),barW=Math.min(14,step*.32),tickStep=Math.ceil(series.length/10);
+    const grids=[0,.5,1].map(fraction=>{const y=top+plotH*(1-fraction),value=Math.round(max*fraction);return `<g><line x1="${left}" y1="${y}" x2="${width-right}" y2="${y}" class="mi-economy-gridline"/><text x="${left-8}" y="${y+4}" text-anchor="end">${value.toLocaleString()}</text></g>`;}).join('');
+    const bars=series.map((point,index)=>{
+      const center=left+step*(index+.5), own=finite(point.teams[selectedTeam]),other=finite(point.teams[opponent]);
+      const bar=(value,x,team,className)=>value===null?'':`<rect class="${className}" x="${x}" y="${top+plotH-(value/max)*plotH}" width="${barW}" height="${Math.max(0,(value/max)*plotH)}"><title>Round ${point.roundNumber}, Team ${escapeChartText(team)}: ${value.toLocaleString()} recorded equipment value</title></rect>`;
+      const label=index%tickStep===0||index===series.length-1?`<text x="${center}" y="${height-9}" text-anchor="middle">R${point.roundNumber}</text>`:'';
+      if(own===null||other===null) return `<text x="${center}" y="${top+plotH-4}" text-anchor="middle" aria-hidden="true">—</text>${label}`;
+      return `${bar(own,center-barW-1,selectedTeam,'mi-economy-own')}${bar(other,center+1,opponent,'mi-economy-opponent')}${label}`;
+    }).join('');
+    return `<figure class="mi-economy-chart"><figcaption><strong>Recorded team equipment by round</strong><span>Sum of player loadout values · source-reported units. Incomplete team rounds are left blank.</span></figcaption><div class="mi-economy-legend"><span><i class="mi-economy-own"></i>Selected team (${escapeChartText(selectedTeam)})</span><span><i class="mi-economy-opponent"></i>Opponent (${escapeChartText(opponent)})</span></div><svg viewBox="0 0 ${width} ${height}" role="img" aria-label="Recorded equipment value by round for both teams"><title>Recorded equipment value by round</title><desc>Each team bar is the sum of its players' recorded loadout values. A round is plotted only when both teams have complete player values.</desc>${grids}${bars}</svg></figure>`;
   }
   function resolveMap(match, catalog, tolerance = 1e-6) {
     const unavailable = reason => ({ map: null, reason });
@@ -111,10 +153,10 @@
       return true;
     });
   }
-  const api = { summarize, filterRounds, filterEventPositions, groupPositionEvents, resolveMap, projectPositions };
+  const api = { summarize, filterRounds, filterEventPositions, groupPositionEvents, equipmentByRound, equipmentChart, resolveMap, projectPositions };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   if (typeof window === 'undefined' || typeof document === 'undefined') return;
-  const style = document.createElement('link'); style.rel='stylesheet'; style.href='/match-analyzer.css?v=9'; document.head.append(style);
+  const style = document.createElement('link'); style.rel='stylesheet'; style.href='/match-analyzer.css?v=10'; document.head.append(style);
   const params = new URLSearchParams(location.search), profilePlayer = params.get('player');
   const host = profilePlayer ? document.getElementById('playerProfileWorkspace') : document.getElementById('matchAnalysisPageWorkspace');
   if (!host) return;
@@ -255,7 +297,7 @@
       body=`<p>Events are sorted by round then reported raw time. Source time units are not independently verified.</p><div class="mi-table-wrap"><table><thead><tr><th>Round · time</th><th>Class</th><th>Actor</th><th>Target</th><th>Weapon / event</th><th>Assists</th></tr></thead><tbody>${events.map(e=>`<tr class="${e.category==='CREDITED_PLAYER_KILL'?'':'mi-special-event'}"><td>${e.roundNumber} · ${val(e.roundTimeRaw)} source units</td><td>${esc(e.category||'Unknown')}</td><td>${esc(e.actor?.observedRiotId||'Unknown')}</td><td>${esc(e.target?.observedRiotId||'Unknown')}</td><td>${esc(e.weaponName||e.rawSourceType||'Not reported')}</td><td>${Array.isArray(e.assistants)?e.assistants.length:'Not reported'}</td></tr>`).join('')||'<tr><td colspan="6">Event timeline was not captured.</td></tr>'}</tbody></table></div><p>Position snapshots: ${(m.positions||[]).length} reported. No continuous paths are inferred.</p>`;
     } else if(activeTab==='economy') {
       const playerRows=(m.playerRounds||[]).filter(r=>r.identity?.stableKey===view.perspective.identity);
-      body=`<p>Only recorded values are shown; no force, bonus or buy category is inferred in M4.</p><div class="mi-table-wrap"><table><thead><tr><th>Round</th><th>Side</th><th>Loadout value</th><th>Spent</th><th>Remaining</th><th>Outcome</th></tr></thead><tbody>${playerRows.map(r=>`<tr><td>${r.roundNumber}</td><td>${val(r.side)}</td><td>${val(r.loadoutValue)}</td><td>${val(r.spentCredits)}</td><td>${val(r.remainingCredits)}</td><td>${rounds.find(x=>x.roundNumber===r.roundNumber)?.winningTeamId===view.perspective.teamId?'Win':'Loss'}</td></tr>`).join('')||'<tr><td colspan="6">Player economy rows were not captured.</td></tr>'}</tbody></table></div><p>Team equipment totals and conversion by economy category are unavailable unless reported by the source.</p>`;
+      body=`<p>Only recorded values are shown; no force, bonus or buy category is inferred in M4.</p>${equipmentChart(m,view.perspective.teamId)}<h4>Selected-player recorded economy</h4><div class="mi-table-wrap"><table><thead><tr><th>Round</th><th>Side</th><th>Loadout value</th><th>Spent</th><th>Remaining</th><th>Outcome</th></tr></thead><tbody>${playerRows.map(r=>`<tr><td>${r.roundNumber}</td><td>${val(r.side)}</td><td>${val(r.loadoutValue)}</td><td>${val(r.spentCredits)}</td><td>${val(r.remainingCredits)}</td><td>${rounds.find(x=>x.roundNumber===r.roundNumber)?.winningTeamId===view.perspective.teamId?'Win':'Loss'}</td></tr>`).join('')||'<tr><td colspan="6">Player economy rows were not captured.</td></tr>'}</tbody></table></div><p>Totals sum recorded player loadout values only when every rostered player in both teams has a value for that round. Missing rows remain unplotted. Buy categories and conversion by buy category remain unavailable unless explicitly classified by the source.</p>`;
     } else if(activeTab==='team') {
       const teamRounds=(m.rounds||[]), ownWins=teamRounds.filter(r=>r.winningTeamId===view.perspective.teamId).length;
       const attack=(m.playerRounds||[]).filter(r=>r.identity?.stableKey===view.perspective.identity&&String(r.side||'').toUpperCase()==='ATTACK'),defense=(m.playerRounds||[]).filter(r=>r.identity?.stableKey===view.perspective.identity&&String(r.side||'').toUpperCase()==='DEFENSE');const wonRound=new Map(teamRounds.map(r=>[r.roundNumber,r.winningTeamId===view.perspective.teamId]));

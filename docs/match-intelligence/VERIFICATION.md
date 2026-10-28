@@ -254,16 +254,16 @@ The visual fixture used a temporary loopback-only listener on port 8094 and synt
 
 ### 2026-10-28 M4 evidence-based round filters
 
-The final cross-phase audit found that the M4 round selector lacked the prompt's opening engagement, multi-kill, objective-event and review-finding filters. Added selected-player opening kill/death filters based on a unique earliest timed credited kill, selected-player multi-kill rounds from reported player-round totals, explicit objective event filters, and rounds with findings from the existing owner-scoped analysis endpoint. Review analysis is fetched only when selected. Eco/full-buy categories remain unavailable because the imported records do not classify buys; no category is inferred from raw loadout values.
+The final cross-phase audit found that the M4 round selector lacked the prompt's opening engagement, multi-kill, objective-event and review-finding filters, and that M8's UI checklist called for an economy chart. Added selected-player opening kill/death filters based on a unique earliest timed credited kill, selected-player multi-kill rounds from reported player-round totals, explicit objective event filters, and rounds with findings from the existing owner-scoped analysis endpoint. Review analysis is fetched only when selected. The Economy tab now compares per-team sums of recorded player loadouts by round, plotting a round only when every rostered player in both teams has a value; the selected-player spend/loadout table remains. Eco/full-buy categories remain unavailable because the imported records do not classify buys; no category is inferred from raw loadout values.
 
 Actual verification:
 
 - `node --check src/main/resources/static/match-intelligence-workspace.js` — **PASS**.
 - `node --check src/main/resources/static/leaderboard.js` — **PASS**.
-- `node --test src/test/js/match-intelligence-workspace.test.cjs` — **PASS, 8/8**.
-- `node --test src/test/js/*.test.cjs` — **PASS, 58/58**.
+- `node --test src/test/js/match-intelligence-workspace.test.cjs` — **PASS, 9/9**.
+- `node --test src/test/js/*.test.cjs` — **PASS, 59/59**.
 - `git diff --check` — **PASS**.
 
-The focused regressions cover selected-player opening kills/deaths, ambiguous tied earliest kills, multi-kill rounds, explicit plant/objective events and analysis finding rounds. This UI-only change did not alter APIs, authorization, database behavior or extraction. No application restart, Tracker request, production database access or collection/admin API call was made. Visual acceptance for the map overlay is documented above; this focused filter correction was verified with synthetic unit fixtures, not a new browser screenshot.
+The focused regressions cover selected-player opening kills/deaths, ambiguous tied earliest kills, multi-kill rounds, explicit plant/objective events, analysis finding rounds, complete two-team loadout sums, accessible chart markup and blank treatment for incomplete rounds. This UI-only change did not alter APIs, authorization, database behavior or extraction. No application restart, Tracker request, production database access or collection/admin API call was made. Visual acceptance for the map overlay is documented above; these final filter/chart changes were verified with synthetic unit fixtures, not a new browser screenshot.
 
 The final cross-phase regression also reran `.\gradlew.bat test --tests com.valorant.leaderboard.matchintelligence.PostgresMatchIntelligenceIntegrationTest --no-daemon` against the isolated PostgreSQL 17 instance (`127.0.0.1:5435`, database `ranked_observatory_redesign_test`, role `mi_test`): **BUILD SUCCESSFUL; 5 tests, 4 passed, 1 opt-in local sample-import test skipped, 0 failures/errors**. The test instance uses the Windows user environment variables `LEADERBOARD_TEST_DB_URL`, `LEADERBOARD_TEST_DB_USERNAME`, and `LEADERBOARD_TEST_DB_PASSWORD`; no credential value is included in this repository.

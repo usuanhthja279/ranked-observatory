@@ -4,7 +4,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const crypto = require('node:crypto');
-const { summarize, filterRounds, filterEventPositions, groupPositionEvents, resolveMap, projectPositions } = require('../../main/resources/static/match-intelligence-workspace.js');
+const { summarize, filterRounds, filterEventPositions, groupPositionEvents, equipmentByRound, equipmentChart, resolveMap, projectPositions } = require('../../main/resources/static/match-intelligence-workspace.js');
 function detail(id, {score=13, enemy=8, mode='Competitive', kills=10, agent='Jett', map='Ascent', side='Attack'}={}) {
   const identity={stableKey:'player-key',observedRiotId:'Player#APAC'};
   return { perspective:{identity:'player-key',riotId:'Player#APAC',teamId:'A'}, match:{providerMatchId:id,modeName:mode,mapName:map,teams:[{teamId:'A',roundsWon:score},{teamId:'B',roundsWon:enemy}],participants:[{identity,agent,totals:{kills,deaths:5,assists:3,acs:240,adr:150,firstKills:2,firstDeaths:1}}],rounds:[{roundNumber:1,winningTeamId:'A'},{roundNumber:13,winningTeamId:'B'}],playerRounds:[{identity,roundNumber:1,side,loadoutValue:800,spentCredits:500,remainingCredits:100},{identity,roundNumber:13,side:'Defense',loadoutValue:null,spentCredits:null,remainingCredits:null}]}};
@@ -61,6 +61,32 @@ test('round evidence filters identify unique player openings, multi-kills, objec
     event(3,'CREDITED_PLAYER_KILL',50,'enemy','player-key'),
     event(3,'CREDITED_PLAYER_KILL',50,'teammate','enemy-2')
   ],'player-key').map(round=>round.roundNumber),[]); // tied earliest events are not assigned as an opening
+});
+
+test('team equipment series sums only complete recorded player loadouts and preserves missing rounds', () => {
+  const identity=key=>({stableKey:key});
+  const match={
+    participants:[{teamId:'A',identity:identity('a1')},{teamId:'A',identity:identity('a2')},{teamId:'B',identity:identity('b1')},{teamId:'B',identity:identity('b2')}],
+    rounds:[{roundNumber:1},{roundNumber:2}],
+    playerRounds:[
+      {roundNumber:1,identity:identity('a1'),loadoutValue:4000},{roundNumber:1,identity:identity('a2'),loadoutValue:3500},
+      {roundNumber:1,identity:identity('b1'),loadoutValue:4200},{roundNumber:1,identity:identity('b2'),loadoutValue:3300},
+      {roundNumber:2,identity:identity('a1'),loadoutValue:5000},{roundNumber:2,identity:identity('a2'),loadoutValue:null},
+      {roundNumber:2,identity:identity('b1'),loadoutValue:5000},{roundNumber:2,identity:identity('b2'),loadoutValue:5000}
+    ]
+  };
+  assert.deepEqual(equipmentByRound(match),[
+    {roundNumber:1,teams:{A:7500,B:7500}},
+    {roundNumber:2,teams:{A:null,B:10000}}
+  ]);
+  const chart=equipmentChart(match,'A');
+  assert.match(chart,/<svg viewBox=/);
+  assert.match(chart,/role="img" aria-label="Recorded equipment value by round for both teams"/);
+  assert.match(chart,/Round 1, Team A: 7,500 recorded equipment value/);
+  assert.match(chart,/Round 1, Team B: 7,500 recorded equipment value/);
+  assert.doesNotMatch(chart,/Round 2, Team B:/); // one incomplete roster leaves the comparison blank
+  assert.match(chart,/Incomplete team rounds are left blank/);
+  assert.deepEqual(equipmentByRound({...match,participants:match.participants.slice(0,2)}),[]);
 });
 
 
