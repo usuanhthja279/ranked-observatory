@@ -31,6 +31,8 @@ The selected Riot ID in an export is source metadata. M2 validates it against th
 - M7: evaluated ML baseline and evidence-grounded explanation interface.
 - M8: cross-module release verification and operational readiness.
 
+M7 adds private tactical annotations in `mi_tactical_annotations`. Each account can read and version only its own reviewer labels for matches it owns; references to match rounds/events are checked against that account's canonical record. VOD links are retained as inert HTTPS references and are never fetched. The pre-round outcome baseline is pure Java and runs only on request; features are extracted from authorized selected-player perspectives and splits are grouped by provider match ID. Model fitting stays in memory; no model is loaded at startup or used for automatic coaching. The coaching brief is a structured local copy action over the M5 report, not an outbound LLM call.
+
 No match-intelligence import can start or pause a leaderboard collection job. M2 does not call Tracker, the collector, or any collection/admin endpoint.
 
 M4 adds the account-wide `/match-analysis` workspace and the selected-player profile section. Both use owner-scoped APIs only. Navigation route: `/match-analysis` (shared `leaderboard.html` shell), or open a profile from `/players?player=...&region=...`. Match rows are followed by summary/detail GETs; no raw match payload is returned. The view surfaces API auth/loading/error/empty states and source-quality metadata. Dense tables scroll within their own container. Unknown values remain “Not reported”; events retain unverified source time units. No spatial map is rendered unless both source transform and a matching map asset can be validated.

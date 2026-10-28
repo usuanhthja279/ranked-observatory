@@ -65,3 +65,27 @@ Returns one owner-private cohort and derived import/source-coverage metadata. An
 ### `GET /players/{playerId}/benchmark-comparison?cohortId={id}&map={map}&mode={mode}&agent={agent}`
 
 Returns comparison of the authenticated owner's imported player records against the specified owner-owned cohort. The cohort Act and ranked Competitive mode are required context; optional filters narrow by map, exact mode name and agent. The subject is omitted from the cohort distribution when their Riot ID matches a member. The response reports per-player reference median and quartiles, subject values, metric-specific player/match counts, and limitations. Reference distribution values are withheld until at least ten eligible reference players and twenty unique reference matches remain in the scenario. Quartiles are between-player spread, not confidence intervals. Unsupported context is not guessed.
+
+## Expert annotations and M7 baseline
+
+### `GET /matches/{matchId}/annotations`
+
+Returns the authenticated owner's latest revision for each private annotation on an owned match. Other accounts receive 404.
+
+### `POST /matches/{matchId}/annotations`
+
+Requires CSRF. Creates a private annotation for an existing round. An optional event ID must belong to that same round. Required fields: `roundNumber`, `judgment`, `reason`, `insufficientEvidence`, and `confidence` (0–100). Optional fields: `eventId`, `eventTimeRaw`, `betterAlternative`, HTTPS-only `vodUrl`, and an opaque `disagreementGroup`. VOD links are stored only and never fetched. Annotator and guideline version are server-recorded.
+
+### `PUT /annotations/{annotationId}`
+
+Requires CSRF and `{ "expectedRevision": n, "annotation": { ... } }`. Appends a correction revision; stale revision returns 409. A reviewer can revise only their own annotation and must still own the referenced match.
+
+### `DELETE /annotations/{annotationId}?expectedRevision={n}`
+
+Requires CSRF. Appends a `WITHDRAWN` revision and retains previous revisions. A stale revision returns 409.
+
+### `GET /players/{playerId}/baseline-evaluation`
+
+Runs an opt-in CPU-only logistic-regression evaluation on this account's imported selected-player matches. It uses pre-round score state, round index and reported side; rows from one match remain in one deterministic holdout group. The response includes model/feature/split versions, train/test match and row counts, accuracy, class precision/recall, Brier score, calibration error and false-positive rate. Below 10 distinct matches or 200 supported round rows it returns `INSUFFICIENT_EVIDENCE` and no predictive metrics. The fitted model is not persisted or activated for inference.
+
+The Coaching tab's copy action creates a local structured evidence brief only. It does not send data to an AI service.

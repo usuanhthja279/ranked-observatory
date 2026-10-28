@@ -122,3 +122,12 @@ create table mi_benchmark_memberships (
   display_name varchar(200), matches_requested integer not null default 20,
   primary key(cohort_id,selection_rank), unique(cohort_id,normalized_riot_id)
 );
+create table mi_tactical_annotations (
+  annotation_id varchar(36) not null, revision integer not null, owner_username varchar(100) not null,
+  provider varchar(80) not null, provider_match_id varchar(160) not null, round_number integer not null,
+  event_id varchar(800), event_time_raw bigint, judgment varchar(40) not null, reason varchar(4000) not null,
+  better_alternative varchar(4000), insufficient_evidence boolean not null, confidence integer not null,
+  vod_url varchar(1200), guideline_version varchar(80) not null, status varchar(20) not null,
+  disagreement_group varchar(100), created_at timestamp with time zone not null default current_timestamp,
+  primary key(annotation_id,revision), foreign key(provider,provider_match_id) references mi_matches(provider,provider_match_id) on delete cascade
+);

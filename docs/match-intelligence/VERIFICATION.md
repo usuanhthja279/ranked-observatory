@@ -125,3 +125,10 @@ git diff --check
 ```
 
 Results: JavaScript syntax passed, 17 focused Node tests passed, and diff check passed. ChatGPT in-app browser inspection used a synthetic fixture: desktop and 390px mobile benchmark panels rendered; with 1 eligible reference player and 5 unique matches, the interface displayed `Insufficient Evidence` and suppressed reference medians/quartiles. This is synthetic visual verification, not a real authenticated backend journey. The active Observatory process was not restarted.
+
+
+## M7 reviewer annotation and baseline verification
+
+The focused M7 run completed successfully against the isolated PostgreSQL 5435 test database. The M7 tests covered the pre-round baseline's deterministic match-grouped split and metrics, no future-result leakage, and insufficient-evidence response; Spring endpoint auth/CSRF and annotation revision behavior; and PostgreSQL V1–V13 annotation persistence, stale correction conflict, append-only withdrawal, and owner cleanup. The full M8 run below reran all Java tests after adding explicit transaction rollback and simultaneous duplicate-import coverage.
+
+The Expert review panel was opened and inspected in the ChatGPT in-app browser against the ignored synthetic preview. It showed the privacy/evidence warning, round and event selection, tactical judgment, and reviewer reason controls. This was UI presentation verification only; the preview did not call a real authenticated annotation API. Predictive metrics in the unit tests used synthetic outcomes and are not a claim of useful real-match prediction.

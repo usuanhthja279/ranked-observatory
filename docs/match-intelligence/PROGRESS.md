@@ -119,3 +119,16 @@ No high-rank cohort was collected or verified. `OWNER_REPORTED_PERMISSION` and r
 ### Phase boundary
 
 M6 is complete. M7 model evaluation/AI explanations and M8 end-to-end release-readiness audit remain unstarted.
+
+
+## Phase M7 — Reviewer annotations and evaluated pre-round baseline
+
+**Complete.** Tactical judgments are private to the importing account, tied to an observed match round and optional event, and stored as append-only revisions. Corrections require the current revision; withdrawal appends a `WITHDRAWN` revision. VOD links are validated as HTTPS and retained inertly; the application never fetches them. Selected-player perspective is resolved through the owner import link for the baseline features.
+
+The pre-round result baseline is deterministic CPU-only logistic regression. It uses only the round index, prior score differential, and source-reported side, grouped-split by match ID. Evaluation is on demand and in memory; no model is persisted, activated at startup, or represented as a tactical expert. The UI permits a local copy of the evidence-grounded coaching brief and does not issue an outbound AI request.
+
+Synthetic tests cover deterministic grouped evaluation, future-outcome feature invariance, and insufficient-data behavior. PostgreSQL tests cover V1–V13 and annotation create/correction/stale-revision/withdrawal/ownership/cascade behavior. The Expert review UI was visually inspected with synthetic annotation data in the ChatGPT in-app browser. No real authenticated annotation workflow or real-data predictive quality is claimed.
+
+### Phase boundary
+
+M7 is complete. M8 end-to-end verification and release-readiness audit is in progress.

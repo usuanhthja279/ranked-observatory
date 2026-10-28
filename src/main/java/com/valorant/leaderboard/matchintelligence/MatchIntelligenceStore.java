@@ -284,11 +284,20 @@ public class MatchIntelligenceStore {
   }
 
   public MatchView getMatch(String owner, String providerMatchId) {
+    return getMatch(owner, providerMatchId, null);
+  }
+
+  /** Owner-scoped lookup with an optional selected-player filter for multi-perspective imports. */
+  public MatchView getMatch(String owner, String providerMatchId, String selectedPlayerId) {
     validateMatchId(providerMatchId);
-    List<OwnedMatchDbRow> rows = db.query("select jm.quality,jm.selected_player_identity,jm.selected_player_riot_id,jm.selected_player_team_id,jm.source_response_sha256,jm.source_captured_at,jm.issues_json,v.canonical_json from mi_import_job_matches jm join mi_import_jobs j on j.job_id=jm.job_id join mi_match_versions v on v.version_id=jm.version_id where j.owner_username=? and jm.provider=? and jm.provider_match_id=? and jm.version_id is not null order by j.created_at desc,jm.entry_number desc limit 1",
+    String playerFilter = selectedPlayerId == null ? "" : " and (lower(jm.selected_player_riot_id)=lower(?) or lower(jm.selected_player_identity)=lower(?))";
+    Object[] parameters = selectedPlayerId == null
+        ? new Object[]{owner, PROVIDER, providerMatchId}
+        : new Object[]{owner, PROVIDER, providerMatchId, selectedPlayerId, selectedPlayerId};
+    List<OwnedMatchDbRow> rows = db.query("select jm.quality,jm.selected_player_identity,jm.selected_player_riot_id,jm.selected_player_team_id,jm.source_response_sha256,jm.source_captured_at,jm.issues_json,v.canonical_json from mi_import_job_matches jm join mi_import_jobs j on j.job_id=jm.job_id join mi_match_versions v on v.version_id=jm.version_id where j.owner_username=? and jm.provider=? and jm.provider_match_id=? and jm.version_id is not null" + playerFilter + " order by j.created_at desc,jm.entry_number desc limit 1",
         (rs, n) -> new OwnedMatchDbRow(rs.getString(1), rs.getString(2), rs.getString(3), rs.getString(4),
             rs.getString(5), rs.getTimestamp(6), rs.getString(7), rs.getString(8)),
-        owner, PROVIDER, providerMatchId);
+        parameters);
     if (rows.isEmpty()) throw notFound();
     OwnedMatchDbRow row = rows.getFirst();
     try {

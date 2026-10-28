@@ -273,6 +273,27 @@ class StandaloneApplicationTest {
         .andExpect(jsonPath("$.findings[0].matchId").value(MatchIntelligenceFixtures.MATCH_ID));
     mvc.perform(get("/api/match-intelligence/matches/"+MatchIntelligenceFixtures.MATCH_ID+"/analysis").with(other))
         .andExpect(status().isNotFound());
+    String annotationPath="/api/match-intelligence/matches/"+MatchIntelligenceFixtures.MATCH_ID+"/annotations";
+    String annotationJson="{\"roundNumber\":1,\"judgment\":\"OPENING\",\"reason\":\"Review spacing around the opening duel.\",\"betterAlternative\":\"Hold a tradeable angle.\",\"insufficientEvidence\":false,\"confidence\":65,\"vodUrl\":\"https://example.test/permitted-vod\",\"disagreementGroup\":\"review-set-1\"}";
+    mvc.perform(get(annotationPath)).andExpect(status().isUnauthorized());
+    mvc.perform(post(annotationPath).with(owner).contentType("application/json").content(annotationJson)).andExpect(status().isForbidden());
+    var annotationCreated=mvc.perform(post(annotationPath).with(owner).with(csrf()).contentType("application/json").content(annotationJson))
+        .andExpect(status().isCreated()).andExpect(jsonPath("$.revision").value(1))
+        .andExpect(jsonPath("$.annotator").value("mi-owner")).andExpect(jsonPath("$.guidelineVersion").value("tactical-review-guidelines-v1")).andReturn();
+    String annotationId=com.fasterxml.jackson.databind.json.JsonMapper.builder().build().readTree(annotationCreated.getResponse().getContentAsString()).path("annotationId").asText();
+    mvc.perform(get(annotationPath).with(other)).andExpect(status().isNotFound());
+    mvc.perform(get(annotationPath).with(owner)).andExpect(status().isOk()).andExpect(jsonPath("$",org.hamcrest.Matchers.hasSize(1)));
+    String correction="{\"expectedRevision\":1,\"annotation\":{\"roundNumber\":1,\"judgment\":\"OPENING\",\"reason\":\"Corrected review: inspect the crossfire.\",\"betterAlternative\":\"Hold a tradeable angle.\",\"insufficientEvidence\":false,\"confidence\":70,\"vodUrl\":\"https://example.test/permitted-vod\",\"disagreementGroup\":\"review-set-1\"}}";
+    mvc.perform(put("/api/match-intelligence/annotations/"+annotationId).with(owner).with(csrf()).contentType("application/json").content(correction))
+        .andExpect(status().isOk()).andExpect(jsonPath("$.revision").value(2)).andExpect(jsonPath("$.reason").value("Corrected review: inspect the crossfire."));
+    mvc.perform(put("/api/match-intelligence/annotations/"+annotationId).with(owner).with(csrf()).contentType("application/json").content(correction))
+        .andExpect(status().isConflict());
+    mvc.perform(delete("/api/match-intelligence/annotations/"+annotationId).with(owner).with(csrf()).param("expectedRevision","2"))
+        .andExpect(status().isOk()).andExpect(jsonPath("$.revision").value(3)).andExpect(jsonPath("$.status").value("WITHDRAWN"));
+    mvc.perform(get("/api/match-intelligence/players/{playerId}/baseline-evaluation",MatchIntelligenceFixtures.PLAYER).with(owner))
+        .andExpect(status().isOk()).andExpect(jsonPath("$.status").value("INSUFFICIENT_EVIDENCE"))
+        .andExpect(jsonPath("$.modelVersion").value("cpu-logistic-regression-v1"))
+        .andExpect(jsonPath("$.accuracy").doesNotExist());
     mvc.perform(get("/api/match-intelligence/benchmarks")).andExpect(status().isUnauthorized());
     mvc.perform(get("/api/match-intelligence/benchmarks").with(owner)).andExpect(status().isOk())
         .andExpect(jsonPath("$",org.hamcrest.Matchers.hasSize(0)));

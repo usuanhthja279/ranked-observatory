@@ -21,10 +21,12 @@ public class MatchIntelligenceController {
   private final MatchIntelligenceStore store;
   private final DeterministicMatchAnalyzer analyzer;
   private final MatchBenchmarkService benchmarks;
+  private final TacticalAnnotationService annotations;
+  private final PreRoundOutcomeBaseline baseline;
   private final Semaphore importPermit = new Semaphore(1);
   public MatchIntelligenceController(MatchIntelligenceStore store, DeterministicMatchAnalyzer analyzer,
-      MatchBenchmarkService benchmarks) {
-    this.store = store; this.analyzer = analyzer; this.benchmarks = benchmarks;
+      MatchBenchmarkService benchmarks, TacticalAnnotationService annotations, PreRoundOutcomeBaseline baseline) {
+    this.store = store; this.analyzer = analyzer; this.benchmarks = benchmarks; this.annotations=annotations; this.baseline=baseline;
   }
 
   @PostMapping(value="/imports", consumes=MediaType.APPLICATION_JSON_VALUE)
@@ -123,6 +125,33 @@ public class MatchIntelligenceController {
     return benchmarks.compare(authentication.getName(), cohortId, playerId, map, mode, agent);
   }
 
+  @GetMapping("/matches/{matchId}/annotations")
+  public java.util.List<TacticalAnnotationService.Annotation> annotations(Authentication authentication,@PathVariable String matchId) {
+    return annotations.list(authentication.getName(),matchId);
+  }
+
+  @PostMapping(value="/matches/{matchId}/annotations",consumes=MediaType.APPLICATION_JSON_VALUE)
+  public ResponseEntity<TacticalAnnotationService.Annotation> createAnnotation(Authentication authentication,@PathVariable String matchId,@RequestBody TacticalAnnotationService.Input input) {
+    return ResponseEntity.status(HttpStatus.CREATED).body(annotations.create(authentication.getName(),matchId,input));
+  }
+
+  @PutMapping(value="/annotations/{annotationId}",consumes=MediaType.APPLICATION_JSON_VALUE)
+  public TacticalAnnotationService.Annotation correctAnnotation(Authentication authentication,@PathVariable String annotationId,@RequestBody AnnotationCorrection correction) {
+    return annotations.correct(authentication.getName(),annotationId,correction.expectedRevision(),correction.annotation(),false);
+  }
+
+  @DeleteMapping("/annotations/{annotationId}")
+  public TacticalAnnotationService.Annotation withdrawAnnotation(Authentication authentication,@PathVariable String annotationId,@RequestParam int expectedRevision) {
+    return annotations.withdraw(authentication.getName(),annotationId,expectedRevision);
+  }
+
+  public record AnnotationCorrection(int expectedRevision,TacticalAnnotationService.Input annotation) {}
+
+  @GetMapping("/players/{playerId}/baseline-evaluation")
+  public PreRoundOutcomeBaseline.Evaluation baselineEvaluation(Authentication authentication,@PathVariable String playerId) {
+    if(playerId==null||playerId.isBlank()||playerId.length()>300)throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Invalid player identity.");
+    return baseline.evaluateOwnedMatches(authentication.getName(),playerId);
+  }
   @GetMapping("/matches/{matchId}/rounds/{roundNumber}")
   public MatchIntelligenceStore.RoundView round(Authentication authentication,
       @PathVariable String matchId, @PathVariable int roundNumber) {
