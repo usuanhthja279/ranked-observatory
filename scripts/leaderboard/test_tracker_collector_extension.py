@@ -24,6 +24,7 @@ def main():
     options = args.parse_args()
     scenario = {'value': 'real' if options.real else 'complete', 'requests': 0}
     imported_batches = []
+    network_match_requests = []
     template = FIXTURE.read_text(encoding='utf-8-sig')
     if options.target_count > 5:
         template = template.replace('for (let i=0; i<5; i++)', f'for (let i=0; i<{options.target_count}; i++)')
@@ -62,6 +63,7 @@ def main():
                 context.route('https://tracker.gg/**', fulfill)
                 def match_response(route):
                     match_id = route.request.url.rsplit('/', 1)[-1]
+                    network_match_requests.append(match_id)
                     player = 'the chosen one#mØØda'
                     stat = lambda v: {'value':v}
                     segments = [{'type':'player-summary','attributes':{'platformUserIdentifier':player},'metadata':{'agentName':'Jett'},'stats':{'kills':stat(1),'deaths':stat(1),'assists':stat(0)}}]
@@ -169,6 +171,46 @@ def main():
             assert exported['complete'] is True and exported['responseCount'] == 5
             assert len(exported['matches']) == 5 and all(m['validation'] == 'passed' and m['response']['data']['attributes']['id'] == m['matchId'] for m in exported['matches'])
             print('PASS: saved JSON contains five validated synthetic response bodies', flush=True)
+            scenario['value'] = 'network'
+            resume_request_start = len(network_match_requests)
+            page.locator('#matchAnalyzerCollect').click()
+            page.wait_for_function(
+                "() => document.querySelector('#matchAnalyzerCollectStatus').textContent.includes('Validated response for 1 of 5')",
+                timeout=30000)
+            checkpoint_before_interrupt = worker.evaluate('''async () => await new Promise((resolve, reject) => {
+                const open = indexedDB.open('observatory-tracker-collector', 1);
+                open.onerror = () => reject(open.error);
+                open.onsuccess = () => {
+                    const db = open.result; const request = db.transaction('checkpoints').objectStore('checkpoints').getAll();
+                    request.onerror = () => reject(request.error);
+                    request.onsuccess = () => { const rows = request.result.map(c => ({nextIndex:c.nextIndex,stage:c.stage,responses:c.responses?.length,captures:c.captures?.length})); db.close(); resolve(rows); };
+                };
+            })''')
+            assert checkpoint_before_interrupt and checkpoint_before_interrupt[0]['nextIndex'] == 1, checkpoint_before_interrupt
+            interrupted_runner = worker.evaluate('''async () => {
+                const j = (await chrome.storage.session.get('collectorJob')).collectorJob;
+                if (!j?.runnerTabId) throw new Error('Missing active synthetic runner.');
+                await chrome.tabs.remove(j.runnerTabId);
+                return true;
+            }''')
+            assert interrupted_runner
+            page.wait_for_function(
+                "() => document.querySelector('#matchAnalyzerCollectStatus').textContent.includes('Collector tab was closed')",
+                timeout=15000)
+            page.locator('#matchAnalyzerCollect').click()
+            page.wait_for_function(
+                "() => document.querySelector('#matchAnalyzerCollectStatus').textContent.includes('Resumed saved collection: restored a validated match')",
+                timeout=30000)
+            page.wait_for_function(
+                "() => /Finished: 5 of 5 requested matches captured/.test(document.querySelector('#matchAnalyzerCollectStatus').textContent)",
+                timeout=120000)
+            resumed_status = page.locator('#matchAnalyzerCollectStatus').inner_text()
+            assert 'Finished: 5 of 5 requested matches captured, 0 issue(s).' in resumed_status, resumed_status
+            assert 'JSON save started for 5 response(s)' in resumed_status, resumed_status
+            assert 'Saved 5 validated match(es) to your Observatory account.' in resumed_status, resumed_status
+            resumed_requests = network_match_requests[resume_request_start:]
+            assert len(resumed_requests) == 5 and len(set(resumed_requests)) == 5, resumed_requests
+            print('PASS: interrupted synthetic collection resumed from its local checkpoint without recapturing the first match', flush=True)
             scenario['value'] = 'partial'
             outcome = run()
             assert 'Finished: 3 of 5 requested matches captured, 1 issue(s).' in outcome, outcome

@@ -159,6 +159,8 @@ python scripts/leaderboard/test_tracker_collector_extension.py
 
 Results: 52 Node tests passed; syntax checks and diff check passed. Both collector commands passed using synthetic/intercepted response bodies; the full harness covered explicit-request gating, background-tab behavior, bounded queue, JSON export, deduplication, partial invalid data, and safe stop for HTTP 403/429. No real Tracker collection was initiated.
 
+M3 checkpoint correction: the synthetic extension harness was rerun after adding a local IndexedDB checkpoint. It stopped the runner after its first validated match, confirmed the checkpoint held one validated response and next index 1, closed the runner tab, then explicitly started again. The collector resumed at the next match, completed all five, and made exactly five distinct response requests across the interrupted and resumed portions (the first match was not recaptured). The same run passed duplicate/malformed-data and HTTP 403/429 stopping regressions. This is synthetic-only verification; no live Tracker requests were issued.
+
 Browser verification:
 
 - `node scripts/leaderboard/browser-smoke.cjs` against the isolated app at `http://127.0.0.1:8093`: **90 route/viewport checks passed**, including `/match-analysis`, search keyboard behavior and region-tab keyboard navigation. Desktop/mobile screenshots are retained in ignored `build/m8-browser-smoke/` (`overview-desktop.png`, `region-mobile.png`, `trends-mobile.png`) and were visually inspected. They are synthetic/isolated-app evidence, not authenticated account screenshots.

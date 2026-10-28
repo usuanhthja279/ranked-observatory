@@ -100,11 +100,70 @@
     throw new Error('Tracker page helper did not become available.');
   }
   let captures = [], failures = [], seen = new Set(), responses = [];
+  let nextIndex = 0, checkpointEnabled = true, checkpointFailureReported = false, resumeFinalizing = false;
+  const restoredUiResults = [];
   function responseExport(matches, issues = failures, boundedBatch = false) {
     return { schemaVersion:1, source:'tracker.gg', player:currentJob.player, exportedAt:new Date().toISOString(),
       requestedMatches:boundedBatch ? matches.length : currentJob.targetMatches, responseCount:matches.length,
       complete:boundedBatch ? matches.length > 0 : matches.length === currentJob.targetMatches && issues.length === 0,
       failures:issues, matches };
+  }
+  async function saveCheckpoint(stage = 'COLLECTING', index = nextIndex) {
+    if (!checkpointEnabled) return;
+    nextIndex = Math.min(currentJob.targetMatches, Math.max(0, index));
+    try {
+      await window.TrackerCollectorCheckpoint.save({ player:currentJob.player, targetMatches:currentJob.targetMatches,
+        nextIndex, stage, captures, responses, failures });
+    } catch (error) {
+      checkpointEnabled = false;
+      if (!checkpointFailureReported) {
+        checkpointFailureReported = true;
+        failures.push({ message:'Local resume checkpoint could not be saved; this run can continue, but an interrupted run may need to start again.' });
+        status.textContent = 'Local resume checkpoint unavailable; continuing this collection.';
+      }
+    }
+  }
+  async function clearCheckpoint() {
+    try { await window.TrackerCollectorCheckpoint.clear(currentJob.player, currentJob.targetMatches); }
+    catch { /* A stale local checkpoint is harmless and expires after 30 days. */ }
+  }
+  async function restoreCheckpoint() {
+    const saved = await window.TrackerCollectorCheckpoint.load(currentJob.player, currentJob.targetMatches);
+    if (!saved || !Array.isArray(saved.captures) || !Array.isArray(saved.responses) || !Array.isArray(saved.failures)) return false;
+    let recoveredRecords = 0, checkpointDataInvalid = false;
+    failures = saved.failures.filter(item => item && typeof item.message === 'string').slice(0, currentJob.targetMatches * 2);
+    for (const capture of saved.captures.slice(0, currentJob.targetMatches)) {
+      if (!capture?.match || !capture?.player) continue;
+      try {
+        const parsed = window.MatchAnalyzer.validate(capture);
+        if (parsed.player.riotId.trim().toLocaleLowerCase() !== currentJob.player.trim().toLocaleLowerCase()) { checkpointDataInvalid = true; continue; }
+        if (seen.has(parsed.match.id)) continue;
+        seen.add(parsed.match.id); captures.push(capture); restoredUiResults.push({ capture });
+        recoveredRecords++;
+      } catch { checkpointDataInvalid = true; failures.push({ message:'A saved rendered-page capture failed validation and was discarded.' }); }
+    }
+    for (const record of saved.responses.slice(0, currentJob.targetMatches)) {
+      try {
+        const id = String(record.matchId || '').toLowerCase();
+        const body = record.response;
+        const segments = body?.data?.segments;
+        const selected = Array.isArray(segments) && segments.some(s => s?.type === 'player-summary' &&
+          typeof s.attributes?.platformUserIdentifier === 'string' &&
+          s.attributes.platformUserIdentifier.trim().toLocaleLowerCase() === currentJob.player.trim().toLocaleLowerCase());
+        if (!/^[0-9a-f-]{36}$/.test(id) || String(body?.data?.attributes?.id || '').toLowerCase() !== id || !selected || record.validation !== 'passed') { checkpointDataInvalid = true; continue; }
+        const analysis = window.TrackerNetworkAnalysis.analyze(body, id, currentJob.player);
+        if (!responses.some(item => item.matchId === id)) responses.push({ matchId:id, validation:'passed', response:body });
+        if (!seen.has(id)) { seen.add(id); captures.push({ networkAnalysis:analysis }); }
+        if (!restoredUiResults.some(item => item.networkAnalysis?.matchId === id)) restoredUiResults.push({ networkAnalysis:analysis });
+        recoveredRecords++;
+      } catch { checkpointDataInvalid = true; failures.push({ message:'A saved network response failed identity/analysis validation and was discarded.' }); }
+    }
+    nextIndex = Math.min(currentJob.targetMatches, Math.max(0, Number(saved.nextIndex) || 0));
+    resumeFinalizing = saved.stage === 'FINALIZING';
+    if (resumeFinalizing) nextIndex = currentJob.targetMatches;
+    else if (checkpointDataInvalid) nextIndex = 0;
+    if ((saved.captures.length || saved.responses.length) && recoveredRecords === 0 && !resumeFinalizing) return false;
+    return captures.length > 0 || resumeFinalizing;
   }
   async function exportResponses() {
     if (!responses.length) return 'No full match responses available for JSON export.';
@@ -124,6 +183,10 @@
       await sleep(100);
     }
     if (!currentJob?.runnerTabId) throw new Error('Collector session was not initialized.');
+    let resumed = false;
+    try { resumed = await restoreCheckpoint(); }
+    catch { failures.push({ message:'A saved local checkpoint could not be read; starting a new collection.' }); }
+    if (!resumed) { captures = []; responses = []; failures = []; seen.clear(); nextIndex = 0; resumeFinalizing = false; await saveCheckpoint(); }
     const collectorWindow = await chrome.windows.create({ url: 'about:blank', type: 'popup', focused: false, width: 680, height: 760 });
     trackerWindowId = collectorWindow.id;
     const tab = collectorWindow.tabs?.[0];
@@ -132,13 +195,14 @@
     currentJob.trackerTabId = tab.id;
     await chrome.storage.session.set({ collectorJob: currentJob });
     const profile = 'https://tracker.gg/valorant/profile/riot/' + encodeURIComponent(currentJob.player) + '/overview';
-    await update('progress', 'Opening Tracker profile for ' + currentJob.player + '.');
+    await update('progress', (resumed ? (resumeFinalizing ? 'Resuming saved collection finalization for ' : 'Resuming saved collection at match ' + (nextIndex + 1) + ' for ') : 'Opening Tracker profile for ') + currentJob.player + '.');
+    if (resumed) for (const result of restoredUiResults) await update('progress', 'Resumed saved collection: restored a validated match.', result);
     try {
       await chrome.debugger.attach({tabId:trackerTabId}, '1.3'); debuggerAttached = true;
       await chrome.debugger.sendCommand({tabId:trackerTabId}, 'Network.enable', {});
     } catch { if (debuggerAttached) { try { await chrome.debugger.detach({tabId:trackerTabId}); } catch {} } debuggerAttached = false; await update('progress', 'Response capture unavailable; using visible round tables.'); }
     await navigate(profile);
-    for (let index = 0; index < currentJob.targetMatches && captures.length < currentJob.targetMatches; index++) {
+    for (let index = nextIndex; index < currentJob.targetMatches && captures.length < currentJob.targetMatches; index++) {
       await check();
       if (index) await sleep(3000);
       if (index) {
@@ -171,8 +235,9 @@
               bodies.delete(id);
               if (!seen.has(id)) {
                 seen.add(id); captures.push(analysis ? {networkAnalysis:analysis} : {networkMatchId:id});
+                await saveCheckpoint('COLLECTING', index + 1);
                 await update('progress', 'Validated response for ' + captures.length + ' of ' + currentJob.targetMatches + ' matches.', {networkAnalysis:analysis, failures});
-              }
+              } else await saveCheckpoint('COLLECTING', index + 1);
               continue;
             } catch (error) { bodies.delete(id); await update('progress', 'Response could not be validated; using visible round tables.'); }
           }
@@ -181,25 +246,29 @@
       } else response = await requestCapture(index);
       await check();
       if (!response) throw new Error('Tracker page returned no capture.');
-      if (response.done) break;
+      if (response.done) { await saveCheckpoint('FINALIZING', currentJob.targetMatches); break; }
       if (response.error) {
         if (/BLOCKED:|profile does not match|Recent match list/i.test(response.error)) throw new Error(response.error);
         failures.push({ index: index + 1, message: response.error });
+        await saveCheckpoint('COLLECTING', index + 1);
         await update('progress', 'Match ' + (index + 1) + ' could not be captured; continuing.', { failures });
         continue;
       }
       try {
         const parsed = window.MatchAnalyzer.validate(response.capture);
         if (parsed.player.riotId.trim().toLocaleLowerCase() !== currentJob.player.toLocaleLowerCase()) throw new Error('Player does not match.');
-        if (seen.has(parsed.match.id)) continue;
+        if (seen.has(parsed.match.id)) { await saveCheckpoint('COLLECTING', index + 1); continue; }
         seen.add(parsed.match.id);
         captures.push(response.capture);
+        await saveCheckpoint('COLLECTING', index + 1);
         await update('progress', 'Validated ' + captures.length + ' of ' + currentJob.targetMatches + ' matches.', { capture: response.capture, failures });
       } catch (error) {
         failures.push({ index: index + 1, message: error.message });
+        await saveCheckpoint('COLLECTING', index + 1);
         await update('progress', 'Match ' + (index + 1) + ' failed validation; continuing.', { failures });
       }
     }
+    await saveCheckpoint('FINALIZING', currentJob.targetMatches);
     const validResponses = responses.filter(item => item.validation === 'passed');
     const importReceipts = [];
     for (let offset = 0; offset < validResponses.length; offset += 5) {
@@ -212,7 +281,10 @@
     const importStatus = importReceipts.length ? 'Saved ' + importReceipts.reduce((n, item) => n + Number(item.acceptedMatches || 0), 0) + ' validated match(es) to your Observatory account.' : (validResponses.length ? 'Account save unavailable; use the JSON export.' : 'No validated network responses were available for account save.');
     const exportStatus = await exportResponses();
     await update('finished', 'Finished: ' + captures.length + ' of ' + currentJob.targetMatches + ' requested matches captured, ' + failures.length + ' issue(s). ' + importStatus + ' ' + exportStatus, { captures: captures.filter(c => c?.match && c?.player), failures });
+    if (!validResponses.length || exportStatus.startsWith('JSON save started')) await clearCheckpoint();
   } catch (error) {
+    if (currentJob?.blockedStatus || /BLOCKED:|private profile|requires verification/i.test(String(error.message))) await clearCheckpoint();
+    else if (currentJob?.id) await saveCheckpoint();
     if (currentJob?.id) {
       try { const exportStatus = await exportResponses(); await update('finished', 'Collection stopped: ' + error.message + '. ' + exportStatus, { captures: captures.filter(c => c?.match && c?.player), failures }); }
       catch { status.textContent = 'Collection stopped: ' + error.message; }

@@ -38,8 +38,8 @@ chrome.runtime.onMessage.addListener((message, sender, reply) => {
     if (message?.type === 'RUNNER_UPDATE') {
       const j = await job();
       if (!j || message.jobId !== j.id || sender.tab?.id !== j.runnerTabId) throw new Error('Unknown collector session.');
-      await sendApp(j, message.update);
       if (message.update?.type === 'finished') await chrome.storage.session.remove('collectorJob');
+      await sendApp(j, message.update);
       return { ok: true };
     }
     if (message?.type === 'APP_IMPORT_RESULT') {
@@ -75,7 +75,7 @@ chrome.tabs.onRemoved.addListener(tabId => {
     const j = await job();
     if (!j || (tabId !== j.runnerTabId && tabId !== j.appTabId)) return;
     if (j.trackerTabId) try { await chrome.tabs.remove(j.trackerTabId); } catch {}
-    if (tabId === j.runnerTabId) await sendApp(j, { type: 'finished', message: 'Collector tab was closed.', captures: [] });
     await chrome.storage.session.remove('collectorJob');
+    if (tabId === j.runnerTabId) await sendApp(j, { type: 'finished', message: 'Collector tab was closed.', captures: [] });
   })();
 });
