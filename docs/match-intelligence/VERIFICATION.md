@@ -218,3 +218,18 @@ The published catalog is release 08.09. It does not include maps present in the 
 - The live application on port 8090 was not restarted. No collection, admin, live, or archive extraction endpoints were called, and no extraction state was modified. The temporary synthetic fixture listener on port 8094 was stopped after inspection.
 
 This verification covers only the new M4 event selector. M4 remains partially incomplete because a current tactical map asset and verified transform are unavailable; the discrete position table remains authoritative. It does not establish match-quality or coaching-model performance.
+
+### 2026-10-28 native PostgreSQL test environment check
+
+The isolated PostgreSQL 17.11 test instance is available at `127.0.0.1:5435`, database `ranked_observatory_redesign_test`, role `mi_test`. The database password is held only in the ignored local `build/match-intelligence-test-postgres/pgpass.conf` and the Windows user environment; it is not recorded here. The user environment variables `LEADERBOARD_TEST_DB_URL`, `LEADERBOARD_TEST_DB_USERNAME`, and `LEADERBOARD_TEST_DB_PASSWORD` were configured for this test database. The production/local application database on port 5432 was not used.
+
+Command:
+
+```powershell
+$env:JAVA_HOME='C:\Users\usuan\.jdks\dragonwell-21.0.12'
+$env:Path="$env:JAVA_HOME\bin;$env:Path"
+# Load LEADERBOARD_TEST_DB_URL/USERNAME/PASSWORD from the Windows user environment.
+.\gradlew.bat test --tests com.valorant.leaderboard.matchintelligence.PostgresMatchIntelligenceIntegrationTest --no-daemon
+```
+
+Result: **BUILD SUCCESSFUL**. Four PostgreSQL integration tests passed; the optional local five-match sample import was skipped. Failures: 0; errors: 0. The tests used isolated schemas on port 5435. Ports 8090, 8091 and the separate 8092 listener were left untouched; the running app and live/archive extraction settings were not changed.
