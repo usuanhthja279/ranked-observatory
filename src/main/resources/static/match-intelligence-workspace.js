@@ -46,6 +46,41 @@
     }
     return [...bySourceRef.values()];
   }
+  function resolveMap(match, catalog, tolerance = 1e-6) {
+    const unavailable = reason => ({ map: null, reason });
+    if (!match || !match.mapId) return unavailable('This match does not include a verified map ID.');
+    const map = (catalog?.maps || []).find(item => String(item.mapId).toLowerCase() === String(match.mapId).toLowerCase());
+    if (!map) return unavailable('No tactical map is available for this map ID.');
+    const startedAt = Date.parse(match.startedAt || '');
+    const validFrom = Date.parse((map.validFrom || '') + 'T00:00:00Z');
+    const validThrough = Date.parse((catalog?.validThrough || '') + 'T23:59:59.999Z');
+    if (!Number.isFinite(startedAt) || !Number.isFinite(validFrom) || !Number.isFinite(validThrough)) return unavailable('Map alignment is unavailable because the match date or catalog validity window is missing.');
+    if (startedAt < validFrom) return unavailable('This match predates the verified map artwork and transform.');
+    if (startedAt > validThrough) return unavailable('This match is newer than the verified map catalog; its layout may have changed.');
+    const source = match.mapTransform;
+    const keys = ['xMultiplier', 'yMultiplier', 'xScalarToAdd', 'yScalarToAdd'];
+    if (!source || keys.some(key => finite(source[key]) === null || finite(map[key]) === null || Math.abs(source[key] - map[key]) > tolerance)) {
+      return unavailable('The captured coordinate transform does not match this map catalog version.');
+    }
+    if (!map.asset || !Number.isFinite(map.width) || !Number.isFinite(map.height)) return unavailable('The verified map image is unavailable.');
+    return { map, reason: null };
+  }
+  function projectPositions(positions, map, epsilon = 1e-9) {
+    return (positions || []).map(position => {
+      if (position?.coordinateSpace !== 'TRACKER_WORLD_RAW' || finite(position?.x) === null || finite(position?.y) === null) {
+        return { position, placement: 'unavailable', x: null, y: null };
+      }
+      let x = position.x * map.xMultiplier + map.xScalarToAdd;
+      let y = position.y * map.yMultiplier + map.yScalarToAdd;
+      if (!Number.isFinite(x) || !Number.isFinite(y)) return { position, placement: 'unavailable', x: null, y: null };
+      if (x < -epsilon || x > 1 + epsilon || y < -epsilon || y > 1 + epsilon) {
+        return { position, placement: 'outside', x: null, y: null };
+      }
+      x = Math.min(1, Math.max(0, x));
+      y = Math.min(1, Math.max(0, y));
+      return { position, placement: 'plotted', x, y };
+    });
+  }
   function filterRounds(rounds, selectedTeam, mode, selectedPlayerRounds = []) {
     const playerRows = new Map(selectedPlayerRounds.map(row => [row.roundNumber, row]));
     return rounds.filter(round => {
@@ -58,13 +93,16 @@
       return true;
     });
   }
-  const api = { summarize, filterRounds, filterEventPositions, groupPositionEvents };
+  const api = { summarize, filterRounds, filterEventPositions, groupPositionEvents, resolveMap, projectPositions };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   if (typeof window === 'undefined' || typeof document === 'undefined') return;
-  const style = document.createElement('link'); style.rel='stylesheet'; style.href='/match-analyzer.css?v=7'; document.head.append(style);
+  const style = document.createElement('link'); style.rel='stylesheet'; style.href='/match-analyzer.css?v=9'; document.head.append(style);
   const params = new URLSearchParams(location.search), profilePlayer = params.get('player');
   const host = profilePlayer ? document.getElementById('playerProfileWorkspace') : document.getElementById('matchAnalysisPageWorkspace');
   if (!host) return;
+  let mapCatalog={maps:[]};
+  const mapCatalogRequest = fetch('/maps/map-manifest-13.08.json', { credentials:'same-origin', headers:{ Accept:'application/json' } })
+    .then(response => response.ok ? response.json() : { maps:[] }).then(catalog => { mapCatalog=catalog; return catalog; }).catch(() => ({ maps:[] }));
   const root = document.createElement('section'); root.className = 'mi-workspace'; root.setAttribute('aria-labelledby', 'miTitle');
   root.innerHTML = `<div class="mi-head"><div><p class="mi-kicker">SAVED MATCH INTELLIGENCE</p><h2 id="miTitle">${profilePlayer ? 'Player match intelligence' : 'Saved matches'}</h2><p class="subtle">Owner-private match imports. Observed source data and calculated summaries are labeled separately.</p></div><button type="button" data-mi-refresh>Refresh matches</button></div><p class="mi-status" role="status" aria-live="polite">Loading your saved matches…</p><div data-mi-content hidden></div>`;
   host.append(root);
@@ -101,6 +139,7 @@
   async function load() {
     const current = ++generation; status.textContent = 'Loading saved matches…'; content.hidden = true;
     try {
+      await mapCatalogRequest;
       const path = profilePlayer ? '/api/match-intelligence/players/' + encodeURIComponent(profilePlayer) + '/matches?size=20' : '/api/match-intelligence/matches?size=20';
       const page = await getJson(path); if (current !== generation) return;
       pageRows = Array.isArray(page.matches) ? page.matches : [];
@@ -180,8 +219,13 @@
       const positionEvents=groupPositionEvents(events);
       const selectedPositions=filterEventPositions(positions,selectedPositionEventRef);
       const selectedPositionEvent=positionEvents.find(event=>event.sourceRef===selectedPositionEventRef);
+      const catalogResult=resolveMap(m,mapCatalog);
+      const projectedPositions=catalogResult.map?projectPositions(selectedPositions,catalogResult.map):[];
+      const plottedPositions=projectedPositions.filter(point=>point.placement==='plotted');
+      const outsidePositions=projectedPositions.filter(point=>point.placement==='outside').length;
+      const mapOverlay=catalogResult.map?`<figure class="mi-map-figure"><div class="mi-map-canvas"><img src="${esc(catalogResult.map.asset)}" width="${catalogResult.map.width}" height="${catalogResult.map.height}" alt=""><div class="mi-map-pins" aria-hidden="true">${plottedPositions.map(point=>`<span class="mi-map-pin mi-map-pin-${esc(String(point.position.snapshotType||'unknown').toLowerCase().replace(/[^a-z0-9]+/g,'-'))}" style="left:${(point.x*100).toFixed(5)}%;top:${(point.y*100).toFixed(5)}%" title="${esc(point.position.identity?.observedRiotId||'Unknown player')} · ${esc(point.position.snapshotType||'Snapshot')}"></span>`).join('')}</div></div><div class="mi-map-legend" aria-label="Map marker key"><span><i class="mi-map-pin mi-map-pin-player-at-event"></i>Player snapshot</span><span><i class="mi-map-pin mi-map-pin-opponent-at-event"></i>Opponent snapshot</span><span><i class="mi-map-pin mi-map-pin-plant-site-event"></i>Plant site</span><span><i class="mi-map-pin mi-map-pin-defuse-site-event"></i>Defuse site</span></div><figcaption>${esc(catalogResult.map.name)} · Riot catalog ${esc(mapCatalog.catalogVersion||'verified release')} · ${plottedPositions.length} plotted${outsidePositions?` · ${outsidePositions} valid source point(s) outside map extent`:''}. Discrete event snapshots only; no paths or positions are inferred.</figcaption></figure>`:'<p class="mi-map-unavailable">'+esc(catalogResult.reason)+'</p>';
       const eventRows=events.map(e=>`<tr><td>${esc(e.roundTimeRaw===null?'Not reported':e.roundTimeRaw+' source units')}</td><td>${esc(e.category)}</td><td>${esc(e.actor?.observedRiotId||'Unknown')}</td><td>${esc(e.target?.observedRiotId||'Not applicable')}</td><td>${esc(e.weaponName||e.rawSourceType||'Not reported')}</td></tr>`).join('');
-      body=`<div class="mi-round-toolbar"><div class="mi-round-strip" role="group" aria-label="Select round">${rounds.map(r=>`<button type="button" data-mi-round="${r.roundNumber}" aria-pressed="${r.roundNumber===selectedRound}">R${r.roundNumber}</button>`).join('')}</div><label>Filter <select data-mi-round-filter>${options.map(([key,label])=>`<option value="${key}"${key===roundMode?' selected':''}>${label}</option>`).join('')}</select></label></div><div class="mi-round-cards">${visible.map(r=>`<button type="button" data-mi-round="${r.roundNumber}" aria-pressed="${r.roundNumber===selectedRound}"><strong>Round ${r.roundNumber}</strong><span>${r.winningTeamId===view.perspective.teamId?'Win':'Loss'} · ${esc(r.rawWinMethod||'Result unknown')}</span></button>`).join('')}</div>${selected?`<div class="mi-round-detail"><h4>Round ${selected.roundNumber} · ${selected.winningTeamId===view.perspective.teamId?'Team win':'Team loss'}</h4><p>Player K/D/A ${record?[record.kills,record.deaths,record.assists].map(val).join('/'):'Not reported'} · Damage ${val(record?.damage)} · side ${val(record?.side)} · score ${val(record?.score)}</p><p>Recorded loadout ${val(record?.loadoutValue)} · spent ${val(record?.spentCredits)} · remaining credits ${val(record?.remainingCredits)}</p><p>Spike evidence: plant ${selected.plantEvidence?'reported':'not reported'} · defuse ${selected.defuseEvidence?'reported':'not reported'} · detonation time ${val(selected.detonationTimeRaw)} source units</p><h4>Round events</h4><div class="mi-table-wrap"><table><thead><tr><th>Time (source units)</th><th>Type</th><th>Actor</th><th>Target</th><th>Weapon / source</th></tr></thead><tbody>${eventRows||'<tr><td colspan="5">No events reported for this round.</td></tr>'}</tbody></table></div><h4>Inspect positions by event</h4><label class="mi-position-event-label">Event<select data-mi-position-event aria-label="Filter position snapshots by event"><option value="">All recorded snapshots in this round</option>${positionEvents.map(event=>`<option value="${esc(event.sourceRef)}"${event.sourceRef===selectedPositionEventRef?' selected':''}>${esc(event.roundTimeRaw===null?'Time unavailable':event.roundTimeRaw+' source units')} · ${esc(event.category||'Unknown')} · ${esc(event.actor?.observedRiotId||'Unknown')} → ${esc(event.target?.observedRiotId||'No target')}</option>`).join('')}</select></label><p>${selectedPositionEvent?`Showing snapshots linked to ${esc(selectedPositionEvent.category||'this event')} at ${esc(selectedPositionEvent.roundTimeRaw===null?'an unreported time':selectedPositionEvent.roundTimeRaw+' source units')}.`:'Snapshots are discrete source coordinates, not movement paths. Map alignment is unavailable for this view.'} ${selectedPositionEventRef&&!selectedPositions.length?'No recorded positions were linked to this event.':''}</p><div class="mi-table-wrap"><table><thead><tr><th>Player</th><th>Snapshot</th><th>X (raw)</th><th>Y (raw)</th><th>Coordinate space</th></tr></thead><tbody>${selectedPositions.map(x=>`<tr><td>${esc(x.identity?.observedRiotId||'Unknown')}</td><td>${esc(x.snapshotType)}</td><td>${val(x.x)}</td><td>${val(x.y)}</td><td>${esc(x.coordinateSpace||'Unspecified')}</td></tr>`).join('')||'<tr><td colspan="5">No position snapshots are reported for this selection.</td></tr>'}</tbody></table></div></div>`:'<p class="mi-empty">No rounds match the selected filter.</p>'}`;
+       body=`<div class="mi-round-toolbar"><div class="mi-round-strip" role="group" aria-label="Select round">${rounds.map(r=>`<button type="button" data-mi-round="${r.roundNumber}" aria-pressed="${r.roundNumber===selectedRound}">R${r.roundNumber}</button>`).join('')}</div><label>Filter <select data-mi-round-filter>${options.map(([key,label])=>`<option value="${key}"${key===roundMode?' selected':''}>${label}</option>`).join('')}</select></label></div><div class="mi-round-cards">${visible.map(r=>`<button type="button" data-mi-round="${r.roundNumber}" aria-pressed="${r.roundNumber===selectedRound}"><strong>Round ${r.roundNumber}</strong><span>${r.winningTeamId===view.perspective.teamId?'Win':'Loss'} · ${esc(r.rawWinMethod||'Result unknown')}</span></button>`).join('')}</div>${selected?`<div class="mi-round-detail"><h4>Round ${selected.roundNumber} · ${selected.winningTeamId===view.perspective.teamId?'Team win':'Team loss'}</h4><p>Player K/D/A ${record?[record.kills,record.deaths,record.assists].map(val).join('/'):'Not reported'} · Damage ${val(record?.damage)} · side ${val(record?.side)} · score ${val(record?.score)}</p><p>Recorded loadout ${val(record?.loadoutValue)} · spent ${val(record?.spentCredits)} · remaining credits ${val(record?.remainingCredits)}</p><p>Spike evidence: plant ${selected.plantEvidence?'reported':'not reported'} · defuse ${selected.defuseEvidence?'reported':'not reported'} · detonation time ${val(selected.detonationTimeRaw)} source units</p><h4>Round events</h4><div class="mi-table-wrap"><table><thead><tr><th>Time (source units)</th><th>Type</th><th>Actor</th><th>Target</th><th>Weapon / source</th></tr></thead><tbody>${eventRows||'<tr><td colspan="5">No events reported for this round.</td></tr>'}</tbody></table></div><h4>Inspect positions by event</h4><label class="mi-position-event-label">Event<select data-mi-position-event aria-label="Filter position snapshots by event"><option value="">All recorded snapshots in this round</option>${positionEvents.map(event=>`<option value="${esc(event.sourceRef)}"${event.sourceRef===selectedPositionEventRef?' selected':''}>${esc(event.roundTimeRaw===null?'Time unavailable':event.roundTimeRaw+' source units')} · ${esc(event.category||'Unknown')} · ${esc(event.actor?.observedRiotId||'Unknown')} → ${esc(event.target?.observedRiotId||'No target')}</option>`).join('')}</select></label><p>${selectedPositionEvent?`Showing snapshots linked to ${esc(selectedPositionEvent.category||'this event')} at ${esc(selectedPositionEvent.roundTimeRaw===null?'an unreported time':selectedPositionEvent.roundTimeRaw+' source units')}.`:'Snapshots are discrete source coordinates, not movement paths.'} ${selectedPositionEventRef&&!selectedPositions.length?'No recorded positions were linked to this event.':''}</p>${mapOverlay}<div class="mi-table-wrap"><table><thead><tr><th>Player</th><th>Snapshot</th><th>X (raw)</th><th>Y (raw)</th><th>Coordinate space</th><th>Map placement</th></tr></thead><tbody>${selectedPositions.map((x,index)=>{const placement=projectedPositions[index]?.placement||'unavailable';return `<tr><td>${esc(x.identity?.observedRiotId||'Unknown')}</td><td>${esc(x.snapshotType)}</td><td>${val(x.x)}</td><td>${val(x.y)}</td><td>${esc(x.coordinateSpace||'Unspecified')}</td><td>${placement==='plotted'?'Plotted':placement==='outside'?'Outside map extent':'Unavailable'}</td></tr>`}).join('')||'<tr><td colspan="6">No position snapshots are reported for this selection.</td></tr>'}</tbody></table></div></div>`:'<p class="mi-empty">No rounds match the selected filter.</p>'}`;
     } else if(activeTab==='timeline') {
       const events=[...(m.events||[])].sort((a,b)=>a.roundNumber-b.roundNumber||((finite(a.roundTimeRaw)??0)-(finite(b.roundTimeRaw)??0)));
       body=`<p>Events are sorted by round then reported raw time. Source time units are not independently verified.</p><div class="mi-table-wrap"><table><thead><tr><th>Round · time</th><th>Class</th><th>Actor</th><th>Target</th><th>Weapon / event</th><th>Assists</th></tr></thead><tbody>${events.map(e=>`<tr class="${e.category==='CREDITED_PLAYER_KILL'?'':'mi-special-event'}"><td>${e.roundNumber} · ${val(e.roundTimeRaw)} source units</td><td>${esc(e.category||'Unknown')}</td><td>${esc(e.actor?.observedRiotId||'Unknown')}</td><td>${esc(e.target?.observedRiotId||'Unknown')}</td><td>${esc(e.weaponName||e.rawSourceType||'Not reported')}</td><td>${Array.isArray(e.assistants)?e.assistants.length:'Not reported'}</td></tr>`).join('')||'<tr><td colspan="6">Event timeline was not captured.</td></tr>'}</tbody></table></div><p>Position snapshots: ${(m.positions||[]).length} reported. No continuous paths are inferred.</p>`;

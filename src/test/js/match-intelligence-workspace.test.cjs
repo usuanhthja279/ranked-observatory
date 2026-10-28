@@ -1,7 +1,10 @@
 'use strict';
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const { summarize, filterRounds, filterEventPositions, groupPositionEvents } = require('../../main/resources/static/match-intelligence-workspace.js');
+const fs = require('node:fs');
+const path = require('node:path');
+const crypto = require('node:crypto');
+const { summarize, filterRounds, filterEventPositions, groupPositionEvents, resolveMap, projectPositions } = require('../../main/resources/static/match-intelligence-workspace.js');
 function detail(id, {score=13, enemy=8, mode='Competitive', kills=10, agent='Jett', map='Ascent', side='Attack'}={}) {
   const identity={stableKey:'player-key',observedRiotId:'Player#APAC'};
   return { perspective:{identity:'player-key',riotId:'Player#APAC',teamId:'A'}, match:{providerMatchId:id,modeName:mode,mapName:map,teams:[{teamId:'A',roundsWon:score},{teamId:'B',roundsWon:enemy}],participants:[{identity,agent,totals:{kills,deaths:5,assists:3,acs:240,adr:150,firstKills:2,firstDeaths:1}}],rounds:[{roundNumber:1,winningTeamId:'A'},{roundNumber:13,winningTeamId:'B'}],playerRounds:[{identity,roundNumber:1,side,loadoutValue:800,spentCredits:500,remainingCredits:100},{identity,roundNumber:13,side:'Defense',loadoutValue:null,spentCredits:null,remainingCredits:null}]}};
@@ -37,4 +40,48 @@ test('event position inspection returns only the exact source reference and pres
 test('position event choices deduplicate paired kill/death rows by exact source reference', () => {
   const death={sourceRef:'event-1',category:'PLAYER_DEATH'},kill={sourceRef:'event-1',category:'CREDITED_PLAYER_KILL'},plant={sourceRef:'event-2',category:'SPIKE_PLANT'},unlinked={category:'UNKNOWN'};
   assert.deepEqual(groupPositionEvents([death,kill,plant,unlinked]),[kill,plant]);
+});
+
+const verifiedMap={name:'Test map',mapId:'map-1',asset:'/maps/map-1.png',width:1024,height:1024,validFrom:'2026-10-13',xMultiplier:0.01,yMultiplier:-0.01,xScalarToAdd:0.5,yScalarToAdd:0.5};
+const mapMatch=overrides=>({mapId:'MAP-1',startedAt:'2026-10-20T00:00:00Z',mapTransform:{xMultiplier:0.01,yMultiplier:-0.01,xScalarToAdd:0.5,yScalarToAdd:0.5},...overrides});
+test('map overlay requires exact map ID, a valid match date and matching catalog transform',()=>{
+  const catalog={validThrough:'2026-10-26',maps:[verifiedMap]};
+  assert.equal(resolveMap(mapMatch({}),catalog).map,verifiedMap);
+  assert.match(resolveMap(mapMatch({startedAt:'2026-10-12T23:59:59Z'}),catalog).reason,/predates/);
+  assert.match(resolveMap(mapMatch({startedAt:'2026-10-27T00:00:00Z'}),catalog).reason,/newer than the verified map catalog/);
+  assert.match(resolveMap(mapMatch({}),{maps:[verifiedMap]}).reason,/validity window/);
+  assert.match(resolveMap(mapMatch({mapId:'other'}),catalog).reason,/map ID/);
+  assert.match(resolveMap(mapMatch({mapTransform:{...verifiedMap,xMultiplier:0.02}}),catalog).reason,/transform/);
+  assert.match(resolveMap(mapMatch({startedAt:null}),catalog).reason,/date/);
+  assert.match(resolveMap(mapMatch({mapTransform:null}),catalog).reason,/transform/);
+});
+test('position projection plots only supported coordinates and reports outside or unavailable points',()=>{
+  const points=projectPositions([
+    {x:0,y:0,coordinateSpace:'TRACKER_WORLD_RAW'},
+    {x:50,y:0,coordinateSpace:'TRACKER_WORLD_RAW'},
+    {x:50.00000001,y:0,coordinateSpace:'TRACKER_WORLD_RAW'},
+    {x:50.00001,y:0,coordinateSpace:'TRACKER_WORLD_RAW'},
+    {x:0,y:100,coordinateSpace:'OTHER'},
+    {x:NaN,y:0,coordinateSpace:'TRACKER_WORLD_RAW'},
+    {x:0,y:50,coordinateSpace:'TRACKER_WORLD_RAW'}
+  ],verifiedMap);
+  assert.deepEqual(points.map(point=>point.placement),['plotted','plotted','plotted','outside','unavailable','unavailable','plotted']);
+  assert.deepEqual([points[0].x,points[0].y],[0.5,0.5]);
+  assert.deepEqual([points[1].x,points[1].y],[1,0.5]);
+  assert.deepEqual([points[6].x,points[6].y],[0.5,0]);
+});
+
+test('Riot tactical map manifest assets match their recorded hashes and dimensions',()=>{
+  const staticRoot=path.resolve(__dirname,'../../main/resources/static');
+  const catalog=JSON.parse(fs.readFileSync(path.join(staticRoot,'maps/map-manifest-13.08.json'),'utf8'));
+  assert.equal(catalog.maps.length,13);
+  assert.match(catalog.sourceUrl,/valorant\.dyn\.riotcdn\.net/);
+  assert.match(catalog.licenseNoticeUrl,/support-developer\.riotgames\.com/);
+  for(const map of catalog.maps){
+    const image=fs.readFileSync(path.join(staticRoot,map.asset.replace(/^\//,'')));
+    assert.deepEqual([...image.subarray(0,8)],[137,80,78,71,13,10,26,10],map.name+' PNG signature');
+    assert.equal(image.readUInt32BE(16),map.width,map.name+' width');
+    assert.equal(image.readUInt32BE(20),map.height,map.name+' height');
+    assert.equal(crypto.createHash('sha256').update(image).digest('hex'),map.sha256,map.name+' SHA-256');
+  }
 });

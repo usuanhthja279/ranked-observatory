@@ -233,3 +233,21 @@ $env:Path="$env:JAVA_HOME\bin;$env:Path"
 ```
 
 Result: **BUILD SUCCESSFUL**. Four PostgreSQL integration tests passed; the optional local five-match sample import was skipped. Failures: 0; errors: 0. The tests used isolated schemas on port 5435. Ports 8090, 8091 and the separate 8092 listener were left untouched; the running app and live/archive extraction settings were not changed.
+
+### 2026-10-28 M4 tactical map completion
+
+**Implementation:** Added official Riot Public Content Catalog 13.08 tactical maps and a manifest for 13 standard maps. The manifest records map UUID, asset path, source URL, Riot license notice URL, image dimensions, SHA-256, validity window, and normalized-coordinate transform coefficients. The Rounds tab now filters snapshots to the selected round/event and overlays only supported `TRACKER_WORLD_RAW` snapshots with an exact map ID, match date within 2026-10-13 through 2026-10-26, and matching transform coefficients. The upper bound prevents applying 13.08 artwork to matches after the subsequent 13.09 patch until newer maps are verified. Snapshots outside normalized image bounds remain in the table and are labeled/count-reported; they are not clamped or drawn. Unsupported/missing coordinate space and catalog mismatches stay unavailable. The table remains the source evidence view and does not imply continuous movement.
+
+**Commands and results:**
+
+- `node --check src/main/resources/static/match-intelligence-workspace.js` — passed.
+- `node --check src/main/resources/static/leaderboard.js` — passed.
+- `node --test src/test/js/*.test.cjs` — **57 passed, 0 failed, 0 skipped**. Added map eligibility and coordinate projection regressions plus checks of all 13 bundled PNG signatures, dimensions, and hashes.
+- `git diff --check` — passed.
+- `JAVA_HOME=C:\Users\usuan\.jdks\dragonwell-21.0.12 .\gradlew.bat test --tests com.valorant.leaderboard.matchintelligence.PostgresMatchIntelligenceIntegrationTest --no-daemon` — **BUILD SUCCESSFUL** against isolated PostgreSQL 17 at `127.0.0.1:5435`; 4 passed, 1 optional sample-import test skipped, 0 failures, 0 errors. No production/local database or collection/admin endpoint was used.
+
+**In-app browser review:** Used a synthetic match only. The desktop view displayed one transformed event position and one valid source position outside the map extent; the map caption and raw-coordinate table agreed. The first mobile view at an exact 390 × 844 iframe viewport exposed an oversized map grid track; after constraining the round-detail grid and map canvas, the map fit within the mobile column and the dense table remained internally scrollable. This fixture did not load real account data. The browser reported one `MutationObserver` TypeError from an unattributed host instrumentation script; it did not prevent the match or map from rendering. The browser review was not a real authenticated imported-match acceptance test, and screenshots were inspected in the browser but not retained as repository image artifacts.
+
+The visual fixture used a temporary loopback-only listener on port 8094 and synthetic `/api` responses. It was stopped after review. The live Observatory on ports 8090/8091 was not restarted or contacted; live extraction remained enabled and archive extraction remained paused. No collection or admin API was called.
+
+**Phase audit:** This completes the outstanding M4 map-overlay item in the M1–M8 implementation. M6 benchmark usefulness still depends on having a permission-reviewed cohort with sufficient imported coverage. M7's deterministic baseline is not evidence of predictive coaching quality. GitHub Actions and a new real-data acceptance run were not performed as part of this M4 follow-up.
