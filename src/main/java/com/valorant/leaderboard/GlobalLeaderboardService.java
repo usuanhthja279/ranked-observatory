@@ -50,7 +50,7 @@ public class GlobalLeaderboardService {
   private final ScheduledExecutorService collectionScheduler=Executors.newSingleThreadScheduledExecutor();
   private volatile ScheduledFuture<?> scheduleFuture;
   private final Object scheduleGuard=new Object();
-  private volatile boolean pendingScheduledRun,closing;
+  private volatile boolean pendingScheduledRun,closing,upstreamAccessBlocked;
   private volatile String lastScheduledOutcome="not triggered";
   private final AtomicBoolean schedulerStarted=new AtomicBoolean();
   private volatile Instant lastScheduledTriggerAt,collectionStartedAt,lastProgressAt;
@@ -98,11 +98,12 @@ public class GlobalLeaderboardService {
   public void scheduled(){if(pauseAllExtraction)return;synchronized(scheduleGuard){
     lastScheduledTriggerAt=Instant.now();
     if(!enabled||closing){lastScheduledAccepted=false;lastScheduledOutcome="disabled";return;}
+    if(upstreamAccessBlocked){lastScheduledAccepted=false;lastScheduledOutcome="paused after upstream access denial; use the authorized manual control after access is restored";return;}
     if(running.get()){pendingScheduledRun=true;lastScheduledAccepted=false;lastScheduledOutcome="queued after current extraction";return;}
-    lastScheduledAccepted=collect();lastScheduledOutcome=lastScheduledAccepted?"started":"not accepted";
+    lastScheduledAccepted=launchCollection();lastScheduledOutcome=lastScheduledAccepted?"started":"not accepted";
   }}
   public boolean collect(){
-    synchronized(scheduleGuard){return !pauseAllExtraction&&launchCollection();}
+    synchronized(scheduleGuard){if(pauseAllExtraction)return false;upstreamAccessBlocked=false;return launchCollection();}
   }
   private boolean launchCollection(){
     if(closing||pauseAllExtraction)return false;
@@ -119,17 +120,24 @@ public class GlobalLeaderboardService {
           collectSnapshot();
         }finally{try(var statement=connection.createStatement()){statement.execute("select pg_advisory_unlock(782613504)");}}
         return null;
-      });}catch(Exception error){lastError=Objects.toString(error.getMessage(),error.getClass().getSimpleName());log.warn("Global collection failed",error);}
+      });}catch(Exception error){lastError=Objects.toString(error.getMessage(),error.getClass().getSimpleName());var accessDenied=findAccessDenied(error);if(accessDenied!=null){upstreamAccessBlocked=true;lastScheduledAccepted=false;lastScheduledOutcome="paused after upstream access denial";log.warn("Live extraction paused after an upstream access denial; scheduled retries are suppressed until an authorized manual restart",accessDenied);}log.warn("Global collection failed",error);}
       finally{synchronized(scheduleGuard){
         running.set(false);
-        if(pendingScheduledRun&&enabled&&!closing){
+        if(pendingScheduledRun&&upstreamAccessBlocked){pendingScheduledRun=false;lastScheduledAccepted=false;lastScheduledOutcome="queued extraction discarded after upstream access denial";}
+        else if(pendingScheduledRun&&enabled&&!closing){
           pendingScheduledRun=false;
           log.info("Starting the coalesced pending extraction after the prior run finished");
-          try{lastScheduledAccepted=collect();lastScheduledOutcome=lastScheduledAccepted?"started queued extraction":"queued extraction not accepted";}
+          try{lastScheduledAccepted=launchCollection();lastScheduledOutcome=lastScheduledAccepted?"started queued extraction":"queued extraction not accepted";}
           catch(Exception error){lastError="Queued extraction failed to start: "+error.getMessage();log.error("Queued extraction start failed",error);}
         }
       }}
     });}catch(RejectedExecutionException error){running.set(false);throw error;}return true;
+  }
+  private static TrackerLeaderboardClient.SourceAccessDenied findAccessDenied(Throwable error){
+    var seen=Collections.newSetFromMap(new IdentityHashMap<Throwable,Boolean>());
+    for(Throwable current=error;current!=null&&seen.add(current);current=current.getCause())
+      if(current instanceof TrackerLeaderboardClient.SourceAccessDenied denied)return denied;
+    return null;
   }
   private void collectSnapshot(){
     VerifiedCapture capture;
@@ -225,10 +233,10 @@ public class GlobalLeaderboardService {
     return status(false);
   }
   public Map<String,Object> status(boolean compact){
-    var timer=scheduleFuture;boolean timerActive=enabled&&timer!=null&&!timer.isDone()&&!timer.isCancelled();
+    var timer=scheduleFuture;boolean timerActive=enabled&&!upstreamAccessBlocked&&timer!=null&&!timer.isDone()&&!timer.isCancelled();
     var schedule=new LinkedHashMap<String,Object>();schedule.put("scheduled",timerActive);schedule.put("intervalMillis",Math.max(1000,collectionInterval));schedule.put("nextRunAt",timerActive?Instant.now().plusMillis(Math.max(0,timer.getDelay(TimeUnit.MILLISECONDS))):null);schedule.put("lastTriggerAt",lastScheduledTriggerAt);schedule.put("lastTriggerAccepted",lastScheduledAccepted);schedule.put("pendingRun",pendingScheduledRun);schedule.put("lastTriggerOutcome",lastScheduledOutcome);schedule.put("overlapPolicy","coalesce one pending run; start immediately after current extraction");
     var progress=new LinkedHashMap<String,Object>();progress.put("startedAt",collectionStartedAt);progress.put("source",activeSource);progress.put("sourcePage",activePage);progress.put("pagesFetched",pagesFetched);progress.put("lastProgressAt",lastProgressAt);
-    var result=new LinkedHashMap<String,Object>();result.put("act",act);result.put("region","global");result.put("enabled",enabled);result.put("paused",pauseAllExtraction);result.put("running",running.get());result.put("lastError",lastError);result.put("regions",REGIONS);result.put("countries",countryNames);result.put("regionalFallback",regionalFallback);result.put("globalIntervalMinutes",20);result.put("regionalIntervalHours",1);result.put("scheduleZone",scheduleZone);result.put("lastRegionalReconciliation",lastReconciliation());result.put("regionalReconciliationDue",regionalFallback&&regionalDue());result.put("bootstrapPending",!bootstrapDirectory.isBlank());result.put("concurrency",Math.max(1,Math.min(10,concurrency)));result.put("requestIntervalMillis",client.requestIntervalMillis());result.put("requestMetrics",client.requestMetrics());result.put("liveCaptureDirectory",pendingCapture==null?null:pendingCapture.directory());
+    var result=new LinkedHashMap<String,Object>();result.put("act",act);result.put("region","global");result.put("enabled",enabled);result.put("paused",pauseAllExtraction);result.put("sourceAccessBlocked",upstreamAccessBlocked);result.put("running",running.get());result.put("lastError",lastError);result.put("regions",REGIONS);result.put("countries",countryNames);result.put("regionalFallback",regionalFallback);result.put("globalIntervalMinutes",20);result.put("regionalIntervalHours",1);result.put("scheduleZone",scheduleZone);result.put("lastRegionalReconciliation",lastReconciliation());result.put("regionalReconciliationDue",regionalFallback&&regionalDue());result.put("bootstrapPending",!bootstrapDirectory.isBlank());result.put("concurrency",Math.max(1,Math.min(10,concurrency)));result.put("requestIntervalMillis",client.requestIntervalMillis());result.put("requestMetrics",client.requestMetrics());result.put("liveCaptureDirectory",pendingCapture==null?null:pendingCapture.directory());
     result.put("schedule",schedule);result.put("liveProgress",progress);
     if(compact)result.remove("countries");
     result.put("runs",db.queryForList(compact?"select id,status,started_at,completed_at,pages,error,source from global_leaderboard_runs where act=? order by id desc limit 1":"select * from global_leaderboard_runs where act=? order by id desc limit 10",act));

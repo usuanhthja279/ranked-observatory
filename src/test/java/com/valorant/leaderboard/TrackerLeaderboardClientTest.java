@@ -81,6 +81,20 @@ class TrackerLeaderboardClientTest {
     assertThrows(IllegalStateException.class,()->gated.fetch(ACT,"in",1));
     org.mockito.Mockito.verify(http,org.mockito.Mockito.times(1)).send(org.mockito.ArgumentMatchers.any(java.net.http.HttpRequest.class),org.mockito.ArgumentMatchers.<java.net.http.HttpResponse.BodyHandler<byte[]>>any());
   }
+  @Test void identifiesCloudflareJavascriptChallengeWithoutRetainingItsHtml()throws Exception {
+    var http=org.mockito.Mockito.mock(java.net.http.HttpClient.class);
+    @SuppressWarnings("unchecked") var blocked=(java.net.http.HttpResponse<byte[]>)org.mockito.Mockito.mock(java.net.http.HttpResponse.class);
+    var compressed=new java.io.ByteArrayOutputStream();try(var gzip=new java.util.zip.GZIPOutputStream(compressed)){gzip.write("<title>Just a moment...</title>Enable JavaScript and cookies".getBytes(java.nio.charset.StandardCharsets.UTF_8));}
+    org.mockito.Mockito.when(blocked.statusCode()).thenReturn(403);
+    org.mockito.Mockito.when(blocked.body()).thenReturn(compressed.toByteArray());
+    org.mockito.Mockito.when(blocked.headers()).thenReturn(java.net.http.HttpHeaders.of(java.util.Map.of("Server",java.util.List.of("cloudflare"),"Content-Type",java.util.List.of("text/html; charset=UTF-8"),"Content-Encoding",java.util.List.of("gzip"),"CF-Ray",java.util.List.of("test-ray-id")),(a,b)->true));
+    org.mockito.Mockito.when(http.send(org.mockito.ArgumentMatchers.any(java.net.http.HttpRequest.class),org.mockito.ArgumentMatchers.<java.net.http.HttpResponse.BodyHandler<byte[]>>any())).thenReturn(blocked);
+    var gated=new TrackerLeaderboardClient(new ObjectMapper(),http,new RequestPacer(500,()->1000L,ignored->{}));
+    var error=assertThrows(TrackerLeaderboardClient.SourceAccessDenied.class,()->gated.fetchRegion(ACT,"global",1));
+    assertTrue(error.browserChallenge());assertTrue(error.getMessage().contains("Cloudflare browser verification challenge"));assertTrue(error.getMessage().contains("test-ray-id"));
+    assertFalse(error.getMessage().contains("Enable JavaScript"));
+    org.mockito.Mockito.verify(http,org.mockito.Mockito.times(1)).send(org.mockito.ArgumentMatchers.any(java.net.http.HttpRequest.class),org.mockito.ArgumentMatchers.<java.net.http.HttpResponse.BodyHandler<byte[]>>any());
+  }
   @Test
   @org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable(named="LEADERBOARD_LIVE_TEST", matches="true")
   void fetchesRealTrackerPageUsingJavaHttpClient() throws Exception {

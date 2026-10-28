@@ -29,6 +29,19 @@ public class TrackerLeaderboardClient {
   }
   public record Page(List<Player> players, OffsetDateTime updatedAt) {}
   static final class SourceUnavailable extends IllegalStateException { SourceUnavailable(){super("Tracker leaderboard data is unavailable; not an empty page");} }
+  public static final class SourceAccessDenied extends IllegalStateException {
+    private final boolean browserChallenge;
+    public SourceAccessDenied(String message,boolean browserChallenge){super(message);this.browserChallenge=browserChallenge;}
+    public boolean browserChallenge(){return browserChallenge;}
+  }
+  private static String diagnosticResponseText(HttpResponse<byte[]> response){
+    try{
+      byte[] bytes=response.body();
+      if(response.headers().firstValue("Content-Encoding").orElse("").equalsIgnoreCase("gzip"))
+        try(var stream=new java.util.zip.GZIPInputStream(new java.io.ByteArrayInputStream(bytes))){bytes=stream.readNBytes(8192);}
+      return new String(bytes,0,Math.min(bytes.length,8192),java.nio.charset.StandardCharsets.UTF_8).toLowerCase(Locale.ROOT);
+    }catch(Exception ignored){return "";}
+  }
 
   @org.springframework.beans.factory.annotation.Value("${LEADERBOARD_PROFILE_COOKIE:}") private String profileCookie="";
   public JsonNode fetchProfile(String player,String act)throws Exception {
@@ -77,6 +90,17 @@ public class TrackerLeaderboardClient {
     HttpResponse<byte[]> response;
     try{response=http.send(request,HttpResponse.BodyHandlers.ofByteArray());}
     catch(java.io.IOException error){if(attempt==maxAttempts-1)throw error;retries.incrementAndGet();pacer().defer(2000L<<attempt);continue;}
+    if(response.statusCode()==403){
+      String body=diagnosticResponseText(response);
+      String server=response.headers().firstValue("Server").orElse("");
+      String type=response.headers().firstValue("Content-Type").orElse("");
+      String requestId=response.headers().firstValue("CF-Ray").orElse("");
+      boolean browserChallenge=server.equalsIgnoreCase("cloudflare")
+          &&(body.contains("just a moment")||body.contains("enable javascript and cookies"));
+      String reason=browserChallenge?"Tracker returned HTTP 403 with a Cloudflare browser verification challenge"
+          :"Tracker returned HTTP 403 and denied the direct collection request";
+      throw new SourceAccessDenied(reason+" (content-type="+type+(requestId.isBlank()?"":", request-id="+requestId)+").",browserChallenge);
+    }
     if(response.statusCode()==429||response.statusCode()>=500){
       if(response.statusCode()==429)throttles.incrementAndGet();
       long wait=Math.max(5000L<<attempt,RequestPacer.retryAfterMillis(response.headers().firstValue("Retry-After").orElse(""),java.time.Instant.now()));

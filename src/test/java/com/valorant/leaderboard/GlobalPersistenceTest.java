@@ -12,6 +12,20 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 class GlobalPersistenceTest {
+  @Test void scheduledCollectionStopsRetryingAfterAnUpstreamAccessDenial()throws Exception{
+    var db=mock(JdbcTemplate.class);var client=mock(TrackerLeaderboardClient.class);
+    var service=new GlobalLeaderboardService(db,client,new ObjectMapper(),mock(org.springframework.transaction.PlatformTransactionManager.class));
+    ReflectionTestUtils.setField(service,"enabled",true);ReflectionTestUtils.setField(service,"upstreamAccessBlocked",true);
+    try{
+      service.scheduled();
+      assertFalse((boolean)ReflectionTestUtils.getField(service,"lastScheduledAccepted"));
+      assertEquals("paused after upstream access denial; use the authorized manual control after access is restored",ReflectionTestUtils.getField(service,"lastScheduledOutcome"));
+      var denied=new TrackerLeaderboardClient.SourceAccessDenied("Cloudflare challenge",true);
+      var wrapped=new java.util.concurrent.ExecutionException(new IllegalStateException("page fetch",denied));
+      assertSame(denied,ReflectionTestUtils.invokeMethod(service,"findAccessDenied",wrapped));
+      verifyNoInteractions(client);verifyNoInteractions(db);
+    }finally{service.close();}
+  }
   private List<TrackerLeaderboardClient.Player> world(int rating,int rank){
     return List.of(new TrackerLeaderboardClient.Player("same#id",null,rank,rating,"Radiant",10,"ap"),
       new TrackerLeaderboardClient.Player("same#id","kr",20,600,"Radiant",10,"eu"),
