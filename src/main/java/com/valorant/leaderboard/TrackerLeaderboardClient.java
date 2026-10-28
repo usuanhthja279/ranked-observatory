@@ -16,8 +16,13 @@ public class TrackerLeaderboardClient {
   private final java.util.concurrent.atomic.AtomicLong throttles=new java.util.concurrent.atomic.AtomicLong(),retries=new java.util.concurrent.atomic.AtomicLong();
   public Map<String,Object> requestMetrics(){var result=new LinkedHashMap<String,Object>(pacer().metrics());result.put("http429Responses",throttles.get());result.put("retries",retries.get());return result;}
   @org.springframework.beans.factory.annotation.Value("${leaderboard.global.request-delay-ms:500}") private long requestInterval=500;
+  @org.springframework.beans.factory.annotation.Value("${leaderboard.tracker.source-transport:direct}") private String sourceTransport="direct";
+  @org.springframework.beans.factory.annotation.Value("${leaderboard.tracker.flaresolverr-url:http://127.0.0.1:8191}") private String flareSolverrUrl="http://127.0.0.1:8191";
+  private volatile FlareSolverrClient flareSolverr;
   private RequestPacer pacer(){if(pacer==null)synchronized(this){if(pacer==null)pacer=new RequestPacer(requestInterval);}return pacer;}
   public long requestIntervalMillis(){return Math.max(500,requestInterval);}
+  private FlareSolverrClient flareSolverr(){if(flareSolverr==null)synchronized(this){if(flareSolverr==null)flareSolverr=new FlareSolverrClient(mapper,http,flareSolverrUrl);}return flareSolverr;}
+  @jakarta.annotation.PreDestroy public void closeTransport(){if(flareSolverr!=null)flareSolverr.close();}
 
   private final HttpClient http;
   @org.springframework.beans.factory.annotation.Autowired
@@ -76,10 +81,21 @@ public class TrackerLeaderboardClient {
         || (country!=null&&!country.matches("[a-z]{2}"))) throw new IllegalArgumentException("Invalid source request");
     String url = "https://tracker.gg/valorant/leaderboards/ranked/all/default?platform=pc&region="+region+"&act="
         + act + (country==null?"":"&country="+country) + "&page=" + page;
+    if(!"direct".equalsIgnoreCase(sourceTransport)&&!"flaresolverr".equalsIgnoreCase(sourceTransport))
+      throw new IllegalStateException("Unknown leaderboard source transport");
     final int maxAttempts=5;
     for(int attempt=0;attempt<maxAttempts;attempt++){
     // Unavailable SSR data is not an empty page. Retry with bounded backoff and a fresh URL.
     String requestUrl=attempt==0?url:url+"&_refresh="+System.currentTimeMillis();
+    if("flaresolverr".equalsIgnoreCase(sourceTransport)){
+      var solver=flareSolverr();String html;
+      synchronized(solver){if(background)pacer().acquireBackground();else pacer().acquireLive();html=solver.fetch(requestUrl);}
+      try{return parseSource(html,act,region,country,page);}
+      catch(SourceUnavailable error){
+        if(attempt==maxAttempts-1)throw error;
+        retries.incrementAndGet();Thread.sleep(new long[]{5000,15000,30000,60000}[attempt]);continue;
+      }
+    }
     var request = HttpRequest.newBuilder(URI.create(requestUrl)).timeout(Duration.ofSeconds(30))
         .header("Accept-Encoding", "gzip")
         .header("Upgrade-Insecure-Requests", "1")

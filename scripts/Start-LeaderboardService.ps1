@@ -24,6 +24,14 @@ $env:LEADERBOARD_DB_USERNAME = $settings.username
 $env:LEADERBOARD_DB_PASSWORD = (Get-Content -LiteralPath $dbPassPath -Raw).Trim()
 $env:LEADERBOARD_ADMIN_USER = $settings.adminUser
 $env:LEADERBOARD_ADMIN_PASSWORD = (Get-Content -LiteralPath $adminPassPath -Raw).Trim()
+if ($settings.sourceTransport) { $env:LEADERBOARD_SOURCE_TRANSPORT = $settings.sourceTransport }
+if ($settings.flareSolverrUrl) { $env:LEADERBOARD_FLARESOLVERR_URL = $settings.flareSolverrUrl }
+if ($env:LEADERBOARD_SOURCE_TRANSPORT -eq 'flaresolverr') {
+    $solverUrl = if ($env:LEADERBOARD_FLARESOLVERR_URL) { $env:LEADERBOARD_FLARESOLVERR_URL } else { 'http://127.0.0.1:8191' }
+    $solverUri = [Uri]$solverUrl
+    if ($solverUri.Scheme -ne 'http' -or $solverUri.Host -notin @('127.0.0.1','localhost')) { throw 'The local launcher requires a loopback FlareSolverr URL.' }
+    & (Join-Path $PSScriptRoot 'Start-FlareSolverr.ps1') -Port $solverUri.Port
+}
 $env:LEADERBOARD_ENABLED = if ((Test-Path -LiteralPath $pauseMarker) -or (Test-Path -LiteralPath $allPauseMarker)) { 'false' } else { 'true' }
 $env:LEADERBOARD_PAUSE_ALL_EXTRACTION = if (Test-Path -LiteralPath $allPauseMarker) { 'true' } else { 'false' }
 $env:LEADERBOARD_PAUSE_ARCHIVE_EXTRACTION = if ((Test-Path -LiteralPath $archivePauseMarker) -or (Test-Path -LiteralPath $allPauseMarker)) { 'true' } else { 'false' }

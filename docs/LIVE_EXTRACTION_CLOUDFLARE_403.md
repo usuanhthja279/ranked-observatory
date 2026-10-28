@@ -10,7 +10,7 @@ The failed application runs were for the global source (`region=global`), while 
 
 Snapshot 458 remains the latest complete snapshot: 1,084 pages and 54,237 players. Runs 459–461 failed at page 1 with HTTP 403 and did not publish partial results. Snapshot data was not deleted or modified. The completed run used 1,116 requests at a configured 500 ms minimum start interval with concurrency 5. That volume may have contributed to Cloudflare challenging subsequent requests, but the specific Cloudflare rule is not exposed by the response and cannot be confirmed from this evidence.
 
-## Safe correction
+## Initial correction
 
 - Classify HTTP 403 separately and identify a Cloudflare JavaScript challenge using bounded, in-memory response inspection. Do not store or log the challenge HTML.
 - Report the content type and Cloudflare request ID for support diagnostics.
@@ -24,6 +24,10 @@ Snapshot 458 remains the latest complete snapshot: 1,084 pages and 54,237 player
 - Command: `.\gradlew.bat test --tests com.valorant.leaderboard.TrackerLeaderboardClientTest --tests com.valorant.leaderboard.GlobalPersistenceTest.scheduledCollectionStopsRetryingAfterAnUpstreamAccessDenial`
 - `git diff --check` passed before documentation was added; rerun before commit.
 
-## Runtime limitation
+## Runtime limitation at the initial correction
 
 The running service was not restarted to activate this code because startup immediately makes another source request, and the upstream challenge has not been cleared. The current process therefore still has the earlier retry behavior. Fresh automated server-side data collection cannot resume until Tracker permits the request or an approved access method is configured. The existing service and tunnel were left running.
+
+## Follow-up
+
+The user subsequently stated that permission was in place and requested the opt-in FlareSolverr transport described in [FLARESOLVERR_SETUP.md](FLARESOLVERR_SETUP.md). During that work, the original retry guard was found to miss errors already caught inside `collectSnapshot`; that claim in the initial correction was incomplete. The guard now runs in that catch path as well, and a focused test exercises a failed page and confirms the next scheduled trigger does not fetch again. This later guard correction is staged and tested; the currently active process predates it and remains running to avoid interrupting its live snapshot.

@@ -3,5 +3,7 @@
   "username": "leaderboard",
   "passwordFile": "config/leaderboard-db-password.local",
   "adminUser": "admin",
-  "adminPasswordFile": "config/leaderboard-admin-password.local"
+  "adminPasswordFile": "config/leaderboard-admin-password.local",
+  "sourceTransport": "direct",
+  "flareSolverrUrl": "http://127.0.0.1:8191"
 }

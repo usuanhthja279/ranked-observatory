@@ -26,6 +26,22 @@ class GlobalPersistenceTest {
       verifyNoInteractions(client);verifyNoInteractions(db);
     }finally{service.close();}
   }
+  @Test void failedPageSetsTheScheduledAccessBlock()throws Exception{
+    var db=mock(JdbcTemplate.class);var client=mock(TrackerLeaderboardClient.class);
+    var service=new GlobalLeaderboardService(db,client,new ObjectMapper(),mock(org.springframework.transaction.PlatformTransactionManager.class));
+    String act="d816f426-48ea-f052-117f-9697a155b319";
+    ReflectionTestUtils.setField(service,"act",act);ReflectionTestUtils.setField(service,"enabled",true);
+    ReflectionTestUtils.setField(service,"maxPages",1);ReflectionTestUtils.setField(service,"concurrency",1);
+    when(db.queryForObject(anyString(),eq(Long.class),any(),any(),any())).thenReturn(1L);
+    when(client.fetchRegion(act,"global",1)).thenThrow(new TrackerLeaderboardClient.SourceAccessDenied("Cloudflare challenge",true));
+    try{
+      ReflectionTestUtils.invokeMethod(service,"collectSnapshot");
+      assertEquals(true,ReflectionTestUtils.getField(service,"upstreamAccessBlocked"));
+      service.scheduled();
+      verify(client,times(1)).fetchRegion(act,"global",1);
+      assertFalse((boolean)ReflectionTestUtils.getField(service,"lastScheduledAccepted"));
+    }finally{service.close();}
+  }
   private List<TrackerLeaderboardClient.Player> world(int rating,int rank){
     return List.of(new TrackerLeaderboardClient.Player("same#id",null,rank,rating,"Radiant",10,"ap"),
       new TrackerLeaderboardClient.Player("same#id","kr",20,600,"Radiant",10,"eu"),

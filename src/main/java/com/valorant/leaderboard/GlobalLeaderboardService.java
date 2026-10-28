@@ -120,7 +120,7 @@ public class GlobalLeaderboardService {
           collectSnapshot();
         }finally{try(var statement=connection.createStatement()){statement.execute("select pg_advisory_unlock(782613504)");}}
         return null;
-      });}catch(Exception error){lastError=Objects.toString(error.getMessage(),error.getClass().getSimpleName());var accessDenied=findAccessDenied(error);if(accessDenied!=null){upstreamAccessBlocked=true;lastScheduledAccepted=false;lastScheduledOutcome="paused after upstream access denial";log.warn("Live extraction paused after an upstream access denial; scheduled retries are suppressed until an authorized manual restart",accessDenied);}log.warn("Global collection failed",error);}
+      });}catch(Exception error){lastError=Objects.toString(error.getMessage(),error.getClass().getSimpleName());pauseAfterAccessDenial(error);log.warn("Global collection failed",error);}
       finally{synchronized(scheduleGuard){
         running.set(false);
         if(pendingScheduledRun&&upstreamAccessBlocked){pendingScheduledRun=false;lastScheduledAccepted=false;lastScheduledOutcome="queued extraction discarded after upstream access denial";}
@@ -138,6 +138,10 @@ public class GlobalLeaderboardService {
     for(Throwable current=error;current!=null&&seen.add(current);current=current.getCause())
       if(current instanceof TrackerLeaderboardClient.SourceAccessDenied denied)return denied;
     return null;
+  }
+  private void pauseAfterAccessDenial(Throwable error){
+    var accessDenied=findAccessDenied(error);
+    if(accessDenied!=null){upstreamAccessBlocked=true;lastScheduledAccepted=false;lastScheduledOutcome="paused after upstream access denial";log.warn("Live extraction paused after an upstream access denial; scheduled retries are suppressed until an authorized manual restart",accessDenied);}
   }
   private void collectSnapshot(){
     VerifiedCapture capture;
@@ -213,7 +217,7 @@ public class GlobalLeaderboardService {
         });
         db.update("update global_leaderboard_runs set status='COMPLETE',completed_at=?,pages=?,players=?,raw_rows=?,duplicate_rows=?,uncertain_players=?,coverage_json=?,regional_reconciled_at=? where id=?",OffsetDateTime.now(ZoneOffset.UTC),pages,observations.size(),observations.rawRows,observations.duplicates,observations.uncertain(),coverageJson,reconciledAt,run);
       });bootstrapDirectory="";pendingCapture=null;log.info("Global snapshot {} published: {} players, {} pages, {} uncertain",run,observations.size(),pages,observations.uncertain());
-    }catch(Exception error){if(error instanceof InterruptedException)Thread.currentThread().interrupt();lastError=Objects.toString(error.getMessage(),error.getClass().getSimpleName());db.update("update global_leaderboard_runs set status='FAILED',completed_at=?,pages=?,players=?,raw_rows=?,duplicate_rows=?,uncertain_players=?,error=? where id=?",OffsetDateTime.now(ZoneOffset.UTC),totalPages,observations.size(),observations.rawRows,observations.duplicates,observations.uncertain(),lastError.substring(0,Math.min(500,lastError.length())),run);if(lastError.contains("Five consecutive full pages made no identity progress")){pendingCapture=null;log.warn("Discarding failed capture from retry reuse; files retained for diagnosis");}log.warn("Global snapshot {} rejected",run,error);}
+    }catch(Exception error){if(error instanceof InterruptedException)Thread.currentThread().interrupt();lastError=Objects.toString(error.getMessage(),error.getClass().getSimpleName());pauseAfterAccessDenial(error);db.update("update global_leaderboard_runs set status='FAILED',completed_at=?,pages=?,players=?,raw_rows=?,duplicate_rows=?,uncertain_players=?,error=? where id=?",OffsetDateTime.now(ZoneOffset.UTC),totalPages,observations.size(),observations.rawRows,observations.duplicates,observations.uncertain(),lastError.substring(0,Math.min(500,lastError.length())),run);if(lastError.contains("Five consecutive full pages made no identity progress")){pendingCapture=null;log.warn("Discarding failed capture from retry reuse; files retained for diagnosis");}log.warn("Global snapshot {} rejected",run,error);}
   }
   static boolean regionalDueAt(OffsetDateTime last,Instant now,ZoneId zone){
     var slot=now.atZone(zone).withMinute(0).withSecond(0).withNano(0).toInstant();

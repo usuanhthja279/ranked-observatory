@@ -69,6 +69,14 @@ class TrackerLeaderboardClientTest {
     org.mockito.Mockito.when(response.headers()).thenReturn(java.net.http.HttpHeaders.of(retry==null?java.util.Map.of():java.util.Map.of("Retry-After",java.util.List.of(retry)),(a,b)->true));
     return response;
   }
+  @SuppressWarnings("unchecked")
+  private java.net.http.HttpResponse<java.io.InputStream> solverResponse(int code,String body){
+    var response=(java.net.http.HttpResponse<java.io.InputStream>)org.mockito.Mockito.mock(java.net.http.HttpResponse.class);
+    byte[] bytes=body.getBytes(java.nio.charset.StandardCharsets.UTF_8);
+    org.mockito.Mockito.when(response.statusCode()).thenReturn(code);
+    org.mockito.Mockito.when(response.body()).thenAnswer(ignored->new java.io.ByteArrayInputStream(bytes));
+    return response;
+  }
   @Test void honorsSharedRetryAfterAndStopsImmediatelyOn403()throws Exception {
     var http=org.mockito.Mockito.mock(java.net.http.HttpClient.class);var clock=new java.util.concurrent.atomic.AtomicLong(1000);
     var gated=new TrackerLeaderboardClient(new ObjectMapper(),http,new RequestPacer(500,clock::get,clock::addAndGet));
@@ -94,6 +102,40 @@ class TrackerLeaderboardClientTest {
     assertTrue(error.browserChallenge());assertTrue(error.getMessage().contains("Cloudflare browser verification challenge"));assertTrue(error.getMessage().contains("test-ray-id"));
     assertFalse(error.getMessage().contains("Enable JavaScript"));
     org.mockito.Mockito.verify(http,org.mockito.Mockito.times(1)).send(org.mockito.ArgumentMatchers.any(java.net.http.HttpRequest.class),org.mockito.ArgumentMatchers.<java.net.http.HttpResponse.BodyHandler<byte[]>>any());
+  }
+  @Test void flareSolverrTransportUsesLocalSessionAndValidatesTheReturnedPage()throws Exception {
+    var http=org.mockito.Mockito.mock(java.net.http.HttpClient.class);var mapper=new ObjectMapper();
+    var solver=new FlareSolverrClient(mapper,http,"http://127.0.0.1:8191");
+    String session=(String)org.springframework.test.util.ReflectionTestUtils.getField(solver,"session");
+    String target="https://tracker.gg/valorant/leaderboards/ranked/all/default?platform=pc&region=ap&act="+ACT+"&country=in&page=1";
+    String created=mapper.writeValueAsString(java.util.Map.of("status","ok","session",session));
+    String solved=mapper.writeValueAsString(java.util.Map.of("status","ok","solution",java.util.Map.of("status",200,"url",target,"response",html("in",0,player()),"cookies",java.util.List.of(java.util.Map.of("value","private-cookie")))));
+    var createdResponse=solverResponse(200,created);var solvedResponse=solverResponse(200,solved);var destroyedResponse=solverResponse(200,"{\"status\":\"ok\"}");
+    org.mockito.Mockito.when(http.send(org.mockito.ArgumentMatchers.any(java.net.http.HttpRequest.class),org.mockito.ArgumentMatchers.<java.net.http.HttpResponse.BodyHandler<java.io.InputStream>>any())).thenReturn(createdResponse,solvedResponse,solvedResponse,destroyedResponse);
+    var clock=new java.util.concurrent.atomic.AtomicLong(1000);
+    var client=new TrackerLeaderboardClient(mapper,http,new RequestPacer(500,clock::get,clock::addAndGet));
+    org.springframework.test.util.ReflectionTestUtils.setField(client,"sourceTransport","flaresolverr");
+    org.springframework.test.util.ReflectionTestUtils.setField(client,"flareSolverr",solver);
+    assertEquals(537,client.fetch(ACT,"in",1).players().getFirst().rr());
+    assertEquals(537,client.fetch(ACT,"in",1).players().getFirst().rr());
+    client.closeTransport();
+    var requests=org.mockito.ArgumentCaptor.forClass(java.net.http.HttpRequest.class);
+    org.mockito.Mockito.verify(http,org.mockito.Mockito.times(4)).send(requests.capture(),org.mockito.ArgumentMatchers.<java.net.http.HttpResponse.BodyHandler<java.io.InputStream>>any());
+    assertTrue(requests.getAllValues().stream().allMatch(request->request.uri().toString().equals("http://127.0.0.1:8191/v1")));
+  }
+  @Test void flareSolverrRejectsNonLocalServiceAndStopsOnSourceDenial()throws Exception {
+    var http=org.mockito.Mockito.mock(java.net.http.HttpClient.class);var mapper=new ObjectMapper();
+    assertThrows(IllegalArgumentException.class,()->new FlareSolverrClient(mapper,http,"https://example.com"));
+    var solver=new FlareSolverrClient(mapper,http,"http://localhost:8191");
+    String session=(String)org.springframework.test.util.ReflectionTestUtils.getField(solver,"session");
+    String created=mapper.writeValueAsString(java.util.Map.of("status","ok","session",session));
+    String denied=mapper.writeValueAsString(java.util.Map.of("status","ok","solution",java.util.Map.of("status",403)));
+    var createdResponse=solverResponse(200,created);var deniedResponse=solverResponse(200,denied);
+    org.mockito.Mockito.when(http.send(org.mockito.ArgumentMatchers.any(java.net.http.HttpRequest.class),org.mockito.ArgumentMatchers.<java.net.http.HttpResponse.BodyHandler<java.io.InputStream>>any())).thenReturn(createdResponse,deniedResponse);
+    var error=assertThrows(TrackerLeaderboardClient.SourceAccessDenied.class,()->solver.fetch("https://tracker.gg/valorant/leaderboards/ranked/all/default?platform=pc&region=ap&act="+ACT+"&page=1"));
+    assertTrue(error.getMessage().contains("403"));
+    org.mockito.Mockito.verify(http,org.mockito.Mockito.times(2)).send(org.mockito.ArgumentMatchers.any(java.net.http.HttpRequest.class),org.mockito.ArgumentMatchers.<java.net.http.HttpResponse.BodyHandler<java.io.InputStream>>any());
+    assertThrows(IllegalArgumentException.class,()->solver.fetch("https://example.com/valorant/leaderboards/ranked/all/default"));
   }
   @Test
   @org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable(named="LEADERBOARD_LIVE_TEST", matches="true")
