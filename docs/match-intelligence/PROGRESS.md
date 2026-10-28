@@ -159,3 +159,11 @@ M8 acceptance work is complete. Stop this implementation at M8; no later phase w
 ### Final cross-phase audit — 2026-10-28
 
 M1–M8 implementation and verification evidence has been reviewed against the supplied master prompt. M4 remains partially incomplete: the workspace exposes event-linked round data and discrete positions, but a tactical-map overlay is intentionally withheld pending an approved map layout and verified per-map transform. The audit and diagnostic basis are recorded in [VERIFICATION.md](VERIFICATION.md). M6 still needs a permission-reviewed cohort with enough observed members/matches for useful reference output; M7's baseline is not evidence of predictive coaching quality. No live service or extraction state was changed.
+
+### M4 follow-up — event-linked position inspection (2026-10-28)
+
+Added a round-level event selector to the discrete position table. Selecting an event filters snapshots by exact `sourceRef`; a paired kill/death with the same reference appears as one selector option, preferring the credited kill row. Events with no linked positions remain selectable and show an explicit empty-evidence message. Changing match, round, or round filter clears the selected event. Coordinates and raw time units remain labeled as source values; this is not a map overlay or movement path.
+
+Focused verification: `node --check` passed for the workspace and page loader; `node --test src/test/js/*.test.cjs` passed **54/54**; `git diff --check` passed. Added tests cover exact-reference filtering, empty results, all-round behavior, and kill/death selector deduplication. ChatGPT in-app browser inspected the synthetic-only page: the paired event appeared once, selecting it showed its two matching snapshots, and selecting a plant event with no positions showed the empty-evidence state. The inspected browser view was desktop; narrow-mobile visual inspection was not completed in this focused pass. No real account data was loaded.
+
+The page and workspace cache tokens were bumped for the changed scripts/styles. This change does not close M4: a current map-version-matched tactical layout and independently verified source transform are still needed before positioning snapshots on a map.

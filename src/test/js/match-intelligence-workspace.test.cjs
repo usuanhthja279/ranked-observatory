@@ -1,7 +1,7 @@
 'use strict';
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const { summarize, filterRounds } = require('../../main/resources/static/match-intelligence-workspace.js');
+const { summarize, filterRounds, filterEventPositions, groupPositionEvents } = require('../../main/resources/static/match-intelligence-workspace.js');
 function detail(id, {score=13, enemy=8, mode='Competitive', kills=10, agent='Jett', map='Ascent', side='Attack'}={}) {
   const identity={stableKey:'player-key',observedRiotId:'Player#APAC'};
   return { perspective:{identity:'player-key',riotId:'Player#APAC',teamId:'A'}, match:{providerMatchId:id,modeName:mode,mapName:map,teams:[{teamId:'A',roundsWon:score},{teamId:'B',roundsWon:enemy}],participants:[{identity,agent,totals:{kills,deaths:5,assists:3,acs:240,adr:150,firstKills:2,firstDeaths:1}}],rounds:[{roundNumber:1,winningTeamId:'A'},{roundNumber:13,winningTeamId:'B'}],playerRounds:[{identity,roundNumber:1,side,loadoutValue:800,spentCredits:500,remainingCredits:100},{identity,roundNumber:13,side:'Defense',loadoutValue:null,spentCredits:null,remainingCredits:null}]}};
@@ -26,3 +26,15 @@ test('round filters use selected team, regulation pistols, overtime and reported
   assert.deepEqual(filterRounds(rounds,'A','defense',playerRounds).map(r=>r.roundNumber),[2]);
 });
 
+
+test('event position inspection returns only the exact source reference and preserves all-round view', () => {
+  const positions=[{sourceRef:'kill-1',x:10,y:20},{sourceRef:'plant-1',x:30,y:40},{sourceRef:'kill-2',x:50,y:60}];
+  assert.deepEqual(filterEventPositions(positions,'kill-1'),[positions[0]]);
+  assert.deepEqual(filterEventPositions(positions,'missing-event'),[]);
+  assert.deepEqual(filterEventPositions(positions,''),positions);
+});
+
+test('position event choices deduplicate paired kill/death rows by exact source reference', () => {
+  const death={sourceRef:'event-1',category:'PLAYER_DEATH'},kill={sourceRef:'event-1',category:'CREDITED_PLAYER_KILL'},plant={sourceRef:'event-2',category:'SPIKE_PLANT'},unlinked={category:'UNKNOWN'};
+  assert.deepEqual(groupPositionEvents([death,kill,plant,unlinked]),[kill,plant]);
+});
