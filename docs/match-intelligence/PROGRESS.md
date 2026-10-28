@@ -155,3 +155,7 @@ GitHub Actions was not run from this local verification. The M8 follow-up later 
 ### Phase boundary
 
 M8 acceptance work is complete. Stop this implementation at M8; no later phase was started.
+
+### Final cross-phase audit — 2026-10-28
+
+M1–M8 implementation and verification evidence has been reviewed against the supplied master prompt. M4 remains partially incomplete: the workspace exposes event-linked round data and discrete positions, but a tactical-map overlay is intentionally withheld pending an approved map layout and verified per-map transform. The audit and diagnostic basis are recorded in [VERIFICATION.md](VERIFICATION.md). M6 still needs a permission-reviewed cohort with enough observed members/matches for useful reference output; M7's baseline is not evidence of predictive coaching quality. No live service or extraction state was changed.

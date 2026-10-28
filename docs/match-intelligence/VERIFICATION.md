@@ -196,3 +196,13 @@ The synthetic dataset intentionally reports only two rounds; its missing second-
 ### Remaining M8 limits
 
 The GitHub Actions workflow was not run. No new live Tracker collection or personal match was used. Match-data quality, useful model performance, and population-level Radiant comparisons remain unproven. M4 tactical map artwork/coordinate overlay remains deferred until matching map art and a validated display transform are available. Existing evidence does not support clutch, utility, exact trade opportunity, movement-path, voice, intent, or other unavailable source fields.
+
+## 2026-10-28 phase-completion audit
+
+All M1–M8 implementation areas were rechecked against the supplied master prompt and current branch. M1–M3 and M5–M8 have implementation and focused verification recorded above. M6 cohort usefulness still depends on adding a sufficiently sized, permission-reviewed real cohort; M7 is a deterministic baseline evaluation and does not establish predictive coaching quality. M8's full Java, PostgreSQL, Node, and isolated browser checks are recorded above; GitHub Actions was not run.
+
+M4 is not fully accepted: the workspace provides round-level event and discrete-coordinate tables but no tactical-map overlay. The official [VALORANT Maps page](https://playvalorant.com/en-us/maps/) was inspected in the ChatGPT in-app browser; its visible map content is promotional carousel imagery, not a tactical layout. Riot's [Public Content Catalog notice](https://support-developer.riotgames.com/hc/en-us/articles/22698769097107-VALORANT) says the catalog contains free-to-use VALORANT assets, but the catalog archive was blocked by the browser download policy, so its exact map-art contents could not be verified.
+
+A read-only aggregate diagnostic applied the apparent affine equation `normalized = raw * multiplier + scalarAdd` to the local five-match export; that equation is not independently verified as a display transform. The resulting points were within [0,1] for all observed positions on two maps, about 52% on another, and about 2% on a fourth. No coordinates or match/player identifiers were copied into this report. This is insufficient to assert correct orientation, bounds, or alignment to map art. Accordingly, adding a tactical overlay would misrepresent source locations.
+
+**Remaining M4 acceptance dependency:** obtain an approved tactical map asset for each supported map and independently validate each source transform's axis orientation, scale, offset, and out-of-bounds semantics against that asset. Until then, discrete source coordinate snapshots remain visible as a table and no map overlay is claimed. No live application, collection state, or admin endpoint was changed for this audit.
