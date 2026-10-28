@@ -251,3 +251,19 @@ Result: **BUILD SUCCESSFUL**. Four PostgreSQL integration tests passed; the opti
 The visual fixture used a temporary loopback-only listener on port 8094 and synthetic `/api` responses. It was stopped after review. The live Observatory on ports 8090/8091 was not restarted or contacted; live extraction remained enabled and archive extraction remained paused. No collection or admin API was called.
 
 **Phase audit:** This completes the outstanding M4 map-overlay item in the M1–M8 implementation. M6 benchmark usefulness still depends on having a permission-reviewed cohort with sufficient imported coverage. M7's deterministic baseline is not evidence of predictive coaching quality. GitHub Actions and a new real-data acceptance run were not performed as part of this M4 follow-up.
+
+### 2026-10-28 M4 evidence-based round filters
+
+The final cross-phase audit found that the M4 round selector lacked the prompt's opening engagement, multi-kill, objective-event and review-finding filters. Added selected-player opening kill/death filters based on a unique earliest timed credited kill, selected-player multi-kill rounds from reported player-round totals, explicit objective event filters, and rounds with findings from the existing owner-scoped analysis endpoint. Review analysis is fetched only when selected. Eco/full-buy categories remain unavailable because the imported records do not classify buys; no category is inferred from raw loadout values.
+
+Actual verification:
+
+- `node --check src/main/resources/static/match-intelligence-workspace.js` — **PASS**.
+- `node --check src/main/resources/static/leaderboard.js` — **PASS**.
+- `node --test src/test/js/match-intelligence-workspace.test.cjs` — **PASS, 8/8**.
+- `node --test src/test/js/*.test.cjs` — **PASS, 58/58**.
+- `git diff --check` — **PASS**.
+
+The focused regressions cover selected-player opening kills/deaths, ambiguous tied earliest kills, multi-kill rounds, explicit plant/objective events and analysis finding rounds. This UI-only change did not alter APIs, authorization, database behavior or extraction. No application restart, Tracker request, production database access or collection/admin API call was made. Visual acceptance for the map overlay is documented above; this focused filter correction was verified with synthetic unit fixtures, not a new browser screenshot.
+
+The final cross-phase regression also reran `.\gradlew.bat test --tests com.valorant.leaderboard.matchintelligence.PostgresMatchIntelligenceIntegrationTest --no-daemon` against the isolated PostgreSQL 17 instance (`127.0.0.1:5435`, database `ranked_observatory_redesign_test`, role `mi_test`): **BUILD SUCCESSFUL; 5 tests, 4 passed, 1 opt-in local sample-import test skipped, 0 failures/errors**. The test instance uses the Windows user environment variables `LEADERBOARD_TEST_DB_URL`, `LEADERBOARD_TEST_DB_USERNAME`, and `LEADERBOARD_TEST_DB_PASSWORD`; no credential value is included in this repository.

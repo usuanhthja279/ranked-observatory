@@ -29,6 +29,40 @@ test('round filters use selected team, regulation pistols, overtime and reported
   assert.deepEqual(filterRounds(rounds,'A','defense',playerRounds).map(r=>r.roundNumber),[2]);
 });
 
+test('round evidence filters identify unique player openings, multi-kills, objectives and review findings', () => {
+  const rounds=[
+    {roundNumber:1,winningTeamId:'A'},
+    {roundNumber:2,winningTeamId:'B'},
+    {roundNumber:3,winningTeamId:'A'},
+    {roundNumber:4,winningTeamId:'B'}
+  ];
+  const playerRounds=[
+    {roundNumber:1,kills:2}, {roundNumber:2,kills:1},
+    {roundNumber:3,kills:0}, {roundNumber:4,kills:3}
+  ];
+  const event=(roundNumber,category,roundTimeRaw,actor,target)=>({roundNumber,category,roundTimeRaw,actor:actor&&{stableKey:actor},target:target&&{stableKey:target}});
+  const events=[
+    event(1,'CREDITED_PLAYER_KILL',100,'player-key','opponent'),
+    event(1,'CREDITED_PLAYER_KILL',200,'teammate','opponent-2'),
+    event(2,'CREDITED_PLAYER_KILL',75,'enemy','player-key'),
+    event(3,'CREDITED_PLAYER_KILL',50,'enemy','player-key'),
+    event(3,'CREDITED_PLAYER_KILL',50,'teammate','enemy-2'),
+    event(4,'PLANT',300,'teammate',null)
+  ];
+  const findings=[{roundNumber:2,title:'Evidence-linked review'}];
+  const filter=(mode)=>filterRounds(rounds,'A',mode,playerRounds,events,'player-key',findings).map(round=>round.roundNumber);
+  assert.deepEqual(filter('opening-kill'),[1]);
+  assert.deepEqual(filter('opening-death'),[2]);
+  assert.deepEqual(filter('multi-kill'),[1,4]);
+  assert.deepEqual(filter('objective'),[4]);
+  assert.deepEqual(filter('plant'),[4]); // only explicitly classified PLANT events count
+  assert.deepEqual(filter('review'),[2]);
+  assert.deepEqual(filterRounds(rounds,'A','opening-death',playerRounds,[
+    event(3,'CREDITED_PLAYER_KILL',50,'enemy','player-key'),
+    event(3,'CREDITED_PLAYER_KILL',50,'teammate','enemy-2')
+  ],'player-key').map(round=>round.roundNumber),[]); // tied earliest events are not assigned as an opening
+});
+
 
 test('event position inspection returns only the exact source reference and preserves all-round view', () => {
   const positions=[{sourceRef:'kill-1',x:10,y:20},{sourceRef:'plant-1',x:30,y:40},{sourceRef:'kill-2',x:50,y:60}];
