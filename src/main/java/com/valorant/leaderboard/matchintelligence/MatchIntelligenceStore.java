@@ -262,16 +262,24 @@ public class MatchIntelligenceStore {
 
   public MatchPage listMatches(String owner, String playerFilter, int page, int size) {
     if (page < 0 || page > 10_000 || size < 1 || size > 100) throw new IllegalArgumentException("Invalid match page or page size.");
-    String filter = playerFilter == null ? null : playerFilter.trim();
-    String where = "j.owner_username=? and jm.version_id is not null and (? is null or lower(jm.selected_player_riot_id)=lower(?))";
+    String filter = playerFilter == null || playerFilter.isBlank() ? null : playerFilter.trim();
+    String where = "j.owner_username=? and jm.version_id is not null";
+    List<Object> parameters = new ArrayList<>();
+    parameters.add(owner);
+    if (filter != null) {
+      where += " and lower(jm.selected_player_riot_id)=lower(?)";
+      parameters.add(filter);
+    }
     long total = db.queryForObject("select count(*) from (select jm.provider,jm.provider_match_id from mi_import_job_matches jm join mi_import_jobs j on j.job_id=jm.job_id where " + where + " group by jm.provider,jm.provider_match_id) owned",
-        Long.class, owner, filter, filter);
+        Long.class, parameters.toArray());
     String sql = "select provider_match_id,quality,selected_player_identity,selected_player_riot_id,selected_player_team_id,summary_json from (" +
         "select jm.provider_match_id,jm.quality,jm.selected_player_identity,jm.selected_player_riot_id,jm.selected_player_team_id,v.summary_json,"+
         "row_number() over(partition by jm.provider,jm.provider_match_id order by j.created_at desc,jm.entry_number desc) as rn,"+
         "v.source_started_at from mi_import_job_matches jm join mi_import_jobs j on j.job_id=jm.job_id join mi_match_versions v on v.version_id=jm.version_id where " + where +
         ") owned where rn=1 order by source_started_at desc nulls last,provider_match_id limit ? offset ?";
-    List<MatchSummary> rows = db.query(sql, summaryRowMapper(), owner, filter, filter, size, page * size);
+    parameters.add(size);
+    parameters.add(page * size);
+    List<MatchSummary> rows = db.query(sql, summaryRowMapper(), parameters.toArray());
     return new MatchPage(page, size, total, rows);
   }
 

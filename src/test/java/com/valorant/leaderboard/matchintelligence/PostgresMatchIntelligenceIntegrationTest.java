@@ -36,6 +36,12 @@ class PostgresMatchIntelligenceIntegrationTest {
       var store=new MatchIntelligenceStore(db,mapper,new MatchExportParser(mapper),new DataSourceTransactionManager(source),90);
       String payload=MatchIntelligenceFixtures.JSON.writeValueAsString(MatchIntelligenceFixtures.export(2,2));
       var first=store.importExport("synthetic-owner",payload.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+      var allMatches=store.listMatches("synthetic-owner",null,0,20);
+      assertEquals(1,allMatches.total());
+      assertEquals(MatchIntelligenceFixtures.MATCH_ID,allMatches.matches().getFirst().providerMatchId());
+      var playerMatches=store.listMatches("synthetic-owner",MatchIntelligenceFixtures.PLAYER,0,20);
+      assertEquals(1,playerMatches.total());
+      assertEquals(0,store.listMatches("synthetic-owner","Other#TAG",0,20).total());
       int eventCount=db.queryForObject("select count(*) from mi_match_events",Integer.class);
       var second=store.importExport("synthetic-owner",payload.getBytes(java.nio.charset.StandardCharsets.UTF_8));
       assertEquals("COMPLETE",first.status()); assertEquals("COMPLETE",second.status());

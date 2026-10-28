@@ -53,11 +53,11 @@ The browser bridge accepts requests only from the local Observatory origin and a
 - Resume checkpoints are local to the browser profile, may include private full match response data, expire after 30 days, and should not be shared. A storage/quota failure is reported while the active run continues without resume protection.
 - The latest packaged extension must be reloaded from `build/tracker-collector-extension`; the running Observatory on 8090 has intentionally not been restarted to preserve its active extraction.
 
-M4 followed in sequence; M6–M8 remain unstarted after the M5 completion recorded below.
+M4 followed in sequence; M6–M8 were subsequently implemented and verified as recorded below.
 
 ## Phase M4 — Backend-backed Match Analysis workspace
 
-**Complete.** Added an account-wide `/match-analysis` route and primary navigation entry plus a Player Profile integration. The workspace reads only the existing owner-scoped match list/detail APIs. It reports source-backed match, score, K/D/A, ACS/ADR, opening summary, map/agent usage, pistol and recorded-economy coverage, with small-sample and unavailable labels. Match detail has keyboard-operable Overview, Rounds, Timeline, Economy, Team Analysis and Coaching tabs; round selection and filters include outcomes, regulation pistols, overtime and reported attack/defense side. The detail exposes team/agent roster, provenance, validation quality, source availability, round records, event categories, raw source time units and coordinate snapshots. It does not infer buy categories or tactical conclusions.
+**Core workspace complete; tactical map visualization deferred.** Added an account-wide `/match-analysis` route and primary navigation entry plus a Player Profile integration. The workspace reads only the existing owner-scoped match list/detail APIs. It reports source-backed match, score, K/D/A, ACS/ADR, opening summary, map/agent usage, pistol and recorded-economy coverage, with small-sample and unavailable labels. Match detail has keyboard-operable Overview, Rounds, Timeline, Economy, Team Analysis and Coaching tabs; round selection and filters include outcomes, regulation pistols, overtime and reported attack/defense side. The detail exposes team/agent roster, provenance, validation quality, source availability, round records, event categories, raw source time units and coordinate snapshots. It does not infer buy categories or tactical conclusions.
 
 No map plot is shown: the source data may contain coordinates, but a matching map asset and validated display transform were not established. Positions remain a table of discrete observations, never continuous paths. Coaching explicitly remains unavailable until M5. The page uses the shared Observatory shell and responsive table scrolling. No backend workflow or permissions changed.
 
@@ -71,7 +71,7 @@ No map plot is shown: the source data may contain coordinates, but a matching ma
 
 ### Limitations
 
-M4 has not been authenticated against a running Spring backend in a browser session. Existing H2 Spring and native PostgreSQL API tests cover authorization and persisted values, while the browser’s connected-record UI was exercised with synthetic responses. The production-like map plot and event-coordinate visualization are not available.
+The M4 module has since been authenticated in a real browser against an isolated Spring service and native PostgreSQL schema using a synthetic two-round import; see the M8 follow-up in [VERIFICATION.md](VERIFICATION.md). A map plot remains deferred because no matching map artwork plus verified coordinate display transform has been established. Position observations remain a table rather than a fabricated map overlay.
 
 ## Phase M5 — Deterministic tactical analysis
 
@@ -85,12 +85,12 @@ Clutches, exact trade opportunity, visibility, movement paths, utility value, vo
 - `node --check src/main/resources/static/match-intelligence-workspace.js` — passed.
 - `node --test src/test/js/match-analyzer.test.cjs src/test/js/match-intelligence-client.test.cjs src/test/js/match-intelligence-workspace.test.cjs src/test/js/tracker-network-analysis.test.cjs` — 17 passed.
 - No schema change or database migration was required. Existing PostgreSQL M2 tests were not rerun for this phase because M5 only analyzes an already owner-authorized canonical record and does not change persistence; the new route is covered by the focused Spring/H2 authorization regression.
-- The running port-8090 service was not restarted to preserve live extraction. Browser-backed authenticated data for the new coaching report was not available from the static-only source preview; the report renderer is wired to the endpoint but remains pending live application acceptance.
+- The running port-8090 service was not restarted to preserve live extraction. Browser-backed authenticated coaching data was later verified against the isolated native PostgreSQL service with a synthetic import; this does not constitute a live-source match-quality claim.
 - ChatGPT in-app browser synthetic fixture verified the M5 Coaching report on desktop and mobile. The report version, loadout caveat, source-linked finding and unavailable-analysis list rendered. At a 390px mobile frame, the document remained 375 CSS px wide (viewport 390px including vertical scrollbar), with tabs contained in their own horizontal scroller. The screenshot inspection exposed touching category/round labels; the spacing was fixed and rechecked. This is synthetic UI verification, not authenticated backend browser acceptance.
 
 ### Phase boundary
 
-M5 is complete. M6 contextual benchmarks and cohort/sample adequacy are next; M7 ML and M8 integrated release verification remain unstarted.
+M5 implementation is complete. M6 contextual benchmarks, M7 model evaluation, and M8 integrated verification are recorded below.
 
 ### M5 correction — restore the owner-selected player perspective
 
@@ -119,7 +119,7 @@ No high-rank cohort was collected or verified. `OWNER_REPORTED_PERMISSION` and r
 
 ### Phase boundary
 
-M6 is complete. M7 model evaluation/AI explanations and M8 end-to-end release-readiness audit remain unstarted.
+M6 implementation is complete. M7 model evaluation and M8 end-to-end release-readiness audit are recorded below.
 
 
 ## Phase M7 — Reviewer annotations and evaluated pre-round baseline
@@ -132,7 +132,7 @@ Synthetic tests cover deterministic grouped evaluation, future-outcome feature i
 
 ### Phase boundary
 
-M7 is complete. M8 end-to-end verification and release-readiness audit is in progress.
+M7 implementation is complete. M8 end-to-end verification and release-readiness audit follows below.
 
 ## Phase M8 — Integrated verification and release-readiness audit
 
@@ -150,7 +150,7 @@ M7 is complete. M8 end-to-end verification and release-readiness audit is in pro
 
 ### Remaining limits
 
-GitHub Actions was not run from this local verification. No authenticated Match analysis account journey, live Tracker collection, or personal-match capture was performed in M8. Baseline evaluation and collector input fixtures are synthetic; they do not establish predictive coaching quality or support unavailable tactical fields. Full interactive match review and production readiness still require the app owner's authenticated review and source-data quality assessment. No deployment or merge was performed.
+GitHub Actions was not run from this local verification. The M8 follow-up later completed an authenticated Match Analysis browser journey against an isolated PostgreSQL-backed Spring service using only a synthetic fixture; it did not make a live Tracker collection or personal-match capture. Baseline evaluation and collector input fixtures are synthetic; they do not establish predictive coaching quality or support unavailable tactical fields. Full interactive review of real imported matches and source-data quality remains an owner acceptance item. No deployment or merge was performed.
 
 ### Phase boundary
 

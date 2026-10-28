@@ -168,3 +168,31 @@ Browser verification:
 - The temporary app used extraction disabled and its own `mi_m8_smoke` schema on port 8093. Port 8090 was left running and untouched; live extraction stayed enabled, archive extraction stayed paused.
 
 M8 fixes were made for empty snapshot comparisons (`null`/`undefined`) and for the Match analysis route's dependency on unrelated leaderboard APIs. The Gradle wrapper executable mode was corrected for Linux CI invocation. GitHub Actions itself was not run. There was no authenticated Match analysis flow, fresh live Tracker collection, or model-quality claim in this acceptance pass. No merge or deployment was performed.
+
+## M8 follow-up — PostgreSQL list query and authenticated browser journey
+
+A post-acceptance audit found that the unfiltered Match Intelligence list query used `? IS NULL` for a null player filter. PostgreSQL cannot infer the null parameter type and returned HTTP 500, although H2 did not expose the issue. The query now adds the player predicate only when a nonblank player filter is supplied. A native PostgreSQL regression covers all-match listing, selected-player listing, and a player with no matches.
+
+Focused database command:
+
+```powershell
+$env:JAVA_HOME='C:\Users\usuan\.jdks\dragonwell-21.0.12'
+$env:Path="$env:JAVA_HOME\bin;$env:Path"
+# LEADERBOARD_TEST_DB_URL/USERNAME/PASSWORD were loaded from ignored local test credentials.
+.\gradlew.bat test --tests com.valorant.leaderboard.matchintelligence.PostgresMatchIntelligenceIntegrationTest --no-daemon
+```
+
+Result: **BUILD SUCCESSFUL** against PostgreSQL 17 on `127.0.0.1:5435`, using a uniquely named schema. The list-query regression passed with the existing persistence, cohort, rollback, and concurrent-import tests. The same null-typed query that previously caused PostgreSQL's `could not determine data type of parameter $2` is no longer emitted.
+
+Authenticated UI acceptance used a separate Spring service on loopback port 8093, dedicated schema `mi_m4_e2e`, extraction disabled, and one generated synthetic two-round fixture. A test-only owner signed in through the normal session endpoint; the browser then loaded the real `/match-analysis` page and its authenticated APIs. Overview, Rounds, Timeline, Economy, Team Analysis, Coaching and Expert Review tabs loaded; round switching and the recorded-economy table worked. The desktop viewport was 1440 × 900 and mobile was 390 × 844. Measured document widths were 1440/1440 desktop and 390/390 mobile; no browser exceptions or HTTP 5xx responses occurred during the successful run.
+
+Actual Playwright screenshots, inspected after capture and kept outside Git under ignored build output:
+
+- `build/mi_m4_e2e/authenticated-match-analysis-desktop.png`
+- `build/mi_m4_e2e/authenticated-match-analysis-mobile.png`
+
+The synthetic dataset intentionally reports only two rounds; its missing second-round player details remained labeled “Not reported.” The Coaching report's unavailable evidence remained visible. This verifies the application journey and honest missing-data presentation, not a real Tracker match or coaching quality. The in-app browser separately confirmed the live Match Analysis shell and unauthenticated sign-in-required state. No Tracker or collection/admin endpoint was called. Port 8090 was not restarted or altered.
+
+### Remaining M8 limits
+
+The GitHub Actions workflow was not run. No new live Tracker collection or personal match was used. Match-data quality, useful model performance, and population-level Radiant comparisons remain unproven. M4 tactical map artwork/coordinate overlay remains deferred until matching map art and a validated display transform are available. Existing evidence does not support clutch, utility, exact trade opportunity, movement-path, voice, intent, or other unavailable source fields.
