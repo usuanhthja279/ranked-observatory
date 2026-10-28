@@ -132,3 +132,37 @@ Results: JavaScript syntax passed, 17 focused Node tests passed, and diff check 
 The focused M7 run completed successfully against the isolated PostgreSQL 5435 test database. The M7 tests covered the pre-round baseline's deterministic match-grouped split and metrics, no future-result leakage, and insufficient-evidence response; Spring endpoint auth/CSRF and annotation revision behavior; and PostgreSQL V1–V13 annotation persistence, stale correction conflict, append-only withdrawal, and owner cleanup. The full M8 run below reran all Java tests after adding explicit transaction rollback and simultaneous duplicate-import coverage.
 
 The Expert review panel was opened and inspected in the ChatGPT in-app browser against the ignored synthetic preview. It showed the privacy/evidence warning, round and event selection, tactical judgment, and reviewer reason controls. This was UI presentation verification only; the preview did not call a real authenticated annotation API. Predictive metrics in the unit tests used synthetic outcomes and are not a claim of useful real-match prediction.
+
+## M8 integrated acceptance and release-readiness verification
+
+Full command:
+
+```powershell
+$env:JAVA_HOME='C:\Users\usuan\.jdks\dragonwell-21.0.12'
+$env:Path="$env:JAVA_HOME\bin;$env:Path"
+# PostgreSQL credentials were loaded from the ignored local pgpass file.
+.\gradlew.bat test --no-daemon
+```
+
+Result: **BUILD SUCCESSFUL; 82 tests, 0 failures, 0 errors, 2 opt-in tests skipped.** Native PostgreSQL integration tests used `127.0.0.1:5435/ranked_observatory_redesign_test`, isolated schemas, and Flyway through V13. They covered V1–V2 migration paths, multipage persistence/conflicts, scanned asset authorization, preflight persistence/history, customer/designer/owner permissions, acknowledgement authorization, immutable approval, annotation ownership/revisions, late SQL failure rollback, and concurrent duplicate imports. The two skips are explicitly opt-in tests, not reported as passing.
+
+Frontend and collector checks:
+
+```powershell
+node --test src/test/js/*.test.cjs
+node --check src/main/resources/static/leaderboard.js
+node --check scripts/leaderboard/browser-smoke.cjs
+python scripts/leaderboard/test_tracker_collector_extension.py --network-only --target-count 5
+python scripts/leaderboard/test_tracker_collector_extension.py
+ git diff --check
+```
+
+Results: 52 Node tests passed; syntax checks and diff check passed. Both collector commands passed using synthetic/intercepted response bodies; the full harness covered explicit-request gating, background-tab behavior, bounded queue, JSON export, deduplication, partial invalid data, and safe stop for HTTP 403/429. No real Tracker collection was initiated.
+
+Browser verification:
+
+- `node scripts/leaderboard/browser-smoke.cjs` against the isolated app at `http://127.0.0.1:8093`: **90 route/viewport checks passed**, including `/match-analysis`, search keyboard behavior and region-tab keyboard navigation. Desktop/mobile screenshots are retained in ignored `build/m8-browser-smoke/` (`overview-desktop.png`, `region-mobile.png`, `trends-mobile.png`) and were visually inspected. They are synthetic/isolated-app evidence, not authenticated account screenshots.
+- ChatGPT in-app browser opened `/match-analysis` on the same isolated app and confirmed the sign-in-required state with no authenticated match data. Back and Forward navigation between Match analysis and Watchlist worked.
+- The temporary app used extraction disabled and its own `mi_m8_smoke` schema on port 8093. Port 8090 was left running and untouched; live extraction stayed enabled, archive extraction stayed paused.
+
+M8 fixes were made for empty snapshot comparisons (`null`/`undefined`) and for the Match analysis route's dependency on unrelated leaderboard APIs. The Gradle wrapper executable mode was corrected for Linux CI invocation. GitHub Actions itself was not run. There was no authenticated Match analysis flow, fresh live Tracker collection, or model-quality claim in this acceptance pass. No merge or deployment was performed.

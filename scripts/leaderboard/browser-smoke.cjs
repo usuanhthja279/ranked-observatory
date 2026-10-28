@@ -12,7 +12,7 @@ const viewports = [
 ];
 const routes = [
   '/overview', '/regions/ap', '/countries', '/leaderboard', '/trends',
-  '/archive', '/compare', '/watchlist', '/settings'
+  '/archive', '/compare', '/watchlist', '/settings', '/match-analysis'
 ];
 
 async function main() {
@@ -32,6 +32,10 @@ async function main() {
         const response = await page.goto(new URL(route, base).toString(), { waitUntil: 'domcontentloaded' });
         if (!response || response.status() >= 400) throw new Error(`${route} returned HTTP ${response?.status() ?? 'no response'}`);
         await page.locator('#pageTitle').waitFor({ state: 'visible' });
+        if (route === '/match-analysis') {
+          await page.waitForFunction(() => document.querySelector('#pageTitle')?.innerText.trim() === 'Match analysis');
+          if (!await page.locator('#matchAnalysisPageWorkspace').isVisible()) throw new Error('Match analysis route did not show its workspace');
+        }
         await page.waitForTimeout(100);
         const result = await page.evaluate(() => ({
           viewport: document.documentElement.clientWidth,

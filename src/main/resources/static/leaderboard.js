@@ -3,7 +3,8 @@ const $=id=>document.getElementById(id);
 const esc=value=>String(value??'—').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const time=v=>v?new Date(v).toLocaleString():'—';
 const fmt=v=>v==null?'—':Number(v).toLocaleString();
-const params=new URLSearchParams(location.search),view=params.get('view')||(location.pathname==='/leaderboard'?'global':location.pathname==='/players'?'profile':location.pathname==='/trends'?'trends':location.pathname==='/archive'?'archive':location.pathname==='/compare'?'compare':location.pathname==='/watchlist'?'watchlist':location.pathname==='/settings'?'settings':'world');
+const sameSnapshot=(a,b)=>(a??null)===(b??null);
+const params=new URLSearchParams(location.search),view=params.get('view')||(location.pathname==='/leaderboard'?'global':location.pathname==='/players'?'profile':location.pathname==='/trends'?'trends':location.pathname==='/archive'?'archive':location.pathname==='/compare'?'compare':location.pathname==='/watchlist'?'watchlist':location.pathname==='/settings'?'settings':location.pathname==='/match-analysis'?'match-analysis':'world');
 let selectedAct=params.get('act')||'';let currentAct='';
 const playerPageSize=view==='country'||view==='global'?10:20;
 const playerSorts=new Set(['globalRank','regionalRank','name','country','tier','rr','rrChange','updated']);
@@ -376,7 +377,7 @@ function renderTrends(){
  if(mainSelection)showSelectedPlayer(mainSelection.player,mainSelection.region,false,false);if(view==='world'&&overviewSelection)showSelectedPlayer(overviewSelection.player,overviewSelection.region,false,false,true);
 
 }
-async function refresh(){const version=++generation;try{
+async function refresh(){const version=++generation;if(view==='match-analysis'){setScope();return;}try{
  if(view==='countries'){await globalThis.loadCountriesDirectory?.();return;}
  if(view==='profile'){await refreshPlayerProfilePage(version);return;}
  if(view==='trends'){await refreshTrendsPage(version);return;}
@@ -389,14 +390,14 @@ async function refresh(){const version=++generation;try{
  if(view==='country'){await refreshCountryPage(version);return;}
  const detailed=view!=='world'||region!=='all',filter=new URLSearchParams({region,country}),statusRequest=api('status');
  const [status,countries,regions,result,trends,modelEvidence,confidence,boundary]=await Promise.all([statusRequest,detailed?api('countries?'+new URLSearchParams({region,country:'all'})):[],api('regions?country=all'),detailed?api('players?'+filter+'&'+new URLSearchParams({page,size:playerPageSize,search})):{items:[],total:0},detailed?api('trends?'+new URLSearchParams({region,country:view==='world'?(worldTrendCountry||'all'):view==='region'?moverCountry:country,minutes:trendMinutes,direction})):{points:[],regionPoints:[],movers:[],snapshotCount:0},detailed&&($('estimateToggle').checked||$('currentEstimateToggle').checked)?api('country-model'):statusRequest.then(s=>data?.modelEvidence?.policyVersion===3&&data.modelEvidence.snapshotId===s.latestSnapshot[0]?.id?data.modelEvidence:{snapshotId:s.latestSnapshot[0]?.id}),api('confidence?'+filter),view==='world'?null:api('boundary-signals?'+filter).catch(()=>null)]);if(version!==generation)return;
- if(modelEvidence.snapshotId!==status.latestSnapshot[0]?.id)throw new Error('Snapshot changed while loading country estimates. Refresh to load a consistent comparison.');
+ if(!sameSnapshot(modelEvidence.snapshotId,status.latestSnapshot[0]?.id))throw new Error('Snapshot changed while loading country estimates. Refresh to load a consistent comparison.');
  const evidenceRows=CountryModel.inputRows(modelEvidence,region);
  if(region!=='all')for(const c of evidenceRows){const raw=countries.find(r=>r.country===c.country);if(!raw||numericColumns.some(k=>Number(raw[k]||0)!==Number(c[k]||0)))throw new Error('Snapshot changed while loading country estimates. Refresh to retry.');}
  for(const r of modelEvidence.recoveries||[])if(r.region===region&&!countries.some(c=>c.country===r.country))countries.push({country:r.country,players:0,radiant:0,immortal3:0,immortal2:0,immortal1:0});
  const countryActivity=data?.countryActivity;data={status,countries,regions,result,trends,modelEvidence,countryActivity,confidence};countryNames=status.countries;regionNames=status.regions;$('message').textContent='';$('lastUpdated').textContent=time(status.latestSnapshot[0]?.completed_at);
  const completed=status.latestSnapshot[0]?.completed_at,age=completed?(Date.now()-new Date(completed).getTime())/60000:Infinity;
  $('dataFreshness').textContent=completed?`${age>40?'Data is delayed. ':''}Time filters end at the latest complete snapshot: ${time(completed)}, not the current time. ${status.running?'Collection is in progress; results appear after completion.':status.enabled?'Collection is scheduled every 20 minutes.':'Collection is disabled.'}`:'Waiting for the first complete snapshot.';
- if(confidence.snapshot_id!==status.latestSnapshot[0]?.id)throw new Error('Snapshot changed; confidence will refresh automatically.');
+ if(!sameSnapshot(confidence.snapshot_id,status.latestSnapshot[0]?.id))throw new Error('Snapshot changed; confidence will refresh automatically.');
  renderConfidence(status,confidence);
  setScope();renderTables();renderTrends();renderBoundaryWatch(boundary);if(previewCountry)showCountryPreview(previewCountry,false);
  globalThis.observatoryRegionData={view,region,summary:regions.find(r=>r.region===region)||null,boundary:countries.find(c=>c.radiant_threshold!=null)?.radiant_threshold??null,archive:Boolean(status.archiveOnly)};globalThis.dispatchEvent(new CustomEvent('observatory:region-data',{detail:globalThis.observatoryRegionData}));
@@ -431,7 +432,7 @@ async function refreshArchived(version){
 }
 async function refreshGlobalPage(version){
   const [status,result,confidence]=await Promise.all([api('status'),api('players?'+new URLSearchParams({region:'all',country:'all',page,size:10,search,sort:sortKey,direction:sortDirection})),api('confidence')]);if(version!==generation)return;
- if(confidence.snapshot_id!==status.latestSnapshot[0]?.id)throw new Error('Snapshot changed; refresh to load the latest data.');
+ if(!sameSnapshot(confidence.snapshot_id,status.latestSnapshot[0]?.id))throw new Error('Snapshot changed; refresh to load the latest data.');
  const lastPage=Math.max(1,Math.ceil(Number(result.total||0)/10));if(page>lastPage){page=lastPage;syncGlobalUrl(false);return refreshGlobalPage(version);}
  data={status,result,confidence,countries:[],regions:[],modelEvidence:{snapshotId:status.latestSnapshot[0]?.id},trends:{points:[],regionPoints:[],movers:[],snapshotCount:0}};countryNames=status.countries;regionNames=status.regions;
  $('lastUpdated').textContent=time(status.latestSnapshot[0]?.completed_at);$('message').textContent='';setScope();renderTables();renderConfidence(status,confidence);
@@ -452,7 +453,7 @@ async function refreshTrendsPage(version){
 async function refreshCountryPage(version){
  const [status,core]=await Promise.all([api('status'),api('country-page?'+new URLSearchParams({region,country,page,search}))]);
  if(version!==generation)return;
- if(core.snapshotId!==status.latestSnapshot[0]?.id)throw new Error('Snapshot changed while loading. Refresh to load the latest data.');
+ if(!sameSnapshot(core.snapshotId,status.latestSnapshot[0]?.id))throw new Error('Snapshot changed while loading. Refresh to load the latest data.');
  const old=data,modelEvidence=old?.modelEvidence?.snapshotId===core.snapshotId?old.modelEvidence:{snapshotId:core.snapshotId};
  data={status,countries:core.countries,regions:[],result:core.players,trends:{points:[],regionPoints:[],movers:[],snapshotCount:0},modelEvidence,countryActivity:old?.countryActivity,confidence:core.confidence};
  countryNames=status.countries;regionNames=status.regions;$('message').textContent='';$('lastUpdated').textContent=time(status.latestSnapshot[0]?.completed_at);
@@ -465,7 +466,7 @@ async function refreshCountryPage(version){
  api('boundary-signals?'+filter).then(boundary=>{if(version===generation)renderBoundaryWatch(boundary);}).catch(()=>{});
  if(($('estimateToggle').checked||$('currentEstimateToggle').checked)&&data.modelEvidence.policyVersion!==3){
    const evidence=await api('country-model');if(version!==generation)return;
-   if(evidence.snapshotId!==core.snapshotId)throw new Error('Snapshot changed while loading estimates. Refresh to retry.');
+   if(!sameSnapshot(evidence.snapshotId,core.snapshotId))throw new Error('Snapshot changed while loading estimates. Refresh to retry.');
    data.modelEvidence=evidence;renderTables();
  }
 }

@@ -132,3 +132,25 @@ Synthetic tests cover deterministic grouped evaluation, future-outcome feature i
 ### Phase boundary
 
 M7 is complete. M8 end-to-end verification and release-readiness audit is in progress.
+
+## Phase M8 — Integrated verification and release-readiness audit
+
+**Complete for the implemented M1–M8 scope.** The empty-database Match analysis route now loads independently of leaderboard snapshot/confidence APIs, normalizes empty snapshot comparisons, and is included in the browser smoke route matrix. The Linux executable bit on `gradlew` was corrected so CI runners can invoke the wrapper. M8 adds PostgreSQL transaction rollback coverage for late import failure and concurrent duplicate-import coverage: one canonical match/version is retained while both import jobs complete.
+
+### Verification performed
+
+- Full Java/Gradle suite on Java 21 with the isolated native PostgreSQL test database: **BUILD SUCCESSFUL; 82 tests, 0 failures, 0 errors, 2 opt-in tests skipped**. The PostgreSQL integration suite exercised migrations through V13, late-failure transaction rollback, concurrent duplicate imports, and the M7 annotation/ownership cases. No Docker was used.
+- Focused PostgreSQL integration and Spring authorization/lifecycle tests passed. The PostgreSQL database was isolated on port 5435 and used unique test schemas; production/local port 5432 and the live Observatory database were not used.
+- `node --test src/test/js/*.test.cjs`: **52 passed, 0 failed**. Browser JavaScript and smoke-script syntax checks passed. `git diff --check` passed.
+- `python scripts/leaderboard/test_tracker_collector_extension.py --network-only --target-count 5`: passed with intercepted synthetic responses. The full synthetic collector harness also passed its explicit-request, background-tab, bounded capture, JSON export, deduplication, partial-invalid-data, 403 and 429 cases. This does not represent a fresh live Tracker collection.
+- `scripts/leaderboard/browser-smoke.cjs` against the isolated app on port 8093: **90 route/viewport checks passed**, including Match analysis. Desktop and mobile smoke screenshots were saved under ignored `build/m8-browser-smoke/` and inspected; no viewport overflow or obvious clipping was found in the captured views.
+- ChatGPT in-app browser opened the isolated Match analysis route and verified its unauthenticated sign-in-required state, then verified browser Back/Forward navigation. This is real application route verification, not an authenticated customer journey.
+- The isolated port-8093 app used its own `mi_m8_smoke` schema with extraction disabled. Port 8090 was not restarted or sent collection/admin requests; live extraction remained enabled and archive extraction remained paused.
+
+### Remaining limits
+
+GitHub Actions was not run from this local verification. No authenticated Match analysis account journey, live Tracker collection, or personal-match capture was performed in M8. Baseline evaluation and collector input fixtures are synthetic; they do not establish predictive coaching quality or support unavailable tactical fields. Full interactive match review and production readiness still require the app owner's authenticated review and source-data quality assessment. No deployment or merge was performed.
+
+### Phase boundary
+
+M8 acceptance work is complete. Stop this implementation at M8; no later phase was started.
