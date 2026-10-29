@@ -16,8 +16,12 @@ final class FlareSolverrClient implements AutoCloseable {
   private final ObjectMapper mapper;
   private final HttpClient http;
   private final URI endpoint;
-  private final String session="observatory-"+UUID.randomUUID();
+  private String session=newSessionId();
   private boolean sessionCreated;
+  private static String newSessionId(){return "observatory-"+UUID.randomUUID();}
+  private static final class InvalidBrowserSession extends IllegalStateException {
+    InvalidBrowserSession(){super("FlareSolverr browser session is no longer valid");}
+  }
 
   FlareSolverrClient(ObjectMapper mapper,HttpClient http,String baseUrl){
     this.mapper=mapper;this.http=http;
@@ -36,13 +40,19 @@ final class FlareSolverrClient implements AutoCloseable {
     if(!"https".equalsIgnoreCase(requested.getScheme())||!"tracker.gg".equalsIgnoreCase(requested.getHost())
         ||!"/valorant/leaderboards/ranked/all/default".equals(requested.getPath())||requested.getUserInfo()!=null)
       throw new IllegalArgumentException("Invalid leaderboard source URL");
-    if(!sessionCreated){
-      JsonNode created=post(Map.of("cmd","sessions.create","session",session),Duration.ofSeconds(70));
-      if(!"ok".equals(created.path("status").asText())||!session.equals(created.path("session").asText()))
-        throw new IllegalStateException("FlareSolverr could not create the local browser session");
-      sessionCreated=true;
+    JsonNode result=null;
+    for(int attempt=0;attempt<2;attempt++){
+      ensureSession();
+      try{
+        result=post(Map.of("cmd","request.get","url",target,"session",session,"maxTimeout",60000),Duration.ofSeconds(75));
+        if("error".equals(result.path("status").asText())&&isInvalidSession(result))throw new InvalidBrowserSession();
+        break;
+      }catch(InvalidBrowserSession error){
+        destroySession();
+        session=newSessionId();
+        if(attempt==1)throw new IllegalStateException("FlareSolverr browser session remains invalid after one recovery",error);
+      }
     }
-    JsonNode result=post(Map.of("cmd","request.get","url",target,"session",session,"maxTimeout",60000),Duration.ofSeconds(75));
     if(!"ok".equals(result.path("status").asText()))
       throw new TrackerLeaderboardClient.SourceAccessDenied("FlareSolverr could not obtain the leaderboard page; browser verification or the local service did not complete.",true);
     JsonNode solution=result.path("solution");int status=solution.path("status").asInt(0);
@@ -56,23 +66,41 @@ final class FlareSolverrClient implements AutoCloseable {
     return html.asText();
   }
 
+  private void ensureSession()throws Exception {
+    if(sessionCreated)return;
+    JsonNode created=post(Map.of("cmd","sessions.create","session",session),Duration.ofSeconds(70));
+    if(!"ok".equals(created.path("status").asText())||!session.equals(created.path("session").asText()))
+      throw new IllegalStateException("FlareSolverr could not create the local browser session");
+    sessionCreated=true;
+  }
+  private static boolean isInvalidSession(JsonNode response){
+    return response.path("message").asText("").toLowerCase(java.util.Locale.ROOT).contains("invalid session id");
+  }
+
   private JsonNode post(Map<String,Object> payload,Duration timeout)throws Exception {
     byte[] json=mapper.writeValueAsBytes(payload);
     var request=HttpRequest.newBuilder(endpoint).timeout(timeout).header("Content-Type","application/json")
         .POST(HttpRequest.BodyPublishers.ofByteArray(json)).build();
     var response=http.send(request,HttpResponse.BodyHandlers.ofInputStream());
     try(var body=response.body()){
-      if(response.statusCode()!=200)throw new IllegalStateException("Local FlareSolverr returned HTTP "+response.statusCode());
       byte[] bytes=body.readNBytes(MAX_RESPONSE_BYTES+1);
       if(bytes.length>MAX_RESPONSE_BYTES)throw new IllegalStateException("Local FlareSolverr response exceeded the size limit");
+      if(response.statusCode()!=200){
+        if(response.statusCode()==500){
+          try{JsonNode error=mapper.readTree(bytes);if(error!=null&&"error".equals(error.path("status").asText())&&isInvalidSession(error))throw new InvalidBrowserSession();}
+          catch(com.fasterxml.jackson.core.JsonProcessingException ignored){/* Do not expose the response body. */}
+        }
+        throw new IllegalStateException("Local FlareSolverr returned HTTP "+response.statusCode());
+      }
       return mapper.readTree(bytes);
     }
   }
 
-  @Override public synchronized void close(){
+  private void destroySession(){
     if(!sessionCreated)return;
     try{post(Map.of("cmd","sessions.destroy","session",session),Duration.ofSeconds(10));}
     catch(Exception ignored){/* The local service may already have stopped. */}
     sessionCreated=false;
   }
+  @Override public synchronized void close(){destroySession();}
 }

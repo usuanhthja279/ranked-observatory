@@ -137,6 +137,45 @@ class TrackerLeaderboardClientTest {
     org.mockito.Mockito.verify(http,org.mockito.Mockito.times(2)).send(org.mockito.ArgumentMatchers.any(java.net.http.HttpRequest.class),org.mockito.ArgumentMatchers.<java.net.http.HttpResponse.BodyHandler<java.io.InputStream>>any());
     assertThrows(IllegalArgumentException.class,()->solver.fetch("https://example.com/valorant/leaderboards/ranked/all/default"));
   }
+  @Test void flareSolverrRecreatesAnInvalidBrowserSessionOnce()throws Exception {
+    var http=org.mockito.Mockito.mock(java.net.http.HttpClient.class);var mapper=new ObjectMapper();
+    var solver=new FlareSolverrClient(mapper,http,"http://127.0.0.1:8191");
+    String original=(String)org.springframework.test.util.ReflectionTestUtils.getField(solver,"session");
+    String target="https://tracker.gg/valorant/leaderboards/ranked/all/default?platform=pc&region=ap&act="+ACT+"&country=in&page=1";
+    String expectedHtml=html("in",0,player());var calls=new java.util.concurrent.atomic.AtomicInteger();
+    org.mockito.Mockito.when(http.send(org.mockito.ArgumentMatchers.any(java.net.http.HttpRequest.class),org.mockito.ArgumentMatchers.<java.net.http.HttpResponse.BodyHandler<java.io.InputStream>>any())).thenAnswer(ignored->{
+      int call=calls.incrementAndGet();
+      if(call==1||call==4){String current=(String)org.springframework.test.util.ReflectionTestUtils.getField(solver,"session");return solverResponse(200,mapper.writeValueAsString(java.util.Map.of("status","ok","session",current)));}
+      if(call==2||call==3)return solverResponse(500,"{\"status\":\"error\",\"message\":\"invalid session id\"}");
+      if(call==5)return solverResponse(200,mapper.writeValueAsString(java.util.Map.of("status","ok","solution",java.util.Map.of("status",200,"url",target,"response",expectedHtml))));
+      throw new AssertionError("Unexpected local service request");
+    });
+    assertEquals(expectedHtml,solver.fetch(target));assertEquals(5,calls.get());
+    assertNotEquals(original,org.springframework.test.util.ReflectionTestUtils.getField(solver,"session"));
+  }
+  @Test void flareSolverrDoesNotRetryOtherHttp500Errors()throws Exception {
+    var http=org.mockito.Mockito.mock(java.net.http.HttpClient.class);var mapper=new ObjectMapper();
+    var solver=new FlareSolverrClient(mapper,http,"http://127.0.0.1:8191");
+    String session=(String)org.springframework.test.util.ReflectionTestUtils.getField(solver,"session");
+    var created=solverResponse(200,mapper.writeValueAsString(java.util.Map.of("status","ok","session",session)));
+    var error=solverResponse(500,"{\"status\":\"error\",\"message\":\"unexpected server failure\"}");
+    org.mockito.Mockito.when(http.send(org.mockito.ArgumentMatchers.any(java.net.http.HttpRequest.class),org.mockito.ArgumentMatchers.<java.net.http.HttpResponse.BodyHandler<java.io.InputStream>>any())).thenReturn(created,error);
+    var failure=assertThrows(IllegalStateException.class,()->solver.fetch("https://tracker.gg/valorant/leaderboards/ranked/all/default?platform=pc&region=ap&act="+ACT+"&page=1"));
+    assertEquals("Local FlareSolverr returned HTTP 500",failure.getMessage());
+    org.mockito.Mockito.verify(http,org.mockito.Mockito.times(2)).send(org.mockito.ArgumentMatchers.any(java.net.http.HttpRequest.class),org.mockito.ArgumentMatchers.<java.net.http.HttpResponse.BodyHandler<java.io.InputStream>>any());
+  }
+  @Test void flareSolverrStopsAfterOneInvalidSessionRecovery()throws Exception {
+    var http=org.mockito.Mockito.mock(java.net.http.HttpClient.class);var mapper=new ObjectMapper();
+    var solver=new FlareSolverrClient(mapper,http,"http://127.0.0.1:8191");var calls=new java.util.concurrent.atomic.AtomicInteger();
+    org.mockito.Mockito.when(http.send(org.mockito.ArgumentMatchers.any(java.net.http.HttpRequest.class),org.mockito.ArgumentMatchers.<java.net.http.HttpResponse.BodyHandler<java.io.InputStream>>any())).thenAnswer(ignored->{
+      int call=calls.incrementAndGet();
+      if(call==1||call==4){String current=(String)org.springframework.test.util.ReflectionTestUtils.getField(solver,"session");return solverResponse(200,mapper.writeValueAsString(java.util.Map.of("status","ok","session",current)));}
+      if(call<=6)return solverResponse(500,"{\"status\":\"error\",\"message\":\"invalid session id\"}");
+      throw new AssertionError("Unexpected retry");
+    });
+    var failure=assertThrows(IllegalStateException.class,()->solver.fetch("https://tracker.gg/valorant/leaderboards/ranked/all/default?platform=pc&region=ap&act="+ACT+"&page=1"));
+    assertEquals("FlareSolverr browser session remains invalid after one recovery",failure.getMessage());assertEquals(6,calls.get());
+  }
   @Test
   @org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable(named="LEADERBOARD_LIVE_TEST", matches="true")
   void fetchesRealTrackerPageUsingJavaHttpClient() throws Exception {
